@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+
+# local-only: per-session worklog (AI session notes stay out of the public repo)
+WORKLOG.md

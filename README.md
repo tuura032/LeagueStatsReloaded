@@ -100,4 +100,3 @@ manual re-enable each August.
 | `data/` | committed raw + computed JSON per season |
 | `docs/` | the rendered static site (what Pages serves) |
 | `SPEC.md` | the v2 spec — scoring rule, architecture, task list |
-| `WORKLOG.md` | one entry per work session |
