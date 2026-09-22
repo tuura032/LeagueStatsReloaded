@@ -97,6 +97,21 @@
             <div class="sidebar-sticky">
               <ul class="nav flex-column">
                 <li class="nav-item">
+                  <!-- L9 — season picker. Plain links, relative to this
+                       page: "base" is "" at the root and "../" in a season
+                       subdirectory; the newest season's URL is the root. -->
+                  <select class="form-control form-control-sm mb-2" aria-label="Season"
+                          onchange="if (this.value) location.href = this.value">
+                    {% for s in seasons %}
+                    {% if s == season %}
+                    <option selected disabled>{{ s }}{% if s == current_season %} (current){% endif %}</option>
+                    {% else %}
+                    <option value="{{ base }}{% if s != current_season %}{{ s }}/{% endif %}">{{ s }}{% if s == current_season %} (current){% endif %}</option>
+                    {% endif %}
+                    {% endfor %}
+                  </select>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link{% if active_page == 'index.html' %} active{% endif %}" href="index.html">
                     <span data-feather="home"></span>
                     Home{% if active_page == 'index.html' %} <span class="sr-only">(current)</span>{% endif %}

@@ -99,6 +99,35 @@
             <div class="sidebar-sticky">
               <ul class="nav flex-column">
                 <li class="nav-item">
+                  <!-- L9 — season picker. Plain links, relative to this
+                       page: "base" is "" at the root and "../" in a season
+                       subdirectory; the newest season's URL is the root. -->
+                  <select class="form-control form-control-sm mb-2" aria-label="Season"
+                          onchange="if (this.value) location.href = this.value">
+                    
+                    
+                    <option selected disabled>2026 (current)</option>
+                    
+                    
+                    
+                    <option value="2025/">2025</option>
+                    
+                    
+                    
+                    <option value="2024/">2024</option>
+                    
+                    
+                    
+                    <option value="2023/">2023</option>
+                    
+                    
+                    
+                    <option value="2022/">2022</option>
+                    
+                    
+                  </select>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link" href="index.html">
                     <span data-feather="home"></span>
                     Home
