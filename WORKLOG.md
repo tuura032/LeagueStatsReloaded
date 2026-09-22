@@ -461,3 +461,16 @@ no stashes, nothing unpushed).
 then `git push -u origin main`.
 
 **Next: L7 — GitHub Action + Pages.** Not started.
+
+### 2026-09-22 — README rewrite (L8 item, done early at owner's request)
+
+The 2018 README described the dead Flask/Heroku/Postgres app. Rewrote it
+for v2: what the project is, the dual-point scoring rule (tie behavior,
+regular-season-only), the fetch → compute → build pipeline, local
+development (deps, commands, tests), deployment (Pages + daily workflow +
+the 60-day inactivity caveat, §7), and a file map.
+
+Also confirmed the re-baseline push landed clean: `main` @ 6c1d275 on
+`LeagueStatsReloaded`, set as default branch.
+
+**Next: L7 — GitHub Action + Pages.** Not started.
