@@ -1,9 +1,9 @@
 {
   "season": 2026,
   "league": "877873",
-  "updated": "2026-09-18T19:25:04Z",
+  "updated": "2026-09-22T14:18:32Z",
   "regularSeasonWeeks": 14,
-  "throughWeek": 1,
+  "throughWeek": 2,
   "weeks": [
     {
       "week": 1,
@@ -138,6 +138,140 @@
           "weekPoints": 2
         }
       ]
+    },
+    {
+      "week": 2,
+      "scoreToBeat": 91.4,
+      "games": [
+        {
+          "home": 11,
+          "away": 1,
+          "homeScore": 114.5,
+          "awayScore": 176.7,
+          "winner": 1
+        },
+        {
+          "home": 8,
+          "away": 5,
+          "homeScore": 67.2,
+          "awayScore": 91.3,
+          "winner": 5
+        },
+        {
+          "home": 7,
+          "away": 10,
+          "homeScore": 130.2,
+          "awayScore": 91.4,
+          "winner": 7
+        },
+        {
+          "home": 9,
+          "away": 3,
+          "homeScore": 92.8,
+          "awayScore": 78.0,
+          "winner": 9
+        },
+        {
+          "home": 12,
+          "away": 6,
+          "homeScore": 82.9,
+          "awayScore": 137.7,
+          "winner": 6
+        },
+        {
+          "home": 2,
+          "away": 4,
+          "homeScore": 115.3,
+          "awayScore": 78.1,
+          "winner": 2
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 176.7,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 2,
+          "score": 115.3,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 3,
+          "score": 78.0,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 4,
+          "score": 78.1,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 5,
+          "score": 91.3,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 6,
+          "score": 137.7,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 7,
+          "score": 130.2,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 8,
+          "score": 67.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 9,
+          "score": 92.8,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 10,
+          "score": 91.4,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 11,
+          "score": 114.5,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 12,
+          "score": 82.9,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        }
+      ]
     }
   ],
   "standings": [
@@ -146,168 +280,168 @@
       "teamId": 6,
       "name": "Team Sugar",
       "owner": "Jamie Sugar",
-      "points": 2,
-      "h2hPoints": 1,
-      "topHalfPoints": 1,
-      "record": "1-0",
-      "pointsFor": 154.3,
-      "pointsAgainst": 123.3,
-      "averageScore": 154.3,
-      "avgLast3": 154.3
+      "points": 4,
+      "h2hPoints": 2,
+      "topHalfPoints": 2,
+      "record": "2-0",
+      "pointsFor": 292.0,
+      "pointsAgainst": 206.2,
+      "averageScore": 146.0,
+      "avgLast3": 146.0
     },
     {
       "rank": 2,
-      "teamId": 11,
-      "name": "De'Von to Break Free",
-      "owner": "Pat Benner",
-      "points": 2,
-      "h2hPoints": 1,
-      "topHalfPoints": 1,
-      "record": "1-0",
-      "pointsFor": 149.9,
-      "pointsAgainst": 122.9,
-      "averageScore": 149.9,
-      "avgLast3": 149.9
-    },
-    {
-      "rank": 3,
       "teamId": 9,
       "name": "Wyld Stallyns",
       "owner": "Daniel Sharp",
-      "points": 2,
+      "points": 4,
+      "h2hPoints": 2,
+      "topHalfPoints": 2,
+      "record": "2-0",
+      "pointsFor": 213.6,
+      "pointsAgainst": 173.9,
+      "averageScore": 106.8,
+      "avgLast3": 106.8
+    },
+    {
+      "rank": 3,
+      "teamId": 11,
+      "name": "De'Von to Break Free",
+      "owner": "Pat Benner",
+      "points": 3,
       "h2hPoints": 1,
-      "topHalfPoints": 1,
-      "record": "1-0",
-      "pointsFor": 120.8,
-      "pointsAgainst": 95.9,
-      "averageScore": 120.8,
-      "avgLast3": 120.8
+      "topHalfPoints": 2,
+      "record": "1-1",
+      "pointsFor": 264.4,
+      "pointsAgainst": 299.6,
+      "averageScore": 132.2,
+      "avgLast3": 132.2
     },
     {
       "rank": 4,
-      "teamId": 12,
-      "name": "Praise JA",
-      "owner": "Dav\u00edd Huisken",
-      "points": 2,
-      "h2hPoints": 1,
-      "topHalfPoints": 1,
-      "record": "1-0",
-      "pointsFor": 107.9,
-      "pointsAgainst": 93.4,
-      "averageScore": 107.9,
-      "avgLast3": 107.9
-    },
-    {
-      "rank": 5,
       "teamId": 7,
       "name": "Daniel's Driven Team",
       "owner": "Daniel Senger",
-      "points": 1,
-      "h2hPoints": 0,
+      "points": 3,
+      "h2hPoints": 1,
+      "topHalfPoints": 2,
+      "record": "1-1",
+      "pointsFor": 253.5,
+      "pointsAgainst": 245.7,
+      "averageScore": 126.8,
+      "avgLast3": 126.8
+    },
+    {
+      "rank": 5,
+      "teamId": 1,
+      "name": "Walker, Kenneth Ranger",
+      "owner": "Paul Tuura",
+      "points": 2,
+      "h2hPoints": 1,
       "topHalfPoints": 1,
-      "record": "0-1",
-      "pointsFor": 123.3,
-      "pointsAgainst": 154.3,
-      "averageScore": 123.3,
-      "avgLast3": 123.3
+      "record": "1-1",
+      "pointsFor": 268.0,
+      "pointsAgainst": 209.5,
+      "averageScore": 134.0,
+      "avgLast3": 134.0
     },
     {
       "rank": 6,
       "teamId": 5,
       "name": "Saquon Deez Nuts",
       "owner": "Nick Kubit",
-      "points": 1,
-      "h2hPoints": 0,
+      "points": 2,
+      "h2hPoints": 1,
       "topHalfPoints": 1,
-      "record": "0-1",
-      "pointsFor": 122.9,
-      "pointsAgainst": 149.9,
-      "averageScore": 122.9,
-      "avgLast3": 122.9
+      "record": "1-1",
+      "pointsFor": 214.2,
+      "pointsAgainst": 217.1,
+      "averageScore": 107.1,
+      "avgLast3": 107.1
     },
     {
       "rank": 7,
-      "teamId": 3,
-      "name": "Chat, Draft My Team",
-      "owner": "Sam Engsberg",
-      "points": 1,
+      "teamId": 2,
+      "name": "Taylor Sailors",
+      "owner": "Casey Pirsig",
+      "points": 2,
       "h2hPoints": 1,
-      "topHalfPoints": 0,
-      "record": "1-0",
-      "pointsFor": 104.2,
-      "pointsAgainst": 101.8,
-      "averageScore": 104.2,
-      "avgLast3": 104.2
+      "topHalfPoints": 1,
+      "record": "1-1",
+      "pointsFor": 208.7,
+      "pointsAgainst": 186.0,
+      "averageScore": 104.3,
+      "avgLast3": 104.3
     },
     {
       "rank": 8,
+      "teamId": 12,
+      "name": "Praise JA",
+      "owner": "Dav\u00edd Huisken",
+      "points": 2,
+      "h2hPoints": 1,
+      "topHalfPoints": 1,
+      "record": "1-1",
+      "pointsFor": 190.8,
+      "pointsAgainst": 231.1,
+      "averageScore": 95.4,
+      "avgLast3": 95.4
+    },
+    {
+      "rank": 9,
       "teamId": 10,
       "name": "Team Hildebrandt",
       "owner": "Ethan Hildebrandt",
       "points": 1,
       "h2hPoints": 1,
       "topHalfPoints": 0,
-      "record": "1-0",
-      "pointsFor": 95.0,
-      "pointsAgainst": 91.3,
-      "averageScore": 95.0,
-      "avgLast3": 95.0
-    },
-    {
-      "rank": 9,
-      "teamId": 8,
-      "name": "C0KER COLA",
-      "owner": "Eric Monson",
-      "points": 0,
-      "h2hPoints": 0,
-      "topHalfPoints": 0,
-      "record": "0-1",
-      "pointsFor": 101.8,
-      "pointsAgainst": 104.2,
-      "averageScore": 101.8,
-      "avgLast3": 101.8
+      "record": "1-1",
+      "pointsFor": 186.4,
+      "pointsAgainst": 221.5,
+      "averageScore": 93.2,
+      "avgLast3": 93.2
     },
     {
       "rank": 10,
+      "teamId": 3,
+      "name": "Chat, Draft My Team",
+      "owner": "Sam Engsberg",
+      "points": 1,
+      "h2hPoints": 1,
+      "topHalfPoints": 0,
+      "record": "1-1",
+      "pointsFor": 182.2,
+      "pointsAgainst": 194.6,
+      "averageScore": 91.1,
+      "avgLast3": 91.1
+    },
+    {
+      "rank": 11,
       "teamId": 4,
       "name": "Ultimate Fulfillment",
       "owner": "Nicholas Polansky",
       "points": 0,
       "h2hPoints": 0,
       "topHalfPoints": 0,
-      "record": "0-1",
-      "pointsFor": 95.9,
-      "pointsAgainst": 120.8,
-      "averageScore": 95.9,
-      "avgLast3": 95.9
-    },
-    {
-      "rank": 11,
-      "teamId": 2,
-      "name": "Taylor Sailors",
-      "owner": "Casey Pirsig",
-      "points": 0,
-      "h2hPoints": 0,
-      "topHalfPoints": 0,
-      "record": "0-1",
-      "pointsFor": 93.4,
-      "pointsAgainst": 107.9,
-      "averageScore": 93.4,
-      "avgLast3": 93.4
+      "record": "0-2",
+      "pointsFor": 174.0,
+      "pointsAgainst": 236.1,
+      "averageScore": 87.0,
+      "avgLast3": 87.0
     },
     {
       "rank": 12,
-      "teamId": 1,
-      "name": "Walker, Kenneth Ranger",
-      "owner": "Paul Tuura",
+      "teamId": 8,
+      "name": "C0KER COLA",
+      "owner": "Eric Monson",
       "points": 0,
       "h2hPoints": 0,
       "topHalfPoints": 0,
-      "record": "0-1",
-      "pointsFor": 91.3,
-      "pointsAgainst": 95.0,
-      "averageScore": 91.3,
-      "avgLast3": 91.3
+      "record": "0-2",
+      "pointsFor": 169.0,
+      "pointsAgainst": 195.5,
+      "averageScore": 84.5,
+      "avgLast3": 84.5
     }
   ]
 }
