@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Weekly Update
+{% endblock %}
+
+{% block main %}
+    <div id="main-div" margin-top="50px">
+        <h1>Weekly Update
+
+        </h1>
+    </div>
+    <div id="update-forms">
+        <form action="/weeklyupdate" method="POST">
+            <input autocomplete=off min="9" max="16" type="number" name="week" placeholder="enter a week number 9  -Current Week" style="width: 200px" required>
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </form>
+    </div>
+{% endblock %}

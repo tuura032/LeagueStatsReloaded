@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/dashboard.css">
+    <style>
+      /* L5 — data-driven sidebar roster + chart page. Scoped to the new
+         components; static/dashboard.css is untouched. */
+      .sidebar-owner {
+        display: flex;
+        gap: .5rem;
+        padding: .3rem .75rem .3rem 1rem;
+        border-radius: .25rem;
+      }
+      .sidebar-owner:hover {
+        background-color: rgba(0, 0, 0, .04);
+      }
+      .sidebar-owner-rank {
+        flex: 0 0 1.1rem;
+        padding-top: .15rem;
+        font-size: .7rem;
+        font-weight: 600;
+        color: #adb5bd;
+        text-align: right;
+      }
+      .sidebar-owner-meta {
+        min-width: 0;
+      }
+      .sidebar-owner-name {
+        display: block;
+        font-size: .8rem;
+        font-weight: 500;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-owner-team {
+        display: block;
+        font-size: .7rem;
+        color: #868e96;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .chart-wrap {
+        position: relative;
+        height: 420px;
+        width: 100%;
+      }
+      @media (max-width: 768px) {
+        .chart-wrap {
+          height: 320px;
+        }
+      }
+      .stat-label {
+        font-size: .7rem;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #868e96;
+      }
+      .stat-value {
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: #212529;
+      }
+      .stat-sub {
+        font-size: .75rem;
+        color: #868e96;
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="static/fffIcon.png"/>
+
+    <title>
+    Fantasy Football Fantasy
+</title>
+  </head>
+  <body>
+    <nav id="navbar" class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="index.html">Fantasy Football Fantasy</a>
+      <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search" id="searchbar">
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          <a class="nav-link" href="#">Sign out</a>
+        </li>
+      </ul>
+    </nav>
+  
+      <div class="container-fluid">
+        <div class="row">
+          <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+              <ul class="nav flex-column">
+                <li class="nav-item">
+                  <a class="nav-link active" href="index.html">
+                    <span data-feather="home"></span>
+                    Home <span class="sr-only">(current)</span>
+                  </a>
+                </li>
+                <li class="nav-item" >
+                  <a class="nav-link dropdown-toggle" href="#ownerSubmenu" data-toggle="collapse" aria-expanded="false">
+                    <span data-feather="users"></span>
+                    Owners
+                  </a>
+                  <ul class="collapse list-unstyled sidebar-owners" id="ownerSubmenu">
+                    
+                    <li class="sidebar-owner" title="Jamie Sugar — Team Sugar">
+                      <span class="sidebar-owner-rank">1</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Jamie Sugar</span>
+                        <span class="sidebar-owner-team">Team Sugar</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Pat Benner — De&#39;Von to Break Free">
+                      <span class="sidebar-owner-rank">2</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Pat Benner</span>
+                        <span class="sidebar-owner-team">De&#39;Von to Break Free</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Daniel Sharp — Wyld Stallyns">
+                      <span class="sidebar-owner-rank">3</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Daniel Sharp</span>
+                        <span class="sidebar-owner-team">Wyld Stallyns</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Davíd Huisken — Praise JA">
+                      <span class="sidebar-owner-rank">4</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Davíd Huisken</span>
+                        <span class="sidebar-owner-team">Praise JA</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Daniel Senger — Daniel&#39;s Driven Team">
+                      <span class="sidebar-owner-rank">5</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Daniel Senger</span>
+                        <span class="sidebar-owner-team">Daniel&#39;s Driven Team</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Nick Kubit — Saquon Deez Nuts">
+                      <span class="sidebar-owner-rank">6</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Nick Kubit</span>
+                        <span class="sidebar-owner-team">Saquon Deez Nuts</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Sam Engsberg — Chat, Draft My Team">
+                      <span class="sidebar-owner-rank">7</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Sam Engsberg</span>
+                        <span class="sidebar-owner-team">Chat, Draft My Team</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Ethan Hildebrandt — Team Hildebrandt">
+                      <span class="sidebar-owner-rank">8</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Ethan Hildebrandt</span>
+                        <span class="sidebar-owner-team">Team Hildebrandt</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Eric Monson — C0KER COLA">
+                      <span class="sidebar-owner-rank">9</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Eric Monson</span>
+                        <span class="sidebar-owner-team">C0KER COLA</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Nicholas Polansky — Ultimate Fulfillment">
+                      <span class="sidebar-owner-rank">10</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Nicholas Polansky</span>
+                        <span class="sidebar-owner-team">Ultimate Fulfillment</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Casey Pirsig — Taylor Sailors">
+                      <span class="sidebar-owner-rank">11</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Casey Pirsig</span>
+                        <span class="sidebar-owner-team">Taylor Sailors</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Paul Tuura — Walker, Kenneth Ranger">
+                      <span class="sidebar-owner-rank">12</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Paul Tuura</span>
+                        <span class="sidebar-owner-team">Walker, Kenneth Ranger</span>
+                      </span>
+                    </li>
+                    
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="playoffs.html">
+                    <span data-feather="bar-chart-2"></span>
+                    Playoffs and Prizes
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="graph.html">
+                    <span data-feather="layers"></span>
+                    Stats
+                  </a>
+                </li>
+              </ul>
+  
+            </div>
+          </nav>
+  
+          <main role="main" class="ml-sm-auto col-lg-10 px-4">
+  
+            
+
+    <style>
+      /* L6 — sortable standings headers. The dead v1 sort route links
+         (/total_wins, /total_points, /average_score, /h2h, /top6, /) are
+         replaced by click-to-sort headers (static/js/hello.js). Scoped
+         here; static/dashboard.css is untouched. */
+      #standings-table th.sortable {
+        cursor: pointer;
+        user-select: none;
+      }
+      #standings-table th.sortable::after {
+        content: "\2195"; /* up-down arrow: sortable */
+        margin-left: .3em;
+        font-size: .8em;
+        color: #adb5bd;
+      }
+      #standings-table th.sortable:hover::after {
+        color: #495057;
+      }
+      #standings-table th.sortable.asc::after {
+        content: "\25B2"; /* black up-pointing triangle */
+        color: #495057;
+      }
+      #standings-table th.sortable.desc::after {
+        content: "\25BC"; /* black down-pointing triangle */
+        color: #495057;
+      }
+    </style>
+
+    <div class=" justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <div id="secretnav">
+        <h1>Mobile Navigation:</h1>
+          <ul>
+          <a href="/">Home</a>    <a href="/playoffs">Playoffs and Prizes</a>    <a href="/stats">Stats</a>
+          </ul>
+      </div>
+      <h1 class="h2"></h1>
+      
+    </div>
+
+
+            <h3>Current Rankings Through Week 1</h3> 
+            <div class="table-responsive">
+              <table class="table table-striped table-sm" id="standings-table">
+                <thead>
+                  <tr>
+                    <th class="sortable">Rank</th>
+                    <th>Owner</th>
+                    <th class="sortable">Total Wins</th>
+                    <th class="sortable">Total Points</th>
+                    <th class="sortable">Average Score</th>
+                    <th>Avg Last 3</th>
+                    <th class="sortable">H2H Wins</th>
+                    <th class="sortable">Top Six Finishes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  
+                    <tr> 
+                      <td>1</td>
+                      <td>Jamie Sugar</td>
+                      <td>2</td>
+                      <td>154.3</td>
+                      <td>154.3</td>
+                      <td>154</td>
+                      <td>1</td>
+                      <td>1</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>2</td>
+                      <td>Pat Benner</td>
+                      <td>2</td>
+                      <td>149.9</td>
+                      <td>149.9</td>
+                      <td>150</td>
+                      <td>1</td>
+                      <td>1</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>3</td>
+                      <td>Daniel Sharp</td>
+                      <td>2</td>
+                      <td>120.8</td>
+                      <td>120.8</td>
+                      <td>121</td>
+                      <td>1</td>
+                      <td>1</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>4</td>
+                      <td>Davíd Huisken</td>
+                      <td>2</td>
+                      <td>107.9</td>
+                      <td>107.9</td>
+                      <td>108</td>
+                      <td>1</td>
+                      <td>1</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>5</td>
+                      <td>Daniel Senger</td>
+                      <td>1</td>
+                      <td>123.3</td>
+                      <td>123.3</td>
+                      <td>123</td>
+                      <td>0</td>
+                      <td>1</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>6</td>
+                      <td>Nick Kubit</td>
+                      <td>1</td>
+                      <td>122.9</td>
+                      <td>122.9</td>
+                      <td>123</td>
+                      <td>0</td>
+                      <td>1</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>7</td>
+                      <td>Sam Engsberg</td>
+                      <td>1</td>
+                      <td>104.2</td>
+                      <td>104.2</td>
+                      <td>104</td>
+                      <td>1</td>
+                      <td>0</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>8</td>
+                      <td>Ethan Hildebrandt</td>
+                      <td>1</td>
+                      <td>95.0</td>
+                      <td>95.0</td>
+                      <td>95</td>
+                      <td>1</td>
+                      <td>0</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>9</td>
+                      <td>Eric Monson</td>
+                      <td>0</td>
+                      <td>101.8</td>
+                      <td>101.8</td>
+                      <td>102</td>
+                      <td>0</td>
+                      <td>0</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>10</td>
+                      <td>Nicholas Polansky</td>
+                      <td>0</td>
+                      <td>95.9</td>
+                      <td>95.9</td>
+                      <td>96</td>
+                      <td>0</td>
+                      <td>0</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>11</td>
+                      <td>Casey Pirsig</td>
+                      <td>0</td>
+                      <td>93.4</td>
+                      <td>93.4</td>
+                      <td>93</td>
+                      <td>0</td>
+                      <td>0</td>
+                    </tr>
+                  
+                    <tr> 
+                      <td>12</td>
+                      <td>Paul Tuura</td>
+                      <td>0</td>
+                      <td>91.3</td>
+                      <td>91.3</td>
+                      <td>91</td>
+                      <td>0</td>
+                      <td>0</td>
+                    </tr>
+                  
+                </tbody>
+              </table>
+            </div>
+              
+            
+
+            <nav aria-label="Page navigation example">
+              <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                  <a class="page-link" href="#" tabindex="-1">VIEW WEEK</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="/1">1</a></li>
+                <li class="page-item"><a class="page-link" href="/2">2</a></li>
+                <li class="page-item"><a class="page-link" href="/3">3</a></li>
+                <li class="page-item"><a class="page-link" href="/4">4</a></li>
+                <li class="page-item"><a class="page-link" href="/5">5</a></li>
+                <li class="page-item"><a class="page-link" href="/6">6</a></li>
+                <li class="page-item"><a class="page-link" href="/7">7</a></li>
+                <li class="page-item"><a class="page-link" href="/8">8</a></li>
+                <li class="page-item"><a class="page-link" href="/9">9</a></li>
+                <li class="page-item"><a class="page-link" href="/10">10</a></li>
+                <li class="page-item"><a class="page-link" href="/11">11</a></li>
+                <li class="page-item"><a class="page-link" href="/12">12</a></li>
+                <li class="page-item"><a class="page-link" href="/13">13</a></li>
+              </ul>
+            </nav>
+
+            <div>
+              <p>New Features</p>
+              <button type="button" id="myButton" onclick="myFunction()">Click me!
+              </button>
+            </div>
+
+            <h3 id="demo">JS Table</h3> 
+            <div class="table-responsive">
+              <table class="table table-striped table-sm">
+                <thead>
+                  <tr>
+                    <th><a href="javascript:void(0)">Column 1</a></th>
+                    <th><a href="javascript:void(0)">Column 2</a></th>
+                    <th><a href="javascript:void(0)">Column 3</a></th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <tr> 
+                      <td>Row 1, Coloumn 1</td>
+                      <td>Row 1, Coloumn 2</td>
+                      <td>Row 1, Coloumn 3</td>
+                    </tr>
+                    <tr> 
+                      <td>Row 2, Coloumn 1</td>
+                      <td>Row 2, Coloumn 2</td>
+                      <td>Row 2, Coloumn 3</td>
+                    </tr>
+                    <tr> 
+                      <td>Row 3, Coloumn 1</td>
+                      <td>Row 3, Coloumn 2</td>
+                      <td>Row 3, Coloumn 3</td>
+                    </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <script type="text/javascript" src="static/js/hello.js">
+            </script>
+            
+          
+            
+            
+          </main>
+        </div>
+      </div>
+  
+      <!-- Bootstrap core JavaScript
+      ================================================== -->
+      <!-- Placed at the end of the document so the pages load faster -->
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+      <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+      <!--<script src="/js/popper.min.js"></script>
+      <script src="/js/bootstrap.min.js"></script>-->
+  
+      <!-- Icons -->
+      <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+      <script>
+        feather.replace()
+      </script>
+  
+      <!-- Graphs (L5: dataset rendered from data/standings-<season>.json) -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+      <script>
+        
+        
+        
+          
+        
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+          
+          
+        
+        var chartData = {"datasets": [{"backgroundColor": "#0072B2", "borderColor": "#0072B2", "data": [154.3], "hidden": false, "label": "Jamie Sugar", "pointBackgroundColor": "#0072B2", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#D55E00", "borderColor": "#D55E00", "data": [149.9], "hidden": false, "label": "Pat Benner", "pointBackgroundColor": "#D55E00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#009E73", "borderColor": "#009E73", "data": [120.8], "hidden": false, "label": "Daniel Sharp", "pointBackgroundColor": "#009E73", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#E69F00", "borderColor": "#E69F00", "data": [107.9], "hidden": true, "label": "Dav\u00edd Huisken", "pointBackgroundColor": "#E69F00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#CC79A7", "borderColor": "#CC79A7", "data": [123.3], "hidden": true, "label": "Daniel Senger", "pointBackgroundColor": "#CC79A7", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#56B4E9", "borderColor": "#56B4E9", "data": [122.9], "hidden": true, "label": "Nick Kubit", "pointBackgroundColor": "#56B4E9", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#F0E442", "borderColor": "#F0E442", "data": [104.2], "hidden": true, "label": "Sam Engsberg", "pointBackgroundColor": "#F0E442", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#999999", "borderColor": "#999999", "data": [95.0], "hidden": true, "label": "Ethan Hildebrandt", "pointBackgroundColor": "#999999", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#882255", "borderColor": "#882255", "data": [101.8], "hidden": true, "label": "Eric Monson", "pointBackgroundColor": "#882255", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#44AA99", "borderColor": "#44AA99", "data": [95.9], "hidden": true, "label": "Nicholas Polansky", "pointBackgroundColor": "#44AA99", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#994499", "borderColor": "#994499", "data": [93.4], "hidden": true, "label": "Casey Pirsig", "pointBackgroundColor": "#994499", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#332288", "borderColor": "#332288", "data": [91.3], "hidden": true, "label": "Paul Tuura", "pointBackgroundColor": "#332288", "pointBorderColor": "#fff", "pointBorderWidth": 1}], "labels": ["Wk 1"]};
+        var ctx = document.getElementById("myChart");
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              hover: { mode: 'nearest', intersect: false },
+              elements: {
+                line: { borderWidth: 2, tension: 0 },
+                point: { radius: 2.5, hoverRadius: 6, hitRadius: 10 }
+              },
+              scales: {
+                xAxes: [{
+                  gridLines: { display: false },
+                  ticks: { fontColor: '#868e96' }
+                }],
+                yAxes: [{
+                  gridLines: { color: 'rgba(0, 0, 0, .06)' },
+                  ticks: { fontColor: '#868e96', beginAtZero: false }
+                }]
+              },
+              legend: {
+                position: 'bottom',
+                labels: {
+                  usePointStyle: true,
+                  pointStyle: 'circle',
+                  boxWidth: 8,
+                  fontColor: '#495057',
+                  padding: 12
+                }
+              },
+              tooltips: {
+                mode: 'nearest',
+                intersect: false,
+                backgroundColor: 'rgba(33, 37, 41, .92)',
+                titleFontStyle: 'normal',
+                bodySpacing: 2,
+                callbacks: {
+                  label: function (item) {
+                    return ' ' + item.dataset.label + ': ' + item.yLabel;
+                  }
+                }
+              }
+            }
+          });
+        }
+      </script>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html>

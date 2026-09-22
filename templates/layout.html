@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/dashboard.css">
+    <style>
+      /* L5 — data-driven sidebar roster + chart page. Scoped to the new
+         components; static/dashboard.css is untouched. */
+      .sidebar-owner {
+        display: flex;
+        gap: .5rem;
+        padding: .3rem .75rem .3rem 1rem;
+        border-radius: .25rem;
+      }
+      .sidebar-owner:hover {
+        background-color: rgba(0, 0, 0, .04);
+      }
+      .sidebar-owner-rank {
+        flex: 0 0 1.1rem;
+        padding-top: .15rem;
+        font-size: .7rem;
+        font-weight: 600;
+        color: #adb5bd;
+        text-align: right;
+      }
+      .sidebar-owner-meta {
+        min-width: 0;
+      }
+      .sidebar-owner-name {
+        display: block;
+        font-size: .8rem;
+        font-weight: 500;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-owner-team {
+        display: block;
+        font-size: .7rem;
+        color: #868e96;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .chart-wrap {
+        position: relative;
+        height: 420px;
+        width: 100%;
+      }
+      @media (max-width: 768px) {
+        .chart-wrap {
+          height: 320px;
+        }
+      }
+      .stat-label {
+        font-size: .7rem;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #868e96;
+      }
+      .stat-value {
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: #212529;
+      }
+      .stat-sub {
+        font-size: .75rem;
+        color: #868e96;
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="static/fffIcon.png"/>
+
+    <title>{% block title %}{% endblock %}</title>
+  </head>
+  <body>
+    <nav id="navbar" class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="index.html">Fantasy Football Fantasy</a>
+      <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search" id="searchbar">
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          <a class="nav-link" href="#">Sign out</a>
+        </li>
+      </ul>
+    </nav>
+  
+      <div class="container-fluid">
+        <div class="row">
+          <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+              <ul class="nav flex-column">
+                <li class="nav-item">
+                  <a class="nav-link{% if active_page == 'index.html' %} active{% endif %}" href="index.html">
+                    <span data-feather="home"></span>
+                    Home{% if active_page == 'index.html' %} <span class="sr-only">(current)</span>{% endif %}
+                  </a>
+                </li>
+                <li class="nav-item" >
+                  <a class="nav-link dropdown-toggle" href="#ownerSubmenu" data-toggle="collapse" aria-expanded="false">
+                    <span data-feather="users"></span>
+                    Owners
+                  </a>
+                  <ul class="collapse list-unstyled sidebar-owners" id="ownerSubmenu">
+                    {% for info in standings %}
+                    <li class="sidebar-owner" title="{{ info.owner }} — {{ info.name }}">
+                      <span class="sidebar-owner-rank">{{ info.rank }}</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">{{ info.owner }}</span>
+                        <span class="sidebar-owner-team">{{ info.name }}</span>
+                      </span>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link{% if active_page == 'playoffs.html' %} active{% endif %}" href="playoffs.html">
+                    <span data-feather="bar-chart-2"></span>
+                    Playoffs and Prizes{% if active_page == 'playoffs.html' %} <span class="sr-only">(current)</span>{% endif %}
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link{% if active_page == 'graph.html' %} active{% endif %}" href="graph.html">
+                    <span data-feather="layers"></span>
+                    Stats{% if active_page == 'graph.html' %} <span class="sr-only">(current)</span>{% endif %}
+                  </a>
+                </li>
+              </ul>
+  
+            </div>
+          </nav>
+  
+          <main role="main" class="ml-sm-auto col-lg-10 px-4">
+  
+            {% block main %}{% endblock %}
+            
+            
+          </main>
+        </div>
+      </div>
+  
+      <!-- Bootstrap core JavaScript
+      ================================================== -->
+      <!-- Placed at the end of the document so the pages load faster -->
+      <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+      <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+      <!--<script src="/js/popper.min.js"></script>
+      <script src="/js/bootstrap.min.js"></script>-->
+  
+      <!-- Icons -->
+      <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+      <script>
+        feather.replace()
+      </script>
+  
+      <!-- Graphs (L5: dataset rendered from data/standings-<season>.json) -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+      <script>
+        {% set palette = ['#0072B2', '#D55E00', '#009E73', '#E69F00', '#CC79A7', '#56B4E9',
+                          '#F0E442', '#999999', '#882255', '#44AA99', '#994499', '#332288'] %}
+        {% set chart = {'labels': [], 'datasets': []} %}
+        {% for w in weeks %}
+          {% set _ = chart.labels.append('Wk ' ~ w.week) %}
+        {% endfor %}
+        {% for info in standings %}
+          {% set scores = [] %}
+          {% for w in weeks %}
+            {% set t = w.teams | selectattr('teamId', 'equalto', info.teamId) | first %}
+            {% if t %}{% set _ = scores.append(t.score) %}{% endif %}
+          {% endfor %}
+          {% set color = palette[loop.index0 % (palette | length)] %}
+          {% set _ = chart.datasets.append({
+            'label': info.owner,
+            'data': scores,
+            'borderColor': color,
+            'backgroundColor': color,
+            'pointBackgroundColor': color,
+            'pointBorderColor': '#fff',
+            'pointBorderWidth': 1,
+            'hidden': loop.index0 >= 3
+          }) %}
+        {% endfor %}
+        var chartData = {{ chart | tojson }};
+        var ctx = document.getElementById("myChart");
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              hover: { mode: 'nearest', intersect: false },
+              elements: {
+                line: { borderWidth: 2, tension: 0 },
+                point: { radius: 2.5, hoverRadius: 6, hitRadius: 10 }
+              },
+              scales: {
+                xAxes: [{
+                  gridLines: { display: false },
+                  ticks: { fontColor: '#868e96' }
+                }],
+                yAxes: [{
+                  gridLines: { color: 'rgba(0, 0, 0, .06)' },
+                  ticks: { fontColor: '#868e96', beginAtZero: false }
+                }]
+              },
+              legend: {
+                position: 'bottom',
+                labels: {
+                  usePointStyle: true,
+                  pointStyle: 'circle',
+                  boxWidth: 8,
+                  fontColor: '#495057',
+                  padding: 12
+                }
+              },
+              tooltips: {
+                mode: 'nearest',
+                intersect: false,
+                backgroundColor: 'rgba(33, 37, 41, .92)',
+                titleFontStyle: 'normal',
+                bodySpacing: 2,
+                callbacks: {
+                  label: function (item) {
+                    return ' ' + item.dataset.label + ': ' + item.yLabel;
+                  }
+                }
+              }
+            }
+          });
+        }
+      </script>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html>
