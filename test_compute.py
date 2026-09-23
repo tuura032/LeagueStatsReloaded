@@ -844,11 +844,14 @@ class TestSeasonRecords(unittest.TestCase):
         self.assertEqual(self.rec["cheapWin"]["score"], 115.0)
         self.assertEqual(self.rec["cheapWin"]["owner"], "First9 Last9")
 
-    def test_shootout_and_snoozer_use_combined_points(self):
+    def test_shootout_uses_combined_points(self):
         # Combined totals: 260, 241, 240, 230, 227, 226.
         self.assertEqual(self.rec["shootout"]["combined"], 260.0)
-        self.assertEqual(self.rec["snoozer"]["combined"], 226.0)
-        self.assertEqual(self.rec["snoozer"]["winner"], "First11 Last11")
+
+    def test_there_is_no_snoozer_record(self):
+        # Dropped on purpose: it named two more owners for a bad game on a
+        # page that already has a Lowest Score record.
+        self.assertNotIn("snoozer", self.rec)
 
     def test_no_weeks_gives_no_records(self):
         empty = compute.build_standings(make_raw({}), UPDATED)
@@ -865,15 +868,20 @@ class TestSeasonAwards(unittest.TestCase):
         self.by_key = {a["key"]: a for a in self.stats["awards"]}
 
     def test_the_wall_goes_to_the_best_all_play_record(self):
-        self.assertEqual(self.by_key["wall"]["owner"], "First12 Last12")
+        self.assertEqual(self.by_key["wall"]["owners"], ["First12 Last12"])
 
-    def test_ceiling_and_floor_go_to_the_right_teams(self):
-        self.assertEqual(self.by_key["ceiling"]["owner"], "First12 Last12")
-        self.assertEqual(self.by_key["floor"]["owner"], "First1 Last1")
+    def test_ceiling_goes_to_the_top_scorer(self):
+        self.assertEqual(self.by_key["ceiling"]["owners"], ["First12 Last12"])
+
+    def test_there_is_no_coldest_night_award(self):
+        # Dropped on purpose: the Lowest Score record already names that
+        # owner for that exact week, so awarding it too is the same dig
+        # twice.
+        self.assertNotIn("floor", self.by_key)
 
     def test_every_award_is_fully_populated(self):
         for a in self.stats["awards"]:
-            for field in ("key", "emoji", "name", "blurb", "owner", "detail"):
+            for field in ("key", "emoji", "name", "blurb", "owners", "detail"):
                 self.assertTrue(a.get(field), f"{a.get('key')}.{field}")
 
     def test_awards_are_deterministic_across_runs(self):
@@ -934,11 +942,97 @@ class TestAwardTies(unittest.TestCase):
         self.assertTrue(awards)
         for a in awards:
             self.assertTrue(a["shared"], a["key"])
-            self.assertIn("&", a["owner"])
+            self.assertGreater(len(a["owners"]), 1, a["key"])
 
     def test_a_clear_winner_is_not_flagged_as_shared(self):
         season = compute.build_standings(
             make_raw(full_season_weeks()), UPDATED)
         by_key = {a["key"]: a for a in compute.build_season_stats(season)["awards"]}
         self.assertFalse(by_key["wall"]["shared"])
-        self.assertEqual(by_key["wall"]["owner"], "First12 Last12")
+        self.assertEqual(by_key["wall"]["owners"], ["First12 Last12"])
+
+
+class TestShortNames(unittest.TestCase):
+    """short_names: first name when unambiguous, full name when not.
+
+    The league talks about each other by first name, and team names change
+    yearly while people do not -- so the person is the identity the site
+    leads with.
+    """
+
+    def test_unique_first_names_shorten(self):
+        m = compute.short_names(["Casey Pirsig", "Pat Benner"])
+        self.assertEqual(m["Casey Pirsig"], "Casey")
+        self.assertEqual(m["Pat Benner"], "Pat")
+
+    def test_colliding_first_names_keep_the_full_name(self):
+        # This league really does have both of these.
+        m = compute.short_names(["Daniel Senger", "Daniel Sharp", "Pat Benner"])
+        self.assertEqual(m["Daniel Senger"], "Daniel Senger")
+        self.assertEqual(m["Daniel Sharp"], "Daniel Sharp")
+        self.assertEqual(m["Pat Benner"], "Pat")
+
+    def test_similar_but_distinct_first_names_both_shorten(self):
+        m = compute.short_names(["Nick Kubit", "Nicholas Polansky"])
+        self.assertEqual(m["Nick Kubit"], "Nick")
+        self.assertEqual(m["Nicholas Polansky"], "Nicholas")
+
+    def test_single_word_and_empty_owners_are_safe(self):
+        m = compute.short_names(["Cher", None, ""])
+        self.assertEqual(m["Cher"], "Cher")
+        self.assertNotIn(None, m)
+
+    def test_the_same_owner_listed_twice_still_shortens(self):
+        # Owners repeat across seasons; that is not a collision.
+        m = compute.short_names(["Pat Benner", "Pat Benner"])
+        self.assertEqual(m["Pat Benner"], "Pat")
+
+    def test_join_names(self):
+        self.assertEqual(compute.join_names([]), "")
+        self.assertEqual(compute.join_names(["A"]), "A")
+        self.assertEqual(compute.join_names(["A", "B"]), "A & B")
+        self.assertEqual(compute.join_names(["A", "B", "C"]), "A, B & C")
+
+
+class TestSurgeAndClutch(unittest.TestCase):
+    """The two positive awards added to replace the piled-on negative ones."""
+
+    def test_surge_is_second_half_minus_first_half(self):
+        # Team 1 scores 100 for 3 weeks then 140 for 3 weeks: +40.
+        weeks = {}
+        for w in range(1, 7):
+            base = 100.0 if w <= 3 else 140.0
+            weeks[w] = week_games([base] + [50 + i for i in range(11)], week=w)
+        season = compute.build_standings(make_raw(weeks), UPDATED)
+        prof = compute.scoring_profile(season)
+        self.assertEqual(prof[1]["surge"], 40.0)
+
+    def test_surge_is_none_for_a_short_season(self):
+        weeks = {w: week_games([100 + i for i in range(12)], week=w)
+                 for w in (1, 2)}
+        season = compute.build_standings(make_raw(weeks), UPDATED)
+        prof = compute.scoring_profile(season)
+        self.assertIsNone(prof[1]["surge"])
+
+    def test_close_games_are_counted_under_the_margin(self):
+        # 1v2 decided by 5 (close), 3v4 by 40 (not).
+        wk = [(1, 2, 105.0, 100.0), (3, 4, 140.0, 100.0),
+              (5, 6, 130.0, 110.0), (7, 8, 125.0, 105.0),
+              (9, 10, 115.0, 112.0), (11, 12, 118.0, 108.0)]
+        season = compute.build_standings(make_raw({1: wk}), UPDATED)
+        prof = compute.scoring_profile(season)
+        self.assertEqual(prof[1]["closeGames"], 1)
+        self.assertEqual(prof[1]["closeWins"], 1)
+        self.assertEqual(prof[3]["closeGames"], 0)
+
+    def test_clutch_needs_a_minimum_sample(self):
+        # One close game is not a clutch record.
+        wk = [(1, 2, 105.0, 100.0), (3, 4, 140.0, 100.0),
+              (5, 6, 130.0, 110.0), (7, 8, 125.0, 105.0),
+              (9, 10, 145.0, 112.0), (11, 12, 148.0, 108.0)]
+        season = compute.build_standings(make_raw({1: wk}), UPDATED)
+        prof = compute.scoring_profile(season)
+        self.assertEqual(prof[1]["closeGames"], 1)
+        self.assertIsNone(prof[1]["closeWinPct"])
+        keys = {a["key"] for a in compute.build_season_stats(season)["awards"]}
+        self.assertNotIn("clutch", keys)

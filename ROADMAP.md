@@ -114,7 +114,26 @@ stats — all derived from `weeks[]` with no new ESPN call:
 - **Points Against** — was computed by `compute.py` from the start and had
   never once been rendered.
 - **Weekly highs** — times you led the whole league in a week.
-- **10 named awards** with co-winner handling, and **8 season records**.
+- **11 named awards** with co-winner handling, and **7 season records**.
+
+**Tone pass, same day.** The first cut named the same owner for the same bad
+week three times over (a "Coldest Night" award, a "Lowest score" record, and a
+"Snoozer" record that dragged in two more people). The award and the Snoozer
+record are gone — one factual Lowest Score record stays, since a records
+section without a low is dishonest, but repeating it was piling on. Two
+positive awards replace them: **The Closer** (biggest first-half to
+second-half jump) and **Clutch** (best record in games decided by under 10,
+minimum 3 such games so one squeaker can't win it).
+
+**Display names.** The league talks about each other by first name, and team
+names change yearly while people don't — so the site leads with the person.
+`compute.short_names()` maps each owner to their first name where it's
+unique across every season on file, and keeps the full name where it isn't
+(this league has a Daniel Senger *and* a Daniel Sharp; "Daniel S." wouldn't
+separate them either). Applied via a `short` Jinja filter so the underlying
+owner string stays intact wherever it's an identity key — the pin-your-row
+`data-owner`, the rivalry matrix lookups, the career/rivalry dicts. Team
+names now appear as a muted second line under the owner on Home.
 
 Awards are deliberately **not random**: `build.py` output has to stay
 deterministic or the daily workflow manufactures a commit every morning and

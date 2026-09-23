@@ -21,14 +21,14 @@
         <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900"></th>
         {% for opp in rivalry_owners %}
           <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
-              style="writing-mode: vertical-rl; transform: rotate(180deg);">{{ opp }}</th>
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="{{ opp }}">{{ opp | short }}</th>
         {% endfor %}
       </tr>
     </thead>
     <tbody>
       {% for owner in rivalry_owners %}
         <tr>
-          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">{{ owner }}</th>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="{{ owner }}">{{ owner | short }}</th>
           {% for opp in rivalry_owners %}
             {% if opp == owner %}
               <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>

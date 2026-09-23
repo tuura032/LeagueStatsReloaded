@@ -107,9 +107,22 @@ def main():
         sys.exit(1)
     prizes = json.loads(prizes_path.read_text(encoding="utf-8"))
 
+    # Display names: the league refers to each other by first name, and
+    # team names change yearly while people don't. Built from every owner
+    # across every season at once so a name reads the same on every page.
+    all_owners = {row["owner"]
+                  for season_data in all_standings
+                  for row in season_data["standings"]}
+    short = compute.short_names(all_owners)
+
     env = Environment(loader=FileSystemLoader("templates"),
                       autoescape=select_autoescape())
     env.filters["ordinal"] = ordinal
+    # `short` on a full owner name; `names` on a list of them, joined as
+    # "A", "A & B" or "A, B & C".
+    env.filters["short"] = lambda owner: short.get(owner, owner)
+    env.filters["names"] = lambda owners: compute.join_names(
+        [short.get(o, o) for o in owners])
     docs = Path("docs")
     for season in seasons:
         data = json.loads((data_dir / f"standings-{season}.json").read_text(encoding="utf-8"))

@@ -32,9 +32,9 @@
   <span class="text-2xl" aria-hidden="true">&#127942;</span>
   <span>
     <span class="block text-xs font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">{{ season }} Champion</span>
-    <span class="block text-lg font-semibold text-slate-900 dark:text-white">{{ owner_by_team[playoffs.champion] }}</span>
+    <span class="block text-lg font-semibold text-slate-900 dark:text-white">{{ owner_by_team[playoffs.champion] | short }}</span>
     <span class="block text-xs text-slate-600 dark:text-slate-400">
-      Beat {{ owner_by_team[playoffs.runnerUp] }} {{ playoffs.championScore }}&ndash;{{ playoffs.runnerUpScore }} in the week {{ playoffs.finalWeek }} final &middot; see the full bracket
+      Beat {{ owner_by_team[playoffs.runnerUp] | short }} {{ playoffs.championScore }}&ndash;{{ playoffs.runnerUpScore }} in the week {{ playoffs.finalWeek }} final &middot; see the full bracket
     </span>
   </span>
 </a>
@@ -97,9 +97,13 @@
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">{{ loop.index }}</span>
             {% endif %}
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
-            {{ info.owner }}
+          {# Person first, team name as a muted second line: team names
+             change every season, the people don't, so the owner is the
+             identity the table leads with. #}
+          <td class="px-3 py-2">
+            <span class="font-medium text-slate-900 dark:text-slate-100">{{ info.owner | short }}</span>
             <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+            {% if info.name %}<span class="block truncate text-xs text-slate-400 dark:text-slate-500">{{ info.name }}</span>{% endif %}
           </td>
           {% if has_final_ranks %}
           <td class="px-3 py-2 text-right" data-sort="{{ info.finalRank if info.finalRank else 999 }}">

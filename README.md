@@ -70,7 +70,13 @@ no extra ESPN call, nothing stored beyond `standings-<season>.json`.
   winning from the bottom half.
 - **Season records** — biggest blowout, closest game, high and low scores,
   best score in a loss, worst score in a win, highest and lowest combined.
-- **Season awards** — ten named superlatives, ties shown as co-winners.
+- **Season awards** — eleven named superlatives, ties shown as co-winners.
+
+Owners are shown by first name where that's unambiguous across every season
+on file, and by full name where it isn't (this league has two Daniels).
+Team names appear as a second line under the owner on the standings table:
+teams get renamed every year, the people don't, so the person is the
+identity the site leads with.
 
 Awards are computed by fixed rules and are **not randomised**: `build.py`
 must stay deterministic so the daily workflow commits only when the data

@@ -55,7 +55,7 @@
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
       {% for c in careers %}
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">{{ c.owner }}</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">{{ c.owner | short }}</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ c.seasons }}</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ c.wins }}-{{ c.losses }}{% if c.ties %}-{{ c.ties }}{% endif %}</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ c.careerAverage }}</td>

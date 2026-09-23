@@ -26,6 +26,14 @@ from pathlib import Path
 
 LEAGUE_ID = "877873"
 
+# A game decided by under this many points counts as "close" for the Clutch
+# award; an owner needs at least MIN_CLOSE_GAMES of them to qualify, so one
+# lucky squeaker doesn't win it. MIN_WEEKS_FOR_SPLIT is the minimum season
+# length before a first-half/second-half comparison means anything.
+CLOSE_GAME_MARGIN = 10.0
+MIN_CLOSE_GAMES = 3
+MIN_WEEKS_FOR_SPLIT = 6
+
 
 def current_streak(h2h_seq):
     """Current H2H streak from a chronological list of 1 (won) / 0 (lost or
@@ -535,11 +543,39 @@ def scoring_profile(season):
             if t["topHalf"] and not t["h2h"]:
                 p["unluckyLosses"] += 1
 
+    # Close games: decided by under 10 points. Counted from the matchups
+    # rather than the per-team flags, since margin isn't in w["teams"].
+    for w in season["weeks"]:
+        for g in w["games"]:
+            if g["winner"] is None:
+                continue
+            margin = abs(g["homeScore"] - g["awayScore"])
+            if margin >= CLOSE_GAME_MARGIN:
+                continue
+            for team_id in (g["home"], g["away"]):
+                p = out.setdefault(team_id, {})
+                p["closeGames"] = p.get("closeGames", 0) + 1
+                if g["winner"] == team_id:
+                    p["closeWins"] = p.get("closeWins", 0) + 1
+
     for p in out.values():
-        scores = p.pop("scores")
+        scores = p.pop("scores", [])
         p["stdev"] = round(statistics.pstdev(scores), 1) if len(scores) > 1 else 0.0
         p["high"] = max(scores) if scores else 0.0
         p["low"] = min(scores) if scores else 0.0
+        p.setdefault("closeGames", 0)
+        p.setdefault("closeWins", 0)
+        p["closeWinPct"] = (round(p["closeWins"] / p["closeGames"], 3)
+                            if p["closeGames"] >= MIN_CLOSE_GAMES else None)
+        # Second half vs first half average -- who got hot down the stretch.
+        # Needs enough weeks for the halves to mean anything.
+        if len(scores) >= MIN_WEEKS_FOR_SPLIT:
+            half = len(scores) // 2
+            first_half = sum(scores[:half]) / half
+            second_half = sum(scores[half:]) / (len(scores) - half)
+            p["surge"] = round(second_half - first_half, 1)
+        else:
+            p["surge"] = None
     return out
 
 
@@ -554,7 +590,7 @@ def season_records(season):
     owner = {s["teamId"]: s["owner"] for s in season["standings"]}
 
     blowout = closest = high = low = None
-    tough_loss = cheap_win = shootout = snoozer = None
+    tough_loss = cheap_win = shootout = None
 
     for w in season["weeks"]:
         for g in w["games"]:
@@ -577,8 +613,6 @@ def season_records(season):
                 closest = entry
             if shootout is None or entry["combined"] > shootout["combined"]:
                 shootout = entry
-            if snoozer is None or entry["combined"] < snoozer["combined"]:
-                snoozer = entry
 
             # Highest score that still lost / lowest score that still won.
             if tough_loss is None or lose_score > tough_loss["score"]:
@@ -602,7 +636,7 @@ def season_records(season):
 
     return {"blowout": blowout, "closest": closest, "high": high, "low": low,
             "toughLoss": tough_loss, "cheapWin": cheap_win,
-            "shootout": shootout, "snoozer": snoozer}
+            "shootout": shootout}
 
 
 def _leaders(rows, key, reverse=True):
@@ -623,10 +657,44 @@ def _leaders(rows, key, reverse=True):
 
 def _names(rows):
     """'A', 'A & B', or 'A, B & C' for a list of co-winners."""
-    names = [r["owner"] for r in rows]
+    return join_names([r["owner"] for r in rows])
+
+
+def join_names(names):
+    """'A', 'A & B', or 'A, B & C'."""
+    names = list(names)
+    if not names:
+        return ""
     if len(names) == 1:
         return names[0]
     return ", ".join(names[:-1]) + " & " + names[-1]
+
+
+def short_names(owners):
+    """Map each full owner name to the shortest name that stays unambiguous.
+
+    The league talks about each other by first name, and team names change
+    every year while people do not -- so the person is the identity the site
+    leads with. First name alone wherever it is unique across every season
+    on file; the full name when two owners share one (this league has a
+    Daniel Senger and a Daniel Sharp, and "Daniel S." would not separate
+    them either).
+
+    Computed over *all* seasons at once so a given owner reads the same on
+    every page, rather than shortening on pages where the other Daniel
+    happens not to appear.
+    """
+    by_first = {}
+    for owner in owners:
+        if not owner:
+            continue
+        by_first.setdefault(owner.split()[0], []).append(owner)
+    out = {}
+    for first, group in by_first.items():
+        unique = len(set(group)) == 1
+        for owner in group:
+            out[owner] = first if unique else owner
+    return out
 
 
 def season_awards(season, all_play, profile):
@@ -650,15 +718,22 @@ def season_awards(season, all_play, profile):
                      "weeklyFirsts": pr.get("weeklyFirsts"),
                      "weeklyLasts": pr.get("weeklyLasts"),
                      "luckyWins": pr.get("luckyWins"),
-                     "unluckyLosses": pr.get("unluckyLosses")})
+                     "unluckyLosses": pr.get("unluckyLosses"),
+                     "surge": pr.get("surge"),
+                     "closeWinPct": pr.get("closeWinPct"),
+                     "closeWins": pr.get("closeWins"),
+                     "closeGames": pr.get("closeGames")})
 
     weeks = len(season["weeks"])
     awards = []
 
     def add(key, emoji, name, blurb, winners, detail):
+        # Winners are carried as a list of full owner names; joining and
+        # shortening them for display is the template's job.
         if winners:
             awards.append({"key": key, "emoji": emoji, "name": name,
-                           "blurb": blurb, "owner": _names(winners),
+                           "blurb": blurb,
+                           "owners": [w["owner"] for w in winners],
                            "shared": len(winners) > 1,
                            "detail": detail(winners[0])})
 
@@ -699,10 +774,23 @@ def season_awards(season, all_play, profile):
         _leaders(rows, "high"),
         lambda r: "{} in one week".format(r["high"]))
 
-    add("floor", "\U0001F9CA", "Coldest Night",
-        "The single worst week anyone put up.",
-        _leaders(rows, "low", reverse=False),
-        lambda r: "{} in one week".format(r["low"]))
+    # No "coldest night" award: the Lowest Score record already names that
+    # owner for that exact week, and awarding it too is the same dig twice.
+    # One factual record is a record; repeating it is piling on.
+
+    if any(r["surge"] is not None for r in rows):
+        add("closer", "\U0001F4C8", "The Closer",
+            "Biggest jump from the first half of the season to the second.",
+            _leaders(rows, "surge"),
+            lambda r: "+{} pts per week after the break".format(r["surge"]))
+
+    if any(r["closeWinPct"] is not None for r in rows):
+        add("clutch", "⏱️", "Clutch",
+            "Best record in games decided by under {:g} points.".format(
+                CLOSE_GAME_MARGIN),
+            _leaders(rows, "closeWinPct"),
+            lambda r: "{}-{} in close games".format(
+                r["closeWins"], r["closeGames"] - r["closeWins"]))
 
     if any(r["weeklyFirsts"] for r in rows):
         add("topdog", "\U0001F451", "Week Winner",

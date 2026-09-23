@@ -91,7 +91,7 @@
       <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
         {{ a.name }}{% if a.shared %}<span class="ml-1 rounded bg-slate-200 px-1 py-0.5 text-[.6rem] normal-case dark:bg-slate-700 dark:text-slate-300" title="Tied">shared</span>{% endif %}
       </div>
-      <div class="text-base font-semibold text-slate-900 dark:text-white">{{ a.owner }}</div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">{{ a.owners | names }}</div>
       <div class="text-xs font-medium text-blue-600 dark:text-blue-400">{{ a.detail }}</div>
       <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ a.blurb }}</div>
     </div>
@@ -113,7 +113,7 @@
     <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Biggest blowout</div>
     <div class="mt-1 text-2xl font-semibold text-rose-600 dark:text-rose-400">+{{ r.blowout.margin }}</div>
     <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
-      <strong>{{ r.blowout.winner }}</strong> {{ r.blowout.winnerScore }} &ndash; {{ r.blowout.loserScore }} {{ r.blowout.loser }}
+      <strong>{{ r.blowout.winner | short }}</strong> {{ r.blowout.winnerScore }} &ndash; {{ r.blowout.loserScore }} {{ r.blowout.loser | short }}
     </div>
     <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.blowout.week }}</div>
   </div>
@@ -122,7 +122,7 @@
     <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Closest game</div>
     <div class="mt-1 text-2xl font-semibold text-amber-600 dark:text-amber-400">+{{ r.closest.margin }}</div>
     <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
-      <strong>{{ r.closest.winner }}</strong> {{ r.closest.winnerScore }} &ndash; {{ r.closest.loserScore }} {{ r.closest.loser }}
+      <strong>{{ r.closest.winner | short }}</strong> {{ r.closest.winnerScore }} &ndash; {{ r.closest.loserScore }} {{ r.closest.loser | short }}
     </div>
     <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.closest.week }}</div>
   </div>
@@ -130,14 +130,14 @@
   <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Highest score</div>
     <div class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">{{ r.high.score }}</div>
-    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300"><strong>{{ r.high.owner }}</strong></div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300"><strong>{{ r.high.owner | short }}</strong></div>
     <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.high.week }}</div>
   </div>
 
   <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
     <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Lowest score</div>
     <div class="mt-1 text-2xl font-semibold text-slate-500 dark:text-slate-400">{{ r.low.score }}</div>
-    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300"><strong>{{ r.low.owner }}</strong></div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300"><strong>{{ r.low.owner | short }}</strong></div>
     <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.low.week }}</div>
   </div>
 
@@ -145,7 +145,7 @@
     <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Best score in a loss</div>
     <div class="mt-1 text-2xl font-semibold text-rose-600 dark:text-rose-400">{{ r.toughLoss.score }}</div>
     <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
-      <strong>{{ r.toughLoss.owner }}</strong> ran into {{ r.toughLoss.opponent }} ({{ r.toughLoss.opponentScore }})
+      <strong>{{ r.toughLoss.owner | short }}</strong> ran into {{ r.toughLoss.opponent | short }} ({{ r.toughLoss.opponentScore }})
     </div>
     <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.toughLoss.week }}</div>
   </div>
@@ -154,7 +154,7 @@
     <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Worst score in a win</div>
     <div class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">{{ r.cheapWin.score }}</div>
     <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
-      <strong>{{ r.cheapWin.owner }}</strong> got away with it vs {{ r.cheapWin.opponent }} ({{ r.cheapWin.opponentScore }})
+      <strong>{{ r.cheapWin.owner | short }}</strong> got away with it vs {{ r.cheapWin.opponent | short }} ({{ r.cheapWin.opponentScore }})
     </div>
     <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.cheapWin.week }}</div>
   </div>
@@ -163,19 +163,11 @@
     <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Shootout</div>
     <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{{ r.shootout.combined }}</div>
     <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
-      {{ r.shootout.winner }} {{ r.shootout.winnerScore }} &ndash; {{ r.shootout.loserScore }} {{ r.shootout.loser }}
+      {{ r.shootout.winner | short }} {{ r.shootout.winnerScore }} &ndash; {{ r.shootout.loserScore }} {{ r.shootout.loser | short }}
     </div>
     <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.shootout.week }}, combined</div>
   </div>
 
-  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Snoozer</div>
-    <div class="mt-1 text-2xl font-semibold text-slate-500 dark:text-slate-400">{{ r.snoozer.combined }}</div>
-    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
-      {{ r.snoozer.winner }} {{ r.snoozer.winnerScore }} &ndash; {{ r.snoozer.loserScore }} {{ r.snoozer.loser }}
-    </div>
-    <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.snoozer.week }}, combined</div>
-  </div>
 
 </div>
 {% endif %}
@@ -208,7 +200,7 @@
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
       {% for t in season_stats.table %}
       <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
-        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">{{ t.owner }}</td>
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">{{ t.owner | short }}</td>
         <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">{{ t.record }}</td>
         <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="{{ t.allPlayPct }}">
           {{ t.allPlayWins }}-{{ t.allPlayLosses }}{% if t.allPlayTies %}-{{ t.allPlayTies }}{% endif %}
