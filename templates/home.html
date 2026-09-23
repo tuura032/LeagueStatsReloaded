@@ -31,9 +31,10 @@
 {% else %}
 <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{{ season }} Standings Through Week {{ throughWeek }}</h1>
 {% endif %}
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Tap your name to pin your row.</p>
 
 <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
-  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800" id="standings-table">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="standings-table">
     <thead class="bg-slate-50 dark:bg-slate-900/60">
       <tr>
         <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Rank</th>
@@ -49,8 +50,12 @@
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+      {% set playoff_spots = (standings | length) // 2 %}
       {% for info in standings %}
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        {% set h2h_rate = (info.h2hPoints / throughWeek) if throughWeek else none %}
+        {% set top_rate = (info.topHalfPoints / throughWeek) if throughWeek else none %}
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="{{ info.owner }}">
           <td class="px-3 py-2">
             {% if loop.index <= 3 %}
               {% set rank_colors = {
@@ -63,13 +68,16 @@
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">{{ loop.index }}</span>
             {% endif %}
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">{{ info.owner }}</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            {{ info.owner }}
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ info.points }}</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ info.pointsFor }}</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ info.averageScore }}</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ info.avgLast3 | round | int }}</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ info.h2hPoints }}</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ info.topHalfPoints }}</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell {{ 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300' if h2h_rate is not none and h2h_rate >= 0.5 else ('bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300' if h2h_rate is not none and h2h_rate < 0.5 else 'text-slate-700 dark:text-slate-300') }}">{{ info.h2hPoints }}</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell {{ 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300' if top_rate is not none and top_rate >= 0.5 else ('bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300' if top_rate is not none and top_rate < 0.5 else 'text-slate-700 dark:text-slate-300') }}">{{ info.topHalfPoints }}</td>
           <td class="px-3 py-2 text-right">
             {% if info.streak == '-' %}
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">&mdash;</span>
@@ -79,11 +87,59 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold {{ 'text-emerald-600 dark:text-emerald-400' if info.luckIndex > 0 else ('text-rose-600 dark:text-rose-400' if info.luckIndex < 0 else 'text-slate-400 dark:text-slate-500') }}">{{ '{:+d}'.format(info.luckIndex) if info.luckIndex != 0 else '0' }}</td>
         </tr>
+        {% if loop.index == playoff_spots and playoff_spots < (standings | length) %}
+        <tr aria-hidden="true">
+          <td colspan="10" class="border-y border-dashed border-amber-400 bg-amber-50 px-3 py-1 text-center text-[.65rem] font-semibold tracking-wide text-amber-700 uppercase dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-400">
+            Playoff line — top {{ playoff_spots }} make it
+          </td>
+        </tr>
+        {% endif %}
       {% endfor %}
     </tbody>
   </table>
 </div>
 
 <script src="static/js/hello.js"></script>
+<script>
+  // Pin "your row": click any row to highlight it and remember the choice
+  // per-browser (localStorage), so it's still pinned on the next visit --
+  // there's no login, so this is the only way the site can know who you are.
+  (function () {
+    var KEY = 'leaguestats:pinnedOwner';
+    var rows = document.querySelectorAll('#standings-table tbody tr[data-owner]');
+
+    function apply() {
+      var pinned = null;
+      try { pinned = localStorage.getItem(KEY); } catch (e) {}
+      rows.forEach(function (row) {
+        var isPinned = row.dataset.owner === pinned;
+        // "!" forces Tailwind's !important on these two -- plain
+        // utility classes lose to the zebra-stripe rules (odd:/even:)
+        // on specificity, since a pseudo-class selector outranks a bare
+        // class selector regardless of source order.
+        row.classList.toggle('!bg-blue-50', isPinned);
+        row.classList.toggle('dark:!bg-blue-500/10', isPinned);
+        row.classList.toggle('font-semibold', isPinned);
+        var badge = row.querySelector('.pin-badge');
+        if (badge) badge.classList.toggle('hidden', !isPinned);
+      });
+    }
+
+    rows.forEach(function (row) {
+      row.addEventListener('click', function () {
+        var current = null;
+        try { current = localStorage.getItem(KEY); } catch (e) {}
+        var next = current === row.dataset.owner ? null : row.dataset.owner;
+        try {
+          if (next) localStorage.setItem(KEY, next);
+          else localStorage.removeItem(KEY);
+        } catch (e) {}
+        apply();
+      });
+    });
+
+    apply();
+  })();
+</script>
 
 {% endblock %}

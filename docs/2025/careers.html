@@ -316,28 +316,46 @@
     <main class="px-4 pt-6 pb-16 md:pt-20 md:pl-60 md:pr-8">
       
 
+<style>
+  /* Sort arrows -- see home.html for the same pattern/rationale. */
+  #careers-table th.sortable { cursor: pointer; user-select: none; }
+  #careers-table th.sortable::after {
+    content: "\2195"; margin-left: .3em; font-size: .8em; color: #94a3b8;
+  }
+  #careers-table th.sortable:hover::after,
+  #careers-table th.sortable.asc::after,
+  #careers-table th.sortable.desc::after { color: #334155; }
+  #careers-table th.sortable.asc::after { content: "\25B2"; }
+  #careers-table th.sortable.desc::after { content: "\25BC"; }
+  [data-theme="dark"] #careers-table th.sortable::after { color: #64748b; }
+  [data-theme="dark"] #careers-table th.sortable:hover::after,
+  [data-theme="dark"] #careers-table th.sortable.asc::after,
+  [data-theme="dark"] #careers-table th.sortable.desc::after { color: #e2e8f0; }
+</style>
+
 <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Career Stats</h1>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
   Every owner's all-time totals, 12 owners across every
-  season on file. "Titles" counts regular-season #1 finishes (playoffs
-  aren't tracked here); "Career Average" is points-for divided by games
-  played, not the average of each season's average.
+  season on file. Click a column header to re-rank — e.g. by Points For for
+  an all-time scoring leaderboard. "Titles" counts regular-season #1
+  finishes (playoffs aren't tracked here); "Career Average" is points-for
+  divided by games played, not the average of each season's average.
 </p>
 
 
 <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
-  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800" id="careers-table">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="careers-table">
     <thead class="bg-slate-50 dark:bg-slate-900/60">
       <tr>
         <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
-        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seasons</th>
-        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Record</th>
-        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Career Average</th>
-        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Points For</th>
-        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Titles</th>
-        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Top-Half Pts</th>
-        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Best Week</th>
-        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Worst Week</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seasons</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Record</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Career Average</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Points For</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Titles</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Top-Half Pts</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Best Week</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Worst Week</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -658,6 +676,8 @@
   </table>
 </div>
 
+
+<script src="static/js/hello.js"></script>
 
 
     </main>

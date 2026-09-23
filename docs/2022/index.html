@@ -339,9 +339,10 @@
 
 <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">2022 Standings Through Week 14</h1>
 
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Tap your name to pin your row.</p>
 
 <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
-  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800" id="standings-table">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="standings-table">
     <thead class="bg-slate-50 dark:bg-slate-900/60">
       <tr>
         <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Rank</th>
@@ -358,20 +359,27 @@
     </thead>
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+      
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Eric Monson">
           <td class="px-3 py-2">
             
               
               <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold bg-amber-300 text-amber-900 dark:bg-amber-400 dark:text-amber-950">1</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Eric Monson</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Eric Monson
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">23</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1674.6</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">119.6</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">127</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">12</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">11</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">12</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">11</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W3</span>
@@ -379,21 +387,28 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-emerald-600 dark:text-emerald-400">+1</td>
         </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Ethan Hildebrandt">
           <td class="px-3 py-2">
             
               
               <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold bg-slate-300 text-slate-800 dark:bg-slate-400 dark:text-slate-900">2</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Ethan Hildebrandt</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Ethan Hildebrandt
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">20</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1690.4</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">120.7</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">131</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">9</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">11</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">9</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">11</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W2</span>
@@ -401,21 +416,28 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-rose-600 dark:text-rose-400">-2</td>
         </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Davíd Huisken">
           <td class="px-3 py-2">
             
               
               <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold bg-orange-300 text-orange-900 dark:bg-orange-400 dark:text-orange-950">3</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Davíd Huisken</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Davíd Huisken
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">16</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1588.8</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">113.5</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">124</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">6</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">10</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">6</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L1</span>
@@ -423,20 +445,27 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-rose-600 dark:text-rose-400">-4</td>
         </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Daniel Sharp">
           <td class="px-3 py-2">
             
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">4</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Daniel Sharp</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Daniel Sharp
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">14</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1502.6</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">107.3</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">88</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">6</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">8</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">6</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">8</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L2</span>
@@ -444,20 +473,27 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-rose-600 dark:text-rose-400">-2</td>
         </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Nicholas Polansky">
           <td class="px-3 py-2">
             
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">5</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Nicholas Polansky</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Nicholas Polansky
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">14</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1486.8</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">106.2</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">106</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">7</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">7</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W1</span>
@@ -465,20 +501,27 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-slate-400 dark:text-slate-500">0</td>
         </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Casey Pirsig">
           <td class="px-3 py-2">
             
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">6</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Casey Pirsig</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Casey Pirsig
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">14</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1466.6</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">104.8</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">110</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">7</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">7</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W2</span>
@@ -486,20 +529,33 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-slate-400 dark:text-slate-500">0</td>
         </tr>
+        
+        <tr aria-hidden="true">
+          <td colspan="10" class="border-y border-dashed border-amber-400 bg-amber-50 px-3 py-1 text-center text-[.65rem] font-semibold tracking-wide text-amber-700 uppercase dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-400">
+            Playoff line — top 6 make it
+          </td>
+        </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Daniel Senger">
           <td class="px-3 py-2">
             
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">7</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Daniel Senger</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Daniel Senger
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">14</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1459.5</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">104.2</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">104</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">7</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">7</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W1</span>
@@ -507,20 +563,27 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-slate-400 dark:text-slate-500">0</td>
         </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Pat Benner">
           <td class="px-3 py-2">
             
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">8</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Pat Benner</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Pat Benner
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">14</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1458.2</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">104.2</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">92</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">7</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">7</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L2</span>
@@ -528,20 +591,27 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-slate-400 dark:text-slate-500">0</td>
         </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Sam Engsberg">
           <td class="px-3 py-2">
             
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">9</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Sam Engsberg</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Sam Engsberg
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">11</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1443.7</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">103.1</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">99</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">5</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">6</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">5</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">6</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L1</span>
@@ -549,20 +619,27 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-rose-600 dark:text-rose-400">-1</td>
         </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Paul Tuura">
           <td class="px-3 py-2">
             
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">10</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Paul Tuura</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Paul Tuura
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">9</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1295.9</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">92.6</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">85</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">6</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">3</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">6</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">3</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L1</span>
@@ -570,20 +647,27 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-emerald-600 dark:text-emerald-400">+3</td>
         </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Jamie Sugar">
           <td class="px-3 py-2">
             
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">11</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Jamie Sugar</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Jamie Sugar
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">9</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1282.9</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">91.6</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">84</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">7</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">2</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">2</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L2</span>
@@ -591,20 +675,27 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-emerald-600 dark:text-emerald-400">+5</td>
         </tr>
+        
       
-        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        
+        
+        <tr class="cursor-pointer transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70"
+            data-owner="Nick Kubit">
           <td class="px-3 py-2">
             
               <span class="pl-1.5 text-slate-600 dark:text-slate-300">12</span>
             
           </td>
-          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Nick Kubit</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">
+            Nick Kubit
+            <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
+          </td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">8</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1299.6</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">92.8</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">93</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">5</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">3</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">5</td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">3</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W1</span>
@@ -612,12 +703,54 @@
           </td>
           <td class="px-3 py-2 text-right font-semibold text-emerald-600 dark:text-emerald-400">+2</td>
         </tr>
+        
       
     </tbody>
   </table>
 </div>
 
 <script src="static/js/hello.js"></script>
+<script>
+  // Pin "your row": click any row to highlight it and remember the choice
+  // per-browser (localStorage), so it's still pinned on the next visit --
+  // there's no login, so this is the only way the site can know who you are.
+  (function () {
+    var KEY = 'leaguestats:pinnedOwner';
+    var rows = document.querySelectorAll('#standings-table tbody tr[data-owner]');
+
+    function apply() {
+      var pinned = null;
+      try { pinned = localStorage.getItem(KEY); } catch (e) {}
+      rows.forEach(function (row) {
+        var isPinned = row.dataset.owner === pinned;
+        // "!" forces Tailwind's !important on these two -- plain
+        // utility classes lose to the zebra-stripe rules (odd:/even:)
+        // on specificity, since a pseudo-class selector outranks a bare
+        // class selector regardless of source order.
+        row.classList.toggle('!bg-blue-50', isPinned);
+        row.classList.toggle('dark:!bg-blue-500/10', isPinned);
+        row.classList.toggle('font-semibold', isPinned);
+        var badge = row.querySelector('.pin-badge');
+        if (badge) badge.classList.toggle('hidden', !isPinned);
+      });
+    }
+
+    rows.forEach(function (row) {
+      row.addEventListener('click', function () {
+        var current = null;
+        try { current = localStorage.getItem(KEY); } catch (e) {}
+        var next = current === row.dataset.owner ? null : row.dataset.owner;
+        try {
+          if (next) localStorage.setItem(KEY, next);
+          else localStorage.removeItem(KEY);
+        } catch (e) {}
+        apply();
+      });
+    });
+
+    apply();
+  })();
+</script>
 
 
     </main>

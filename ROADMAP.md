@@ -6,6 +6,22 @@ it's a menu, not a backlog. Picks at the bottom.
 
 ---
 
+## Shipped since this was written (2026-09-22)
+
+- **B1, B2** — playoffs "Wins to Clinch" hardcoding and "Games Back" sign fixed (`728f420`)
+- **F1 Luck Index + F5 Streaks** — standings page (`728f420`)
+- **F2 Rivalry matrix** — new Rivalries page, all-time head-to-head grid (`b42a3ef`)
+- **F9 All-time leaderboard** (absorbed F8's career-stats half) — new Career Stats page (`119c5dd`)
+- **U6 Dark mode** — system preference + manual toggle (`642ab05`)
+- **U3 Mobile pass** (partial→done) — nav bug fixed, full responsive redesign came with the Tailwind rewrite
+- **B6** — dead "Week N Scores" block deleted during the `home.html` rewrite
+- **M1 Modernization** — full Tailwind CSS rewrite, Bootstrap 4/jQuery/Popper dropped entirely (`4efac06`)
+- Bonus, found along the way: `build.py`'s static-file copy no longer leaves stale orphans behind (`4efac06`)
+
+Everything below this point is the original pass and still accurate for what's *not* done yet — see the updated picks at the bottom for what's next now.
+
+---
+
 ## 1. Bugs (real, found while reading the templates)
 
 | # | Where | What's wrong | Effort | Payoff |
@@ -104,22 +120,27 @@ is fun and finished — I'd sequence it last.
 
 ---
 
-## My picks — what I'd actually do next
+## My picks — what's next now (updated 2026-09-22)
 
-1. **B1 + B2** (wins-to-clinch hardcoding, games-back sign) — 20 minutes,
-   removes the two things that'll make an attentive league mate go "wait,
-   that's wrong."
-2. **F1 Luck Index + F5 Streaks** — one sitting, and it's the single biggest
-   "come argue about this" upgrade to the existing standings page.
-3. **U1 + U2** (highlight my row, color the point cells) — makes the table
-   you already have dramatically easier to read on a phone during a game.
-4. **F2 Rivalry matrix** or **F4 Closest games/blowouts** — whichever
-   sounds more fun to build; both are pure derived-data pages, no new
-   fetch, and they're the "I found something" content that gets
-   screenshotted into the group chat.
-5. Later, once weeks pile up: **F7 Playoff simulator** — this is the one
-   that turns "check the site once" into "check the site every week in
-   November."
+1. **F4 Closest games / blowouts** — the natural pair to the rivalry matrix
+   that got skipped in favor of it; still pure derived-data, no new fetch,
+   still the best "I found something" content for the group chat.
+2. **U1 + U2** (highlight my row, color the H2H/Top-Six cells) — the
+   standings table has a lot more columns now (Streak, Luck) and still
+   doesn't help you find your own row at a glance.
+3. **F3 Matchup visualizer** — per-week box-score cards; pairs with F6 if
+   you want a real "content" page instead of just tables.
+4. **F10 "On the bubble"** — cheap (XS), flag the teams right at the
+   playoff line on the standings page.
+5. Later, once weeks pile up: **F7 Playoff simulator** — biggest single
+   payoff left on the list, but wants more of the season played out first
+   to be interesting.
 
-Everything in §6 (multi-league) can wait until the above makes the FFF site
-itself something you're proud to link people to.
+Smaller things worth a look whenever: **B5** (avgLast3 rounding
+inconsistency, still present), **M3** (`player1.html`'s stray `</br>` tags,
+low priority since that page still isn't rendered), **Q3** (CI test step —
+cheap insurance, hasn't been added despite the test suite now being 35
+tests), **U5** (favicon/branding refresh — still the placeholder icon).
+
+Section 6 (multi-league) is unblocked now that B1 is fixed, but still makes
+sense to sequence last, same reasoning as before.
