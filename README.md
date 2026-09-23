@@ -174,6 +174,35 @@ python -m unittest test_compute -v
 `build.py` output is deterministic (no timestamps), so a rebuild changes
 `docs/` only when the data changes.
 
+## Names and the league phrase
+
+This repo is **public** — free GitHub Pages requires it — so everything in
+`data/` and `docs/` is world-readable. Two things follow from that.
+
+**Surnames are redacted on write.** `fetch.redact_members()` truncates every
+`lastName` to three characters before the raw file is saved, applies the same
+truncation inside `displayName` (some members set theirs to their full name),
+and swaps a surname out of any team named after its owner — "Team
+Hildebrandt" becomes "Team Ethan", using the first name so it still reads
+like a team name. The site shows first names alone unless two owners collide,
+in which case each gets the shortest prefix that separates them:
+"Daniel Se." and "Daniel Sh.". See `SPEC.md` §3.
+
+Note this stopped the ongoing exposure; it did not rewrite history. Commits
+made before 2026-09-23 still carry full surnames.
+
+**A shared phrase gates the site.** Set a repository secret named
+`LEAGUE_PHRASE`; the workflow passes it to `build.py`, which bakes only its
+SHA-256 into the pages. The phrase itself is never committed. With the secret
+unset the gate is omitted entirely, so a local `python build.py` still
+produces a browsable site.
+
+Be clear about what the gate is: the page content ships inside the HTML
+either way, so it keeps out search engines and passers-by, not anyone willing
+to open devtools. It is a doorbell, not a lock. That is an acceptable trade
+here precisely *because* the surnames are already gone — there is nothing
+behind it worth the effort.
+
 ## Deployment
 
 GitHub Pages serves `docs/` from the `main` branch. A GitHub Actions workflow

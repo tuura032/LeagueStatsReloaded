@@ -23,7 +23,9 @@ invent data):
 - update.html / error.html were admin/Flask concerns and are dropped.
 """
 import argparse
+import hashlib
 import json
+import os
 import shutil
 import sys
 from datetime import datetime
@@ -42,6 +44,27 @@ PAGES = (
     ("rivalries.html", "rivalries.html"),
     ("careers.html", "careers.html"),
 )
+
+
+def phrase_hash():
+    """SHA-256 of the league passphrase, or "" when none is configured.
+
+    The phrase itself is never committed: CI puts it in the environment from
+    a GitHub Secret (LEAGUE_PHRASE) and only this digest is baked into the
+    page. A local build with no secret set produces no hash, which disables
+    the gate entirely -- so `python build.py` on a laptop still renders a
+    browsable site.
+
+    Be clear about what this is: the page content ships in the HTML either
+    way, so the gate keeps out search engines and casual visitors, not anyone
+    willing to open devtools. It is a doorbell, not a lock. The reason that
+    is acceptable here is that there is nothing sensitive behind it any
+    more -- surnames are stripped from the data at fetch time.
+    """
+    phrase = os.environ.get("LEAGUE_PHRASE", "").strip()
+    if not phrase:
+        return ""
+    return hashlib.sha256(phrase.encode("utf-8")).hexdigest()
 
 
 def ordinal(n):
@@ -126,6 +149,11 @@ def main():
     env = Environment(loader=FileSystemLoader("templates"),
                       autoescape=select_autoescape())
     env.filters["ordinal"] = ordinal
+    gate_hash = phrase_hash()
+    if gate_hash:
+        print("Passphrase gate: enabled (hash baked in, phrase not stored)")
+    else:
+        print("Passphrase gate: disabled (set LEAGUE_PHRASE to enable)")
     # `short` on a full owner name; `names` on a list of them, joined as
     # "A", "A & B" or "A, B & C".
     env.filters["short"] = lambda owner: short.get(owner, owner)
@@ -166,6 +194,7 @@ def main():
             "career_money": career_money,
             "money_seasons": money_seasons,
             "entryFee": data.get("entryFee"),
+            "phrase_hash": gate_hash,
             # How many teams make the playoffs, per the league's own ESPN
             # settings. home.html used to assume half the field, which is
             # right for this league only by coincidence.

@@ -1,0 +1,1833 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Dark mode, no-flash: resolve the theme (stored override, else
+         system preference) and set it explicitly on <html> before first
+         paint. Tailwind's dark: variant here (src/tailwind.css) targets
+         [data-theme="dark"] directly rather than a prefers-color-scheme
+         media query, so this is the one place theme resolution happens —
+         CSS never has to guess. -->
+    <script>
+      (function () {
+        var theme = 'light';
+        try {
+          var stored = localStorage.getItem('theme');
+          theme = (stored === 'dark' || stored === 'light') ? stored
+            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+
+    
+
+    <link rel="stylesheet" href="static/css/app.css">
+    <link rel="shortcut icon" type="image/png" href="static/fffIcon.png"/>
+
+    <title>
+    Fantasy Football Fantasy
+</title>
+  </head>
+  <body class="h-full bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+
+    <!-- Header: fixed, full-width, always visible at every breakpoint —
+         the old Bootstrap build hid this entirely below 768px and only
+         home.html had a fallback nav, so playoffs/graph had NO navigation
+         on phones until that was patched. Keeping one header visible
+         everywhere removes that whole class of bug instead of patching
+         around it again. -->
+    <header class="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between bg-slate-900 px-4 shadow-sm dark:bg-black">
+      <a href="index.html" class="text-sm font-semibold tracking-tight text-white sm:text-base">
+        Fantasy Football Fantasy
+      </a>
+      <button class="theme-toggle-btn inline-flex h-8 w-8 items-center justify-center rounded-md border border-white/25 text-white transition hover:border-white/60"
+              type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span data-feather="moon" class="theme-toggle-icon h-4 w-4"></span>
+      </button>
+    </header>
+
+    <!-- Season picker + page nav: rendered once and shown as a sidebar on
+         desktop, a bar under the header on mobile. Same markup, laid out
+         differently by breakpoint utilities, so there's exactly one nav
+         to keep in sync with active_page instead of two. -->
+
+    
+
+    <!-- Desktop sidebar -->
+    <aside class="fixed inset-y-0 left-0 z-20 hidden w-56 flex-col border-r border-slate-200 bg-white pt-14 md:flex dark:border-slate-800 dark:bg-slate-900">
+      <div class="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+        <select class="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            aria-label="Season" onchange="if (this.value) location.href = this.value">
+      
+      
+      <option value="../rivalries.html">2026 (current)</option>
+      
+      
+      
+      <option value="../2025/rivalries.html">2025</option>
+      
+      
+      
+      <option value="../2024/rivalries.html">2024</option>
+      
+      
+      
+      <option value="../2023/rivalries.html">2023</option>
+      
+      
+      
+      <option value="../2022/rivalries.html">2022</option>
+      
+      
+      
+      <option value="../2021/rivalries.html">2021</option>
+      
+      
+      
+      <option value="../2020/rivalries.html">2020</option>
+      
+      
+      
+      <option selected disabled>2019</option>
+      
+      
+    </select>
+        <nav class="space-y-1">
+          <a href="index.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="home" class="h-4 w-4 shrink-0"></span>
+      Home
+    </a>
+
+          <div>
+            <button id="owners-toggle"
+                    class="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                    type="button" aria-expanded="false" aria-controls="owners-panel">
+              <span class="flex items-center gap-2"><span data-feather="users" class="h-4 w-4"></span> Owners</span>
+              <span data-feather="chevron-down" id="owners-chevron" class="h-4 w-4 transition-transform"></span>
+            </button>
+            <ul id="owners-panel" class="mt-1 hidden max-h-64 space-y-0.5 overflow-y-auto pl-2">
+              
+              <li title="Casey Pir — Cooper Troopers">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">1</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Casey</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Cooper Troopers</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Eric Mon — THE CHAMPN&#39;T IS HERE">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">2</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Eric</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">THE CHAMPN&#39;T IS HERE</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Pat Ben — ¡Yo Quiero Tac Odell!">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">3</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Pat</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">¡Yo Quiero Tac Odell!</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Paul Tuu — Kamara Meha">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">4</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Paul</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Kamara Meha</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Nicholas Pol — Ultimate Fulfillment">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">5</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Nicholas</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Ultimate Fulfillment</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Jamie Sug — Team Jamie">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">6</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Jamie</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Jamie</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Sam Eng — Amputees for Taking the Knee">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">7</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Sam</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Amputees for Taking the Knee</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Daniel Sen — Mahomes and Mahomies">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">8</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Daniel Se.</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Mahomes and Mahomies</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Davíd Hui — Team Davíd">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">9</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Davíd</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Davíd</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Nick Kub — Cleveland Bronns">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">10</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Nick</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Cleveland Bronns</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Ethan Hil — Team Ethan">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">11</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Ethan</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Ethan</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Maxwell Abr — Team Beer">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">12</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Maxwell</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Beer</span>
+                  </span>
+                </div>
+              </li>
+              
+            </ul>
+          </div>
+
+          <a href="playoffs.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="bar-chart-2" class="h-4 w-4 shrink-0"></span>
+      Playoffs and Prizes
+    </a>
+          <a href="graph.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="layers" class="h-4 w-4 shrink-0"></span>
+      Stats
+    </a>
+          <a href="rivalries.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+      <span data-feather="target" class="h-4 w-4 shrink-0"></span>
+      Rivalries<span class="sr-only"> (current)</span>
+    </a>
+          <a href="careers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="award" class="h-4 w-4 shrink-0"></span>
+      Career Stats
+    </a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Mobile nav: season picker + horizontally-scrollable page links,
+         directly under the (always-visible) header. -->
+    <div class="border-b border-slate-200 bg-white pt-14 md:hidden dark:border-slate-800 dark:bg-slate-900">
+      <div class="px-4 py-2">
+        <select class="w-full max-w-[12rem] rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            aria-label="Season" onchange="if (this.value) location.href = this.value">
+      
+      
+      <option value="../rivalries.html">2026 (current)</option>
+      
+      
+      
+      <option value="../2025/rivalries.html">2025</option>
+      
+      
+      
+      <option value="../2024/rivalries.html">2024</option>
+      
+      
+      
+      <option value="../2023/rivalries.html">2023</option>
+      
+      
+      
+      <option value="../2022/rivalries.html">2022</option>
+      
+      
+      
+      <option value="../2021/rivalries.html">2021</option>
+      
+      
+      
+      <option value="../2020/rivalries.html">2020</option>
+      
+      
+      
+      <option selected disabled>2019</option>
+      
+      
+    </select>
+      </div>
+      <nav class="flex gap-1 overflow-x-auto px-2 pb-2 text-sm">
+        <a href="index.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="home" class="h-4 w-4 shrink-0"></span>
+      Home
+    </a>
+        <a href="playoffs.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="bar-chart-2" class="h-4 w-4 shrink-0"></span>
+      Playoffs
+    </a>
+        <a href="graph.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="layers" class="h-4 w-4 shrink-0"></span>
+      Stats
+    </a>
+        <a href="rivalries.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+      <span data-feather="target" class="h-4 w-4 shrink-0"></span>
+      Rivalries<span class="sr-only"> (current)</span>
+    </a>
+        <a href="careers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="award" class="h-4 w-4 shrink-0"></span>
+      Careers
+    </a>
+      </nav>
+    </div>
+
+    <main class="px-4 pt-6 pb-16 md:pt-20 md:pl-60 md:pr-8">
+      
+
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Rivalries</h1>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Every owner's all-time head-to-head record, 13 owners
+  across every season on file &mdash; regular season <em>and</em> playoffs.
+  Read a cell as the row owner's record (W-L-T) against the column owner;
+  hover one for the regular-season and playoff split.
+</p>
+
+<p class="mt-1 text-xs text-slate-400 dark:text-slate-500">
+  A <span aria-hidden="true">&#9679;</span> marks a pairing that has met in the playoffs as well.
+</p>
+
+
+<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="border-separate border-spacing-0 text-xs">
+    <thead>
+      <tr>
+        <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900"></th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Casey Pir">Casey</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Daniel Sen">Daniel Se.</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Daniel Sha">Daniel Sh.</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Davíd Hui">Davíd</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Eric Mon">Eric</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Ethan Hil">Ethan</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Jamie Sug">Jamie</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Maxwell Abr">Maxwell</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Nicholas Pol">Nicholas</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Nick Kub">Nick</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Pat Ben">Pat</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Paul Tuu">Paul</th>
+        
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);" title="Sam Eng">Sam</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Casey Pir">Casey</th>
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Casey Pir vs Daniel Sen — regular season 4-3">4-3</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Casey Pir vs Daniel Sha — regular season 2-3, playoffs 2-1">4-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Casey Pir vs Davíd Hui — regular season 5-8, playoffs 0-2">5-10<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Casey Pir vs Eric Mon — regular season 1-6, playoffs 0-1">1-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Casey Pir vs Ethan Hil — regular season 2-5, playoffs 2-0">4-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Casey Pir vs Jamie Sug — regular season 7-0">7-0</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Casey Pir vs Maxwell Abr — regular season 1-1">1-1</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Casey Pir vs Nicholas Pol — regular season 11-4, playoffs 0-1">11-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Casey Pir vs Nick Kub — regular season 4-3, playoffs 2-0">6-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Casey Pir vs Pat Ben — regular season 4-5, playoffs 0-1">4-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Casey Pir vs Paul Tuu — regular season 6-1, playoffs 2-3">8-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Casey Pir vs Sam Eng — regular season 12-0">12-0</td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Daniel Sen">Daniel Se.</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Daniel Sen vs Casey Pir — regular season 3-4">3-4</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Daniel Sen vs Daniel Sha — regular season 2-3, playoffs 1-0">3-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Daniel Sen vs Davíd Hui — regular season 3-4, playoffs 1-0">4-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Daniel Sen vs Eric Mon — regular season 5-4, playoffs 2-0">7-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Daniel Sen vs Ethan Hil — regular season 7-6, playoffs 0-2">7-8<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Daniel Sen vs Jamie Sug — regular season 5-8, playoffs 2-1">7-9<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Daniel Sen vs Maxwell Abr — regular season 1-1, playoffs 2-0">3-1<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Daniel Sen vs Nicholas Pol — regular season 4-3, playoffs 1-1">5-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Daniel Sen vs Nick Kub — regular season 2-5, playoffs 2-0">4-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Daniel Sen vs Pat Ben — regular season 2-5, playoffs 2-1">4-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Daniel Sen vs Paul Tuu — regular season 6-8">6-8</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Daniel Sen vs Sam Eng — regular season 4-3, playoffs 2-1">6-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Daniel Sha">Daniel Sh.</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Daniel Sha vs Casey Pir — regular season 3-2, playoffs 1-2">4-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Daniel Sha vs Daniel Sen — regular season 3-2, playoffs 0-1">3-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Daniel Sha vs Davíd Hui — regular season 1-4, playoffs 2-0">3-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Daniel Sha vs Eric Mon — regular season 0-5, playoffs 1-1">1-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Daniel Sha vs Ethan Hil — regular season 1-4">1-4</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Daniel Sha vs Jamie Sug — regular season 4-1">4-1</td>
+            
+          
+            
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:text-slate-600">&ndash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Daniel Sha vs Nicholas Pol — regular season 9-2, playoffs 1-1">10-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Daniel Sha vs Nick Kub — regular season 6-4, playoffs 1-0">7-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Daniel Sha vs Pat Ben — regular season 1-4, playoffs 1-1">2-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Daniel Sha vs Paul Tuu — regular season 2-3, playoffs 1-0">3-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Daniel Sha vs Sam Eng — regular season 8-3">8-3</td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Davíd Hui">Davíd</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Davíd Hui vs Casey Pir — regular season 8-5, playoffs 2-0">10-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Davíd Hui vs Daniel Sen — regular season 4-3, playoffs 0-1">4-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Davíd Hui vs Daniel Sha — regular season 4-1, playoffs 0-2">4-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Davíd Hui vs Eric Mon — regular season 4-3">4-3</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Davíd Hui vs Ethan Hil — regular season 5-7, playoffs 2-1">7-8<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Davíd Hui vs Jamie Sug — regular season 8-5, playoffs 0-1">8-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Davíd Hui vs Maxwell Abr — regular season 1-1">1-1</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Davíd Hui vs Nicholas Pol — regular season 5-2, playoffs 2-2">7-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Davíd Hui vs Nick Kub — regular season 3-4, playoffs 1-1">4-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Davíd Hui vs Pat Ben — regular season 4-3, playoffs 1-0">5-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Davíd Hui vs Paul Tuu — regular season 4-5, playoffs 1-0">5-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Davíd Hui vs Sam Eng — regular season 4-5, playoffs 1-2">5-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Eric Mon">Eric</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Eric Mon vs Casey Pir — regular season 6-1, playoffs 1-0">7-1<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Eric Mon vs Daniel Sen — regular season 4-5, playoffs 0-2">4-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Eric Mon vs Daniel Sha — regular season 5-0, playoffs 1-1">6-1<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Eric Mon vs Davíd Hui — regular season 3-4">3-4</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Eric Mon vs Ethan Hil — regular season 5-2, playoffs 2-1">7-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Eric Mon vs Jamie Sug — regular season 6-3, playoffs 2-0">8-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Eric Mon vs Maxwell Abr — regular season 2-0">2-0</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Eric Mon vs Nicholas Pol — regular season 2-5, playoffs 0-2">2-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Eric Mon vs Nick Kub — regular season 6-7, playoffs 1-0">7-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Eric Mon vs Pat Ben — regular season 6-6, playoffs 2-0">8-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Eric Mon vs Paul Tuu — regular season 3-4, playoffs 0-1">3-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Eric Mon vs Sam Eng — regular season 10-3, playoffs 1-0">11-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Ethan Hil">Ethan</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Ethan Hil vs Casey Pir — regular season 5-2, playoffs 0-2">5-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Ethan Hil vs Daniel Sen — regular season 6-7, playoffs 2-0">8-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Ethan Hil vs Daniel Sha — regular season 4-1">4-1</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Ethan Hil vs Davíd Hui — regular season 7-5, playoffs 1-2">8-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Ethan Hil vs Eric Mon — regular season 2-5, playoffs 1-2">3-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Ethan Hil vs Jamie Sug — regular season 4-3, playoffs 0-1">4-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Ethan Hil vs Maxwell Abr — regular season 2-2, playoffs 1-2">3-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Ethan Hil vs Nicholas Pol — regular season 4-3">4-3</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Ethan Hil vs Nick Kub — regular season 3-6, playoffs 1-0">4-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Ethan Hil vs Pat Ben — regular season 2-5, playoffs 2-1">4-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Ethan Hil vs Paul Tuu — regular season 7-6, playoffs 0-1">7-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Ethan Hil vs Sam Eng — regular season 4-3, playoffs 1-0">5-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Jamie Sug">Jamie</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Jamie Sug vs Casey Pir — regular season 0-7">0-7</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Jamie Sug vs Daniel Sen — regular season 8-5, playoffs 1-2">9-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Jamie Sug vs Daniel Sha — regular season 1-4">1-4</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Jamie Sug vs Davíd Hui — regular season 5-8, playoffs 1-0">6-8<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Jamie Sug vs Eric Mon — regular season 3-6, playoffs 0-2">3-8<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Jamie Sug vs Ethan Hil — regular season 3-4, playoffs 1-0">4-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Jamie Sug vs Maxwell Abr — regular season 0-2">0-2</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Jamie Sug vs Nicholas Pol — regular season 4-8, playoffs 1-2">5-10<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Jamie Sug vs Nick Kub — regular season 5-4, playoffs 1-1">6-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Jamie Sug vs Pat Ben — regular season 0-7, playoffs 1-1">1-8<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Jamie Sug vs Paul Tuu — regular season 3-4, playoffs 1-2">4-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Jamie Sug vs Sam Eng — regular season 6-1, playoffs 4-0">10-1<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Maxwell Abr">Maxwell</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Maxwell Abr vs Casey Pir — regular season 1-1">1-1</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Maxwell Abr vs Daniel Sen — regular season 1-1, playoffs 0-2">1-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:text-slate-600">&ndash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Maxwell Abr vs Davíd Hui — regular season 1-1">1-1</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Maxwell Abr vs Eric Mon — regular season 0-2">0-2</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Maxwell Abr vs Ethan Hil — regular season 2-2, playoffs 2-1">4-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Maxwell Abr vs Jamie Sug — regular season 2-0">2-0</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Maxwell Abr vs Nicholas Pol — regular season 0-2">0-2</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Maxwell Abr vs Nick Kub — regular season 0-2, playoffs 0-1">0-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Maxwell Abr vs Pat Ben — regular season 0-4">0-4</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Maxwell Abr vs Paul Tuu — regular season 1-1">1-1</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Maxwell Abr vs Sam Eng — regular season 1-1">1-1</td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Nicholas Pol">Nicholas</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nicholas Pol vs Casey Pir — regular season 4-11, playoffs 1-0">5-11<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nicholas Pol vs Daniel Sen — regular season 3-4, playoffs 1-1">4-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nicholas Pol vs Daniel Sha — regular season 2-9, playoffs 1-1">3-10<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nicholas Pol vs Davíd Hui — regular season 2-5, playoffs 2-2">4-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Nicholas Pol vs Eric Mon — regular season 5-2, playoffs 2-0">7-2<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nicholas Pol vs Ethan Hil — regular season 3-4">3-4</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Nicholas Pol vs Jamie Sug — regular season 8-4, playoffs 2-1">10-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Nicholas Pol vs Maxwell Abr — regular season 2-0">2-0</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Nicholas Pol vs Nick Kub — regular season 3-4, playoffs 1-0">4-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Nicholas Pol vs Pat Ben — regular season 4-3">4-3</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nicholas Pol vs Paul Tuu — regular season 1-6, playoffs 1-1">2-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nicholas Pol vs Sam Eng — regular season 5-4, playoffs 1-3">6-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Nick Kub">Nick</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nick Kub vs Casey Pir — regular season 3-4, playoffs 0-2">3-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Nick Kub vs Daniel Sen — regular season 5-2, playoffs 0-2">5-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nick Kub vs Daniel Sha — regular season 4-6, playoffs 0-1">4-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Nick Kub vs Davíd Hui — regular season 4-3, playoffs 1-1">5-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Nick Kub vs Eric Mon — regular season 7-6, playoffs 0-1">7-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Nick Kub vs Ethan Hil — regular season 6-3, playoffs 0-1">6-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nick Kub vs Jamie Sug — regular season 4-5, playoffs 1-1">5-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Nick Kub vs Maxwell Abr — regular season 2-0, playoffs 1-0">3-0<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Nick Kub vs Nicholas Pol — regular season 4-3, playoffs 0-1">4-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nick Kub vs Pat Ben — regular season 5-8, playoffs 0-2">5-10<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Nick Kub vs Paul Tuu — regular season 3-4, playoffs 2-1">5-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Nick Kub vs Sam Eng — regular season 2-5, playoffs 2-0">4-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Pat Ben">Pat</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Pat Ben vs Casey Pir — regular season 5-4, playoffs 1-0">6-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Pat Ben vs Daniel Sen — regular season 5-2, playoffs 1-2">6-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Pat Ben vs Daniel Sha — regular season 4-1, playoffs 1-1">5-2<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Pat Ben vs Davíd Hui — regular season 3-4, playoffs 0-1">3-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Pat Ben vs Eric Mon — regular season 6-6, playoffs 0-2">6-8<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Pat Ben vs Ethan Hil — regular season 5-2, playoffs 1-2">6-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Pat Ben vs Jamie Sug — regular season 7-0, playoffs 1-1">8-1<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Pat Ben vs Maxwell Abr — regular season 4-0">4-0</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Pat Ben vs Nicholas Pol — regular season 3-4">3-4</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Pat Ben vs Nick Kub — regular season 8-5, playoffs 2-0">10-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Pat Ben vs Paul Tuu — regular season 8-5, playoffs 1-1">9-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Pat Ben vs Sam Eng — regular season 5-2, playoffs 1-0">6-2<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Paul Tuu">Paul</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Paul Tuu vs Casey Pir — regular season 1-6, playoffs 3-2">4-8<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Paul Tuu vs Daniel Sen — regular season 8-6">8-6</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Paul Tuu vs Daniel Sha — regular season 3-2, playoffs 0-1">3-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Paul Tuu vs Davíd Hui — regular season 5-4, playoffs 0-1">5-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Paul Tuu vs Eric Mon — regular season 4-3, playoffs 1-0">5-3<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Paul Tuu vs Ethan Hil — regular season 6-7, playoffs 1-0">7-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Paul Tuu vs Jamie Sug — regular season 4-3, playoffs 2-1">6-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Paul Tuu vs Maxwell Abr — regular season 1-1">1-1</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Paul Tuu vs Nicholas Pol — regular season 6-1, playoffs 1-1">7-2<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Paul Tuu vs Nick Kub — regular season 4-3, playoffs 1-2">5-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Paul Tuu vs Pat Ben — regular season 5-8, playoffs 1-1">6-9<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Paul Tuu vs Sam Eng — regular season 5-2, playoffs 2-0">7-2<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200" title="Sam Eng">Sam</th>
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Sam Eng vs Casey Pir — regular season 0-12">0-12</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Sam Eng vs Daniel Sen — regular season 3-4, playoffs 1-2">4-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Sam Eng vs Daniel Sha — regular season 3-8">3-8</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Sam Eng vs Davíd Hui — regular season 5-4, playoffs 2-1">7-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Sam Eng vs Eric Mon — regular season 3-10, playoffs 0-1">3-11<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Sam Eng vs Ethan Hil — regular season 3-4, playoffs 0-1">3-5<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Sam Eng vs Jamie Sug — regular season 1-6, playoffs 0-4">1-10<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                  title="Sam Eng vs Maxwell Abr — regular season 1-1">1-1</td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Sam Eng vs Nicholas Pol — regular season 4-5, playoffs 3-1">7-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                  title="Sam Eng vs Nick Kub — regular season 5-2, playoffs 0-2">5-4<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Sam Eng vs Pat Ben — regular season 2-5, playoffs 0-1">2-6<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              
+              
+                
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300"
+                  title="Sam Eng vs Paul Tuu — regular season 2-5, playoffs 0-2">2-7<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span></td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+        </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+
+
+    </main>
+
+    <!-- Hidden color swatches: Chart.js paints its own canvas, so it can't
+         pick up Tailwind's dark: variant from CSS the way the rest of the
+         page does. These exist only so JS can read a theme-correct
+         getComputedStyle() color instead of hardcoding hex per theme. -->
+    <div class="hidden" aria-hidden="true">
+      <span id="swatch-tick" class="text-slate-500 dark:text-slate-400"></span>
+      <span id="swatch-legend" class="text-slate-600 dark:text-slate-300"></span>
+      <span id="swatch-grid" class="border-slate-200 dark:border-slate-800" style="border-style: solid; border-width: 1px;"></span>
+    </div>
+
+    
+
+    <!-- Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js" integrity="sha512-zMm7+ZQ8AZr1r3W8Z8lDATkH05QG5Gm2xc6MlsCdBz9l6oE8Y7IXByMgSm/rdRQrhuHt99HAYfMljBOEZ68q5A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      (function () {
+        function currentTheme() {
+          return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        }
+        function setIcons(theme) {
+          document.querySelectorAll('.theme-toggle-icon').forEach(function (icon) {
+            icon.setAttribute('data-feather', theme === 'dark' ? 'sun' : 'moon');
+          });
+        }
+
+        setIcons(currentTheme());
+        feather.replace();
+
+        document.querySelectorAll('.theme-toggle-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var next = currentTheme() === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+            setIcons(next);
+            feather.replace();
+            window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
+          });
+        });
+
+        // Owners collapse -- replaces Bootstrap's data-toggle="collapse"
+        // (which needed jQuery + Popper); this is the only interactive
+        // widget on the site that isn't a plain link, click-to-sort, or
+        // the theme toggle, so it doesn't need a library.
+        var ownersToggle = document.getElementById('owners-toggle');
+        var ownersPanel = document.getElementById('owners-panel');
+        var ownersChevron = document.getElementById('owners-chevron');
+        if (ownersToggle && ownersPanel) {
+          ownersToggle.addEventListener('click', function () {
+            var open = ownersPanel.classList.toggle('hidden') === false;
+            ownersToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (ownersChevron) ownersChevron.style.transform = open ? 'rotate(180deg)' : '';
+          });
+        }
+      })();
+    </script>
+
+    <!-- Graphs (dataset rendered from data/standings-<season>.json).
+         Only graph.html has a <canvas>, so the library and the whole
+         dataset payload are skipped on the other four pages rather than
+         downloaded and then ignored. -->
+    
+  </body>
+</html>

@@ -162,6 +162,33 @@ https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/<season>/segment
         "away": { "teamId": 4, "totalPoints": 117.4 } } ] }
   ```
 
+### Surnames are redacted on write (added 2026-09-23)
+
+The one deliberate exception to "verbatim". This repo is **public** — free
+GitHub Pages requires it — so every byte in `data/` is world-readable, and
+ESPN's member records carry full legal names.
+
+`fetch.redact_members()` runs before the raw file is written and:
+
+- truncates every `lastName` to `SURNAME_KEEP` (3) characters,
+- applies the same truncation inside `displayName`, since some members have
+  set theirs to their full name,
+- swaps a surname out of any **team name** built from it ("Team Hildebrandt"
+  → "Team Ethan"), using the first name so the result still reads like a
+  team name,
+- drops `notificationSettings` as noise.
+
+Nothing downstream needs more: `compute.py` builds owner identity from the
+first name plus the surviving prefix, and `compute.short_names()` shows the
+first name alone unless two owners collide, in which case each gets the
+shortest prefix that separates them ("Daniel Se." / "Daniel Sh.").
+
+**This does not rewrite history.** Commits made before this change still
+carry full surnames in `data/`. Cleaning those would need a history rewrite
+and a force-push, which the owner has previously declined for a similar
+issue; the decision here was to stop the ongoing exposure, not to erase the
+record.
+
 ### Two traps inherited from v1 — do not re-introduce
 
 1. **Do not index `schedule` by arithmetic.** v1 used `(week-1)*6 + matchup`,

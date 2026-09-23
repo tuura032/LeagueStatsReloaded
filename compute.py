@@ -736,10 +736,15 @@ def short_names(owners):
 
     The league talks about each other by first name, and team names change
     every year while people do not -- so the person is the identity the site
-    leads with. First name alone wherever it is unique across every season
-    on file; the full name when two owners share one (this league has a
-    Daniel Senger and a Daniel Sharp, and "Daniel S." would not separate
-    them either).
+    leads with, and team names were rejected as a disambiguator for exactly
+    that reason.
+
+    First name alone wherever it is unique. Where two owners share one, each
+    gets the *shortest* surname prefix that separates them, as an
+    abbreviation: this league's Daniel Senger and Daniel Sharp become
+    "Daniel Se." and "Daniel Sh." (one letter would not do it -- both are S).
+    Surnames reach this function already truncated by fetch.redact_members,
+    so even the full stored value is only a few characters.
 
     Computed over *all* seasons at once so a given owner reads the same on
     every page, rather than shortening on pages where the other Daniel
@@ -750,11 +755,22 @@ def short_names(owners):
         if not owner:
             continue
         by_first.setdefault(owner.split()[0], []).append(owner)
+
     out = {}
     for first, group in by_first.items():
-        unique = len(set(group)) == 1
-        for owner in group:
-            out[owner] = first if unique else owner
+        unique = sorted(set(group))
+        if len(unique) == 1:
+            out[unique[0]] = first
+            continue
+        surnames = {o: " ".join(o.split()[1:]) for o in unique}
+        # Grow the prefix until every surname in this group is distinct.
+        longest = max((len(v) for v in surnames.values()), default=0)
+        n = 1
+        while n < longest and len({v[:n] for v in surnames.values()}) < len(unique):
+            n += 1
+        for owner in unique:
+            prefix = surnames[owner][:n]
+            out[owner] = f"{first} {prefix}." if prefix else first
     return out
 
 

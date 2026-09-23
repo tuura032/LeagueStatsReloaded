@@ -1,0 +1,1695 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Dark mode, no-flash: resolve the theme (stored override, else
+         system preference) and set it explicitly on <html> before first
+         paint. Tailwind's dark: variant here (src/tailwind.css) targets
+         [data-theme="dark"] directly rather than a prefers-color-scheme
+         media query, so this is the one place theme resolution happens —
+         CSS never has to guess. -->
+    <script>
+      (function () {
+        var theme = 'light';
+        try {
+          var stored = localStorage.getItem('theme');
+          theme = (stored === 'dark' || stored === 'light') ? stored
+            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+
+    
+
+    <link rel="stylesheet" href="static/css/app.css">
+    <link rel="shortcut icon" type="image/png" href="static/fffIcon.png"/>
+
+    <title>
+    Fantasy Football Fantasy
+</title>
+  </head>
+  <body class="h-full bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+
+    <!-- Header: fixed, full-width, always visible at every breakpoint —
+         the old Bootstrap build hid this entirely below 768px and only
+         home.html had a fallback nav, so playoffs/graph had NO navigation
+         on phones until that was patched. Keeping one header visible
+         everywhere removes that whole class of bug instead of patching
+         around it again. -->
+    <header class="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between bg-slate-900 px-4 shadow-sm dark:bg-black">
+      <a href="index.html" class="text-sm font-semibold tracking-tight text-white sm:text-base">
+        Fantasy Football Fantasy
+      </a>
+      <button class="theme-toggle-btn inline-flex h-8 w-8 items-center justify-center rounded-md border border-white/25 text-white transition hover:border-white/60"
+              type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span data-feather="moon" class="theme-toggle-icon h-4 w-4"></span>
+      </button>
+    </header>
+
+    <!-- Season picker + page nav: rendered once and shown as a sidebar on
+         desktop, a bar under the header on mobile. Same markup, laid out
+         differently by breakpoint utilities, so there's exactly one nav
+         to keep in sync with active_page instead of two. -->
+
+    
+
+    <!-- Desktop sidebar -->
+    <aside class="fixed inset-y-0 left-0 z-20 hidden w-56 flex-col border-r border-slate-200 bg-white pt-14 md:flex dark:border-slate-800 dark:bg-slate-900">
+      <div class="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+        <select class="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            aria-label="Season" onchange="if (this.value) location.href = this.value">
+      
+      
+      <option value="../graph.html">2026 (current)</option>
+      
+      
+      
+      <option value="../2025/graph.html">2025</option>
+      
+      
+      
+      <option value="../2024/graph.html">2024</option>
+      
+      
+      
+      <option value="../2023/graph.html">2023</option>
+      
+      
+      
+      <option value="../2022/graph.html">2022</option>
+      
+      
+      
+      <option value="../2021/graph.html">2021</option>
+      
+      
+      
+      <option value="../2020/graph.html">2020</option>
+      
+      
+      
+      <option selected disabled>2019</option>
+      
+      
+    </select>
+        <nav class="space-y-1">
+          <a href="index.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="home" class="h-4 w-4 shrink-0"></span>
+      Home
+    </a>
+
+          <div>
+            <button id="owners-toggle"
+                    class="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                    type="button" aria-expanded="false" aria-controls="owners-panel">
+              <span class="flex items-center gap-2"><span data-feather="users" class="h-4 w-4"></span> Owners</span>
+              <span data-feather="chevron-down" id="owners-chevron" class="h-4 w-4 transition-transform"></span>
+            </button>
+            <ul id="owners-panel" class="mt-1 hidden max-h-64 space-y-0.5 overflow-y-auto pl-2">
+              
+              <li title="Casey Pir — Cooper Troopers">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">1</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Casey</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Cooper Troopers</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Eric Mon — THE CHAMPN&#39;T IS HERE">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">2</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Eric</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">THE CHAMPN&#39;T IS HERE</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Pat Ben — ¡Yo Quiero Tac Odell!">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">3</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Pat</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">¡Yo Quiero Tac Odell!</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Paul Tuu — Kamara Meha">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">4</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Paul</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Kamara Meha</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Nicholas Pol — Ultimate Fulfillment">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">5</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Nicholas</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Ultimate Fulfillment</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Jamie Sug — Team Jamie">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">6</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Jamie</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Jamie</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Sam Eng — Amputees for Taking the Knee">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">7</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Sam</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Amputees for Taking the Knee</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Daniel Sen — Mahomes and Mahomies">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">8</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Daniel Se.</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Mahomes and Mahomies</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Davíd Hui — Team Davíd">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">9</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Davíd</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Davíd</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Nick Kub — Cleveland Bronns">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">10</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Nick</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Cleveland Bronns</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Ethan Hil — Team Ethan">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">11</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Ethan</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Ethan</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Maxwell Abr — Team Beer">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">12</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Maxwell</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Beer</span>
+                  </span>
+                </div>
+              </li>
+              
+            </ul>
+          </div>
+
+          <a href="playoffs.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="bar-chart-2" class="h-4 w-4 shrink-0"></span>
+      Playoffs and Prizes
+    </a>
+          <a href="graph.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+      <span data-feather="layers" class="h-4 w-4 shrink-0"></span>
+      Stats<span class="sr-only"> (current)</span>
+    </a>
+          <a href="rivalries.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="target" class="h-4 w-4 shrink-0"></span>
+      Rivalries
+    </a>
+          <a href="careers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="award" class="h-4 w-4 shrink-0"></span>
+      Career Stats
+    </a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Mobile nav: season picker + horizontally-scrollable page links,
+         directly under the (always-visible) header. -->
+    <div class="border-b border-slate-200 bg-white pt-14 md:hidden dark:border-slate-800 dark:bg-slate-900">
+      <div class="px-4 py-2">
+        <select class="w-full max-w-[12rem] rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            aria-label="Season" onchange="if (this.value) location.href = this.value">
+      
+      
+      <option value="../graph.html">2026 (current)</option>
+      
+      
+      
+      <option value="../2025/graph.html">2025</option>
+      
+      
+      
+      <option value="../2024/graph.html">2024</option>
+      
+      
+      
+      <option value="../2023/graph.html">2023</option>
+      
+      
+      
+      <option value="../2022/graph.html">2022</option>
+      
+      
+      
+      <option value="../2021/graph.html">2021</option>
+      
+      
+      
+      <option value="../2020/graph.html">2020</option>
+      
+      
+      
+      <option selected disabled>2019</option>
+      
+      
+    </select>
+      </div>
+      <nav class="flex gap-1 overflow-x-auto px-2 pb-2 text-sm">
+        <a href="index.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="home" class="h-4 w-4 shrink-0"></span>
+      Home
+    </a>
+        <a href="playoffs.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="bar-chart-2" class="h-4 w-4 shrink-0"></span>
+      Playoffs
+    </a>
+        <a href="graph.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+      <span data-feather="layers" class="h-4 w-4 shrink-0"></span>
+      Stats<span class="sr-only"> (current)</span>
+    </a>
+        <a href="rivalries.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="target" class="h-4 w-4 shrink-0"></span>
+      Rivalries
+    </a>
+        <a href="careers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="award" class="h-4 w-4 shrink-0"></span>
+      Careers
+    </a>
+      </nav>
+    </div>
+
+    <main class="px-4 pt-6 pb-16 md:pt-20 md:pl-60 md:pr-8">
+      
+
+<style>
+  /* Sort arrows -- same pattern as home.html/careers.html. */
+  #advanced-table th.sortable { cursor: pointer; user-select: none; }
+  #advanced-table th.sortable::after {
+    content: "\2195"; margin-left: .3em; font-size: .8em; color: #94a3b8;
+  }
+  #advanced-table th.sortable:hover::after,
+  #advanced-table th.sortable.asc::after,
+  #advanced-table th.sortable.desc::after { color: #334155; }
+  #advanced-table th.sortable.asc::after { content: "\25B2"; }
+  #advanced-table th.sortable.desc::after { content: "\25BC"; }
+  [data-theme="dark"] #advanced-table th.sortable::after { color: #64748b; }
+  [data-theme="dark"] #advanced-table th.sortable:hover::after,
+  [data-theme="dark"] #advanced-table th.sortable.asc::after,
+  [data-theme="dark"] #advanced-table th.sortable.desc::after { color: #e2e8f0; }
+</style>
+
+
+
+
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">2019 Stats</h1>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Weeks 1&ndash;13 of 13. Everything here is derived from the
+  weekly scores already on file &mdash; no projections, no guesswork.
+</p>
+
+
+
+
+<h2 class="mt-8 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Weekly scoring</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Every team's raw score each week. The top three are shown by default; click a name in the legend to show or hide any team.
+</p>
+<div class="mt-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+  <div class="relative h-[320px] w-full md:h-[420px]">
+    <canvas id="myChart" role="img" aria-label="Line chart of each team's weekly score, 2019 season"></canvas>
+  </div>
+</div>
+
+
+
+
+
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+
+
+
+
+
+<div class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+  <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">League average / week</div>
+  <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">107.0</div>
+  <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">per team, 13 weeks</div>
+</div>
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+  <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Average score to beat</div>
+  <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">104.1</div>
+  <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">the top-half line</div>
+</div>
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+  <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Highest-scoring week</div>
+  <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">Wk 3</div>
+  <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">116.5 avg per team</div>
+</div>
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+  <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Lowest-scoring week</div>
+  <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">Wk 7</div>
+  <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">96.3 avg per team</div>
+</div>
+</div>
+
+
+
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
+  Season awards
+  
+</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Handed out by fixed rules, not at random &mdash; so they only move when the football does.
+</p>
+<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">🧱</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        The Wall
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Eric</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">69.2% all-play</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Best record if everyone played everyone every week — schedule removed.</div>
+    </div>
+  </div>
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">🎯</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        The Metronome
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Jamie</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">±13.5 pts per week</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Smallest week-to-week swing. You always knew what was coming.</div>
+    </div>
+  </div>
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">🎢</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        The Rollercoaster
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Paul</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">±28.7 pts per week</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Biggest week-to-week swing. Boom or bust, never in between.</div>
+    </div>
+  </div>
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">💔</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        Robbed<span class="ml-1 rounded bg-slate-200 px-1 py-0.5 text-[.6rem] normal-case dark:bg-slate-700 dark:text-slate-300" title="Tied">shared</span>
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Sam &amp; Jamie</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">5 of 13 weeks</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Most weeks scoring top half and losing the matchup anyway.</div>
+    </div>
+  </div>
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">🍀</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        Horseshoe<span class="ml-1 rounded bg-slate-200 px-1 py-0.5 text-[.6rem] normal-case dark:bg-slate-700 dark:text-slate-300" title="Tied">shared</span>
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Paul &amp; Nicholas</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">3 of 13 weeks</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Most wins while scoring in the bottom half. Found a way.</div>
+    </div>
+  </div>
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">🥊</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        Punching Bag
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Sam</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">1610.0 points against</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Faced the most points all season. Nobody had a harder draw.</div>
+    </div>
+  </div>
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">🔥</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        Highest Ceiling
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Nicholas</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">186.4 in one week</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">The single biggest week anyone put up.</div>
+    </div>
+  </div>
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">📈</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        The Closer
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Davíd</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">+20.6 pts per week after the break</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Biggest jump from the first half of the season to the second.</div>
+    </div>
+  </div>
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">⏱️</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        Clutch<span class="ml-1 rounded bg-slate-200 px-1 py-0.5 text-[.6rem] normal-case dark:bg-slate-700 dark:text-slate-300" title="Tied">shared</span>
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Eric &amp; Pat</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">3-1 in close games</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Best record in games decided by under 10 points.</div>
+    </div>
+  </div>
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">👑</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        Week Winner
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Eric</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">4 weekly highs</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Led the entire league in scoring the most times.</div>
+    </div>
+  </div>
+  
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">🐯</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        Paper Tiger
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">Daniel Se.</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">1348.5 PF, finished 8th</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Most points scored by a team that missed the top 6.</div>
+    </div>
+  </div>
+  
+</div>
+
+
+
+
+
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Season records</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  The single games worth remembering.
+</p>
+<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Biggest blowout</div>
+    <div class="mt-1 text-2xl font-semibold text-rose-600 dark:text-rose-400">+99.8</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      <strong>Nicholas</strong> 186.4 &ndash; 86.6 Daniel Se.
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week 5</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Closest game</div>
+    <div class="mt-1 text-2xl font-semibold text-amber-600 dark:text-amber-400">+0.2</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      <strong>Sam</strong> 75.3 &ndash; 75.1 Davíd
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week 2</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Highest score</div>
+    <div class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">186.4</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300"><strong>Nicholas</strong></div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week 5</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Lowest score</div>
+    <div class="mt-1 text-2xl font-semibold text-slate-500 dark:text-slate-400">44.9</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300"><strong>Nick</strong></div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week 9</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Best score in a loss</div>
+    <div class="mt-1 text-2xl font-semibold text-rose-600 dark:text-rose-400">144.8</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      <strong>Ethan</strong> ran into Eric (148.7)
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week 3</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Worst score in a win</div>
+    <div class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">75.3</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      <strong>Sam</strong> got away with it vs Davíd (75.1)
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week 2</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Shootout</div>
+    <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">293.5</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      Eric 148.7 &ndash; 144.8 Ethan
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week 3, combined</div>
+  </div>
+
+
+</div>
+
+
+
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Advanced stats</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  <strong>All-play</strong> is your record if you'd played every other team every week &mdash;
+  the schedule removed entirely. Compare it to your real record to see who got carried by
+  the draw. <strong>Swing</strong> is the week-to-week standard deviation: low is predictable,
+  high is boom-or-bust. Click a column header to sort.
+</p>
+
+
+<div class="mt-3 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="advanced-table">
+    <thead class="bg-slate-50 dark:bg-slate-900/60">
+      <tr>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Record</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400" title="Record against every team, every week">All-Play</th>
+        <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">All-Play %</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Standard deviation of weekly scores">Swing</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Points Against</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Weeks as the league's top scorer">Wk Highs</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Scored top half and lost anyway">Robbed</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Won while scoring in the bottom half">Stole It</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Casey</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">10-3</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.685">
+          98-45
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.685">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-emerald-500"
+                   style="width: 99.0%"></div>
+            </div>
+            <span class="text-xs tabular-nums font-semibold text-emerald-700 dark:text-emerald-400">68.5%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-700 dark:text-slate-300">
+          &plusmn;16.6
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1358.0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-slate-900 dark:text-white">1</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-rose-600 dark:text-rose-400">1</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-emerald-600 dark:text-emerald-400">1</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Eric</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">8-5</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.692">
+          99-44
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.692">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-emerald-500"
+                   style="width: 100.0%"></div>
+            </div>
+            <span class="text-xs tabular-nums font-semibold text-emerald-700 dark:text-emerald-400">69.2%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-700 dark:text-slate-300">
+          &plusmn;21.9
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1433.4</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-slate-900 dark:text-white">4</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-rose-600 dark:text-rose-400">2</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-400 dark:text-slate-500">0</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Pat</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">9-4</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.643">
+          92-51
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.643">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-emerald-500"
+                   style="width: 92.9%"></div>
+            </div>
+            <span class="text-xs tabular-nums font-semibold text-emerald-700 dark:text-emerald-400">64.3%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-amber-600 dark:text-amber-400">
+          &plusmn;27.7
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1383.8</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-slate-900 dark:text-white">3</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-rose-600 dark:text-rose-400">1</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-emerald-600 dark:text-emerald-400">2</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Paul</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">9-4</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.441">
+          63-80
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.441">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-rose-400"
+                   style="width: 63.7%"></div>
+            </div>
+            <span class="text-xs tabular-nums text-slate-500 dark:text-slate-400">44.1%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-amber-600 dark:text-amber-400">
+          &plusmn;28.7
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1280.2</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-slate-900 dark:text-white">1</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-400 dark:text-slate-500">0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-emerald-600 dark:text-emerald-400">3</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Nicholas</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">8-5</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.497">
+          71-72
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.497">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-rose-400"
+                   style="width: 71.8%"></div>
+            </div>
+            <span class="text-xs tabular-nums text-slate-500 dark:text-slate-400">49.7%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-amber-600 dark:text-amber-400">
+          &plusmn;27.5
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1235.3</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-slate-900 dark:text-white">1</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-rose-600 dark:text-rose-400">1</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-emerald-600 dark:text-emerald-400">3</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Jamie</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">5-8</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.524">
+          75-68
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.524">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-emerald-500"
+                   style="width: 75.7%"></div>
+            </div>
+            <span class="text-xs tabular-nums font-semibold text-emerald-700 dark:text-emerald-400">52.4%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-700 dark:text-slate-300">
+          &plusmn;13.5
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1416.0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-400 dark:text-slate-500">0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-rose-600 dark:text-rose-400">5</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-emerald-600 dark:text-emerald-400">2</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Sam</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">4-9</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.455">
+          65-78
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.455">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-rose-400"
+                   style="width: 65.8%"></div>
+            </div>
+            <span class="text-xs tabular-nums text-slate-500 dark:text-slate-400">45.5%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-700 dark:text-slate-300">
+          &plusmn;16.4
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1610.0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-slate-900 dark:text-white">1</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-rose-600 dark:text-rose-400">5</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-emerald-600 dark:text-emerald-400">1</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Daniel Se.</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">6-7</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.448">
+          64-79
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.448">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-rose-400"
+                   style="width: 64.7%"></div>
+            </div>
+            <span class="text-xs tabular-nums text-slate-500 dark:text-slate-400">44.8%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-700 dark:text-slate-300">
+          &plusmn;20.4
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1340.8</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-400 dark:text-slate-500">0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-rose-600 dark:text-rose-400">1</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-emerald-600 dark:text-emerald-400">2</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Davíd</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">5-8</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.455">
+          65-78
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.455">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-rose-400"
+                   style="width: 65.8%"></div>
+            </div>
+            <span class="text-xs tabular-nums text-slate-500 dark:text-slate-400">45.5%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-amber-600 dark:text-amber-400">
+          &plusmn;25.8
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1455.1</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-slate-900 dark:text-white">2</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-400 dark:text-slate-500">0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-400 dark:text-slate-500">0</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Nick</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">6-7</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.392">
+          56-87
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.392">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-rose-400"
+                   style="width: 56.6%"></div>
+            </div>
+            <span class="text-xs tabular-nums text-slate-500 dark:text-slate-400">39.2%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-700 dark:text-slate-300">
+          &plusmn;19.3
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1327.9</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-400 dark:text-slate-500">0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-400 dark:text-slate-500">0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-emerald-600 dark:text-emerald-400">2</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Ethan</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">4-9</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.413">
+          59-84
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.413">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-rose-400"
+                   style="width: 59.7%"></div>
+            </div>
+            <span class="text-xs tabular-nums text-slate-500 dark:text-slate-400">41.3%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-700 dark:text-slate-300">
+          &plusmn;19.4
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1479.2</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-400 dark:text-slate-500">0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-rose-600 dark:text-rose-400">2</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-emerald-600 dark:text-emerald-400">2</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">Maxwell</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">4-9</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="0.357">
+          51-92
+        </td>
+        
+        <td class="px-3 py-2" data-sort="0.357">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full bg-rose-400"
+                   style="width: 51.6%"></div>
+            </div>
+            <span class="text-xs tabular-nums text-slate-500 dark:text-slate-400">35.7%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-700 dark:text-slate-300">
+          &plusmn;18.2
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1377.8</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell text-slate-400 dark:text-slate-500">0</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-rose-600 dark:text-rose-400">1</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell font-semibold text-emerald-600 dark:text-emerald-400">1</td>
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+
+
+<script src="static/js/hello.js"></script>
+
+    </main>
+
+    <!-- Hidden color swatches: Chart.js paints its own canvas, so it can't
+         pick up Tailwind's dark: variant from CSS the way the rest of the
+         page does. These exist only so JS can read a theme-correct
+         getComputedStyle() color instead of hardcoding hex per theme. -->
+    <div class="hidden" aria-hidden="true">
+      <span id="swatch-tick" class="text-slate-500 dark:text-slate-400"></span>
+      <span id="swatch-legend" class="text-slate-600 dark:text-slate-300"></span>
+      <span id="swatch-grid" class="border-slate-200 dark:border-slate-800" style="border-style: solid; border-width: 1px;"></span>
+    </div>
+
+    
+
+    <!-- Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js" integrity="sha512-zMm7+ZQ8AZr1r3W8Z8lDATkH05QG5Gm2xc6MlsCdBz9l6oE8Y7IXByMgSm/rdRQrhuHt99HAYfMljBOEZ68q5A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      (function () {
+        function currentTheme() {
+          return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        }
+        function setIcons(theme) {
+          document.querySelectorAll('.theme-toggle-icon').forEach(function (icon) {
+            icon.setAttribute('data-feather', theme === 'dark' ? 'sun' : 'moon');
+          });
+        }
+
+        setIcons(currentTheme());
+        feather.replace();
+
+        document.querySelectorAll('.theme-toggle-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var next = currentTheme() === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+            setIcons(next);
+            feather.replace();
+            window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
+          });
+        });
+
+        // Owners collapse -- replaces Bootstrap's data-toggle="collapse"
+        // (which needed jQuery + Popper); this is the only interactive
+        // widget on the site that isn't a plain link, click-to-sort, or
+        // the theme toggle, so it doesn't need a library.
+        var ownersToggle = document.getElementById('owners-toggle');
+        var ownersPanel = document.getElementById('owners-panel');
+        var ownersChevron = document.getElementById('owners-chevron');
+        if (ownersToggle && ownersPanel) {
+          ownersToggle.addEventListener('click', function () {
+            var open = ownersPanel.classList.toggle('hidden') === false;
+            ownersToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (ownersChevron) ownersChevron.style.transform = open ? 'rotate(180deg)' : '';
+          });
+        }
+      })();
+    </script>
+
+    <!-- Graphs (dataset rendered from data/standings-<season>.json).
+         Only graph.html has a <canvas>, so the library and the whole
+         dataset payload are skipped on the other four pages rather than
+         downloaded and then ignored. -->
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script>
+      
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+      var chartData = {"datasets": [{"backgroundColor": "#0072B2", "borderColor": "#0072B2", "data": [130.8, 116.9, 132.8, 114.5, 136.2, 128.7, 78.1, 132.4, 101.3, 117.3, 133.2, 109.4, 98.6], "fill": false, "hidden": false, "label": "Casey Pir", "pointBackgroundColor": "#0072B2", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#D55E00", "borderColor": "#D55E00", "data": [147.2, 116.4, 148.7, 111.6, 122.0, 112.6, 87.7, 155.9, 118.7, 92.5, 145.2, 93.3, 111.7], "fill": false, "hidden": false, "label": "Eric Mon", "pointBackgroundColor": "#D55E00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#009E73", "borderColor": "#009E73", "data": [111.0, 157.3, 85.2, 112.4, 145.5, 127.5, 92.1, 99.9, 106.4, 158.2, 110.0, 178.8, 106.0], "fill": false, "hidden": false, "label": "Pat Ben", "pointBackgroundColor": "#009E73", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#E69F00", "borderColor": "#E69F00", "data": [81.2, 113.4, 141.9, 107.2, 114.1, 116.0, 100.6, 132.7, 167.3, 86.5, 71.9, 82.3, 61.2], "fill": false, "hidden": true, "label": "Paul Tuu", "pointBackgroundColor": "#E69F00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#CC79A7", "borderColor": "#CC79A7", "data": [130.5, 87.0, 113.9, 101.8, 186.4, 98.5, 105.6, 137.6, 92.6, 113.0, 75.4, 99.2, 89.9], "fill": false, "hidden": true, "label": "Nicholas Pol", "pointBackgroundColor": "#CC79A7", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#56B4E9", "borderColor": "#56B4E9", "data": [117.0, 108.5, 118.6, 113.8, 92.7, 125.0, 91.8, 91.4, 105.9, 132.5, 93.9, 91.7, 111.5], "fill": false, "hidden": true, "label": "Jamie Sug", "pointBackgroundColor": "#56B4E9", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#F0E442", "borderColor": "#F0E442", "data": [113.3, 75.3, 90.6, 120.5, 121.7, 95.8, 98.5, 69.6, 120.2, 98.5, 87.6, 93.7, 113.6], "fill": false, "hidden": true, "label": "Sam Eng", "pointBackgroundColor": "#F0E442", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#999999", "borderColor": "#999999", "data": [127.5, 104.0, 122.8, 83.9, 86.6, 127.7, 73.3, 87.3, 89.8, 83.7, 102.7, 135.4, 123.8], "fill": false, "hidden": true, "label": "Daniel Sen", "pointBackgroundColor": "#999999", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#882255", "borderColor": "#882255", "data": [73.7, 75.1, 112.9, 119.7, 71.9, 97.4, 117.5, 145.5, 104.7, 69.1, 81.7, 127.4, 140.9], "fill": false, "hidden": true, "label": "Dav\u00edd Hui", "pointBackgroundColor": "#882255", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#44AA99", "borderColor": "#44AA99", "data": [96.8, 100.1, 97.2, 102.7, 124.5, 78.9, 88.5, 92.6, 44.9, 107.5, 117.1, 86.0, 114.4], "fill": false, "hidden": true, "label": "Nick Kub", "pointBackgroundColor": "#44AA99", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#994499", "borderColor": "#994499", "data": [112.0, 86.1, 144.8, 81.1, 119.6, 101.0, 106.3, 119.9, 69.5, 90.3, 114.3, 85.8, 99.3], "fill": false, "hidden": true, "label": "Ethan Hil", "pointBackgroundColor": "#994499", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#332288", "borderColor": "#332288", "data": [98.7, 113.6, 88.1, 87.5, 72.2, 105.0, 115.4, 80.7, 130.5, 66.7, 106.5, 76.3, 104.2], "fill": false, "hidden": true, "label": "Maxwell Abr", "pointBackgroundColor": "#332288", "pointBorderColor": "#fff", "pointBorderWidth": 1}], "labels": ["Wk 1", "Wk 2", "Wk 3", "Wk 4", "Wk 5", "Wk 6", "Wk 7", "Wk 8", "Wk 9", "Wk 10", "Wk 11", "Wk 12", "Wk 13"]};
+      var ctx = document.getElementById("myChart");
+      if (ctx) {
+        function swatchColor(id) {
+          var el = document.getElementById(id);
+          return el ? getComputedStyle(el).color : '#868e96';
+        }
+        var fffChart = new Chart(ctx, {
+          type: 'line',
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            hover: { mode: 'nearest', intersect: false },
+            elements: {
+              line: { borderWidth: 2, tension: 0 },
+              point: { radius: 2.5, hoverRadius: 6, hitRadius: 10 }
+            },
+            scales: {
+              xAxes: [{
+                gridLines: { display: false },
+                ticks: { fontColor: swatchColor('swatch-tick') }
+              }],
+              yAxes: [{
+                gridLines: { color: getComputedStyle(document.getElementById('swatch-grid')).borderColor },
+                ticks: { fontColor: swatchColor('swatch-tick'), beginAtZero: false }
+              }]
+            },
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                boxWidth: 8,
+                fontColor: swatchColor('swatch-legend'),
+                padding: 12
+              }
+            },
+            tooltips: {
+              mode: 'nearest',
+              intersect: false,
+              backgroundColor: 'rgba(15, 23, 42, .92)',
+              titleFontStyle: 'normal',
+              bodySpacing: 2,
+              callbacks: {
+                label: function (item, data) {
+                  var ds = data.datasets[item.datasetIndex];
+                  return ' ' + ds.label + ': ' + item.yLabel;
+                }
+              }
+            }
+          }
+        });
+        window.addEventListener('themechange', function () {
+          var o = fffChart.options;
+          o.scales.xAxes[0].ticks.fontColor = swatchColor('swatch-tick');
+          o.scales.yAxes[0].ticks.fontColor = swatchColor('swatch-tick');
+          o.scales.yAxes[0].gridLines.color = getComputedStyle(document.getElementById('swatch-grid')).borderColor;
+          o.legend.labels.fontColor = swatchColor('swatch-legend');
+          fffChart.update();
+        });
+      }
+    </script>
+    
+  </body>
+</html>

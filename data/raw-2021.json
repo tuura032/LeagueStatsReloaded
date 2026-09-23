@@ -4056,601 +4056,73 @@
         "displayName": "nick.k8534801",
         "firstName": "Nick",
         "id": "{0A332EDF-B8AA-4508-8114-8BD72B191EDD}",
-        "lastName": "Kubit",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 5,
-            "id": "f2359e57-e316-3558-a670-741e413ceed4",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 5,
-            "id": "cc4c374a-a376-396f-a202-cb0b0e2a82b5",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 5,
-            "id": "0f05697b-cd67-3440-ae5f-47ba316ca501",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 5,
-            "id": "4e30e097-bf68-3aef-b5f7-8f088b1bbede",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 5,
-            "id": "ea8b32c6-c927-3b5a-9ee1-5491afc1ae80",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 5,
-            "id": "cbdca1ca-1433-346d-8dda-71e086d1074e",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 5,
-            "id": "3d2e99d6-7e97-394b-81ab-39a6dce1686b",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Kub"
       },
       {
         "displayName": "ESPNFAN0121080567",
         "firstName": "Dav\u00edd",
         "id": "{0B9E7AB1-0197-4334-B239-8A0F8158C98D}",
-        "lastName": "Huisken",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 12,
-            "id": "91d14c71-4f02-3f0c-bb98-b7ab3a45629f",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 12,
-            "id": "ca581d23-6970-3d20-a702-d359a86d1e14",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 12,
-            "id": "699502b7-7e5d-3f6d-9334-199d3360d399",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 12,
-            "id": "5d99dd60-ca7b-3512-9dde-2baf0d1f9c68",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 12,
-            "id": "3c03dbe1-b7e1-36e7-a01a-69e5d7589e09",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 12,
-            "id": "40ab3c75-6d41-3d12-8781-2c61965a6bb1",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 12,
-            "id": "6a320cda-153f-3231-9c9b-72b348718815",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Hui"
       },
       {
         "displayName": "monsoon_season",
         "firstName": "Eric",
         "id": "{13BC4E54-CFC0-411A-BC4E-54CFC0511A50}",
-        "lastName": "Monson",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 8,
-            "id": "c46d7ca2-c654-3a2b-abf2-30739816f356",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 8,
-            "id": "af8404e5-7563-3b47-a5e5-8e466912c40f",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 8,
-            "id": "aa316839-02ff-3e89-816d-1aef55309536",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 8,
-            "id": "dfc80332-a101-3516-9214-a57b7f5b834a",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 8,
-            "id": "6251a1db-29a4-33fc-97de-f53cc82568a6",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 8,
-            "id": "585c882c-3b34-3d69-b7f7-85186d209d62",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 8,
-            "id": "83c69a2f-7f9d-34da-9cb9-95036993651c",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Mon"
       },
       {
         "displayName": "cspirs0858254",
         "firstName": "Casey",
         "id": "{1EEB4962-4876-46E4-B61E-BDB1ED1C8E69}",
-        "lastName": "Pirsig",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 2,
-            "id": "ec7c19d8-f1ca-3b4e-b11e-c13eac34e377",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 2,
-            "id": "f7de3eaa-c3fd-31f3-b5cd-a38dbdef2e72",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 2,
-            "id": "5f620bbe-40e7-3f7f-9354-eb891fdcda4c",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 2,
-            "id": "e9db69a5-ea18-3140-b484-9722ae89e501",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 2,
-            "id": "fe8ba87c-226d-3a06-8ca0-a6a64b7ed635",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 2,
-            "id": "9cc768b2-9f04-37e5-9ba0-22e14e526b87",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 2,
-            "id": "77addaef-325a-38eb-8940-71f73f895f40",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Pir"
       },
       {
         "displayName": "Suggknight",
         "firstName": "Jamie",
         "id": "{278CF87D-5A4F-4F55-AA33-A71F17D0AC51}",
-        "lastName": "Sugar",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 6,
-            "id": "8f43e0b7-509a-3faa-bb46-bc00bbef37cb",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 6,
-            "id": "d5dcc599-184f-3e4a-a506-d691307fc7ea",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 6,
-            "id": "f645a4dc-18eb-30e1-900b-8fd06564d3e2",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 6,
-            "id": "40d5d839-af5f-39c7-a129-c99c16543c97",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 6,
-            "id": "15bb95bf-c566-367c-9016-f4619590a4c7",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 6,
-            "id": "3e39ed2e-623f-30f7-bffb-27729b5c1e61",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 6,
-            "id": "f14683aa-69c6-3e7c-8f56-966ca4700db4",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Sug"
       },
       {
         "displayName": "SirNAPda9th",
         "firstName": "Nicholas",
         "id": "{3DCC2A66-307F-4CA4-A4AC-6A0D93B774D2}",
-        "lastName": "Polansky",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 4,
-            "id": "a8b00ff0-cd16-35c6-82ac-2a3f00af2254",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 4,
-            "id": "5c8e2341-6c5d-3c0a-91fa-a625f304198e",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 4,
-            "id": "e4907f38-87eb-30f2-b589-21c66399aea1",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 4,
-            "id": "5a95fe0d-1a90-378c-963e-5f3116a5b301",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 4,
-            "id": "a3a87f8a-dec0-3c82-acdf-470c4d5d5e5e",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 4,
-            "id": "e1bcb09e-cb7b-39da-9db6-53dfaa8dd4f7",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 4,
-            "id": "75ac7c05-4fc5-3b91-99d0-75d9fb00e4b5",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Pol"
       },
       {
         "displayName": "ehilde9641862",
         "firstName": "Ethan",
         "id": "{844E6A89-CB19-4147-855F-3FCAD8416753}",
-        "lastName": "Hildebrandt",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 10,
-            "id": "4afe33ba-ef52-3394-88e3-770e7307d7b1",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 10,
-            "id": "b572713a-8c3b-3861-ab15-a41d71b68f64",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 10,
-            "id": "14471e4e-388d-3c26-93f0-136254ae0d1a",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 10,
-            "id": "2a67ce11-283f-3207-89a7-75472b09f1d5",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 10,
-            "id": "2eb48a0b-7b08-39a4-a735-a8f99a4fc6a3",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 10,
-            "id": "1aac19e9-1e5c-33db-91b5-3066d35721ac",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 10,
-            "id": "17a1e5f9-88ab-3c2f-967f-a0439a1f26d4",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Hil"
       },
       {
         "displayName": "benne578",
         "firstName": "Pat",
         "id": "{977C9F85-A851-49E1-BC9F-85A85139E131}",
-        "lastName": "Benner",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 11,
-            "id": "91f5da0c-17a9-3e0b-8132-fb9639133018",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 11,
-            "id": "560ae236-cc29-3c46-8454-c08f986e04e1",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 11,
-            "id": "eec1a11b-73e2-37c4-a7e4-9150a3488230",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 11,
-            "id": "137d887b-949e-3bda-8889-2eb8b3997d68",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 11,
-            "id": "29d3eba8-846b-35fb-b780-ba42d66f36da",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 11,
-            "id": "4cc744ad-3980-3740-96ce-d0d10d9b30fa",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 11,
-            "id": "932db5e7-1c74-3a8c-beb3-637da1e267b2",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Ben"
       },
       {
-        "displayName": "tuura032",
+        "displayName": "Tuu032",
         "firstName": "Paul",
         "id": "{988DE2B1-9BF4-4515-8DE2-B19BF4C515CA}",
-        "lastName": "Tuura",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 1,
-            "id": "a8bb0c4e-3b23-3b95-9c13-ac9cfff2ec58",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 1,
-            "id": "a3edc972-53da-3db4-a5ac-2c2deb664d75",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 1,
-            "id": "68289155-d6e5-30d5-b057-25b686d92130",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 1,
-            "id": "45274596-6637-3b5c-825f-411f7a7795e8",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 1,
-            "id": "3245562b-9e2c-36f0-9f94-242eaf416dde",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 1,
-            "id": "643ed0e5-9ea5-32c9-88df-75d2429d1690",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 1,
-            "id": "832c7b51-1c22-32bf-8d57-bdadb411c878",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Tuu"
       },
       {
-        "displayName": "SharpDaniel",
+        "displayName": "ShaDaniel",
         "firstName": "Daniel",
         "id": "{B1021F15-F8CD-43A6-8D30-0F9EDBADFE60}",
-        "lastName": "Sharp",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 9,
-            "id": "4a2d49c6-9059-3a5e-9e14-4f34dee5e23e",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 9,
-            "id": "e7cbcb87-b6f1-338d-853c-756eb86189bb",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 9,
-            "id": "4611d532-c670-3318-99c4-7d2c0c406e54",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 9,
-            "id": "771acf25-8da0-3cbf-bea6-d0b2e4772996",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 9,
-            "id": "c9ef6803-54d3-37cd-9525-a628756b470a",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 9,
-            "id": "87c2c986-0e01-3768-bc75-cec2b86b71cd",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 9,
-            "id": "7cea0a0e-b98a-3c25-904d-886332a94eeb",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Sha"
       },
       {
         "displayName": "senge023",
         "firstName": "Daniel",
         "id": "{E309900B-0ADE-41F7-8990-0B0ADEA1F7FA}",
-        "lastName": "Senger",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 7,
-            "id": "a4bff01c-4b5a-3381-a227-a77b16d73ee9",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 7,
-            "id": "f6f015cd-3dfb-37ac-ab6e-cfd42dffffa5",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 7,
-            "id": "a992c220-c590-3d0e-b45e-72a3e46421ea",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 7,
-            "id": "bf777dee-cc29-3e9e-a45f-05babd631c7d",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 7,
-            "id": "c3e3f236-43c8-356c-b450-6a391a499031",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 7,
-            "id": "5c60b39c-51f7-3034-9383-d9a24d74e9f2",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 7,
-            "id": "bfe046ab-ac63-3675-bec3-35e72c504f57",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Sen"
       },
       {
-        "displayName": "Sam Engsberg",
+        "displayName": "Sam Eng",
         "firstName": "Sam",
         "id": "{F96D96B2-CFC1-4769-AD96-B2CFC1876946}",
-        "lastName": "Engsberg",
-        "notificationSettings": [
-          {
-            "enabled": true,
-            "forId": 3,
-            "id": "1703d458-cc09-3b18-88f3-14e7a5229e50",
-            "type": "TEAM_PLAYER_INJURY"
-          },
-          {
-            "enabled": true,
-            "forId": 3,
-            "id": "0522bd4c-6b90-3335-b7aa-ad5fcaf3748a",
-            "type": "TEAM_PLAYER_AVAILABILITY"
-          },
-          {
-            "enabled": true,
-            "forId": 3,
-            "id": "4d2f6397-a0a8-3f87-a039-9e1e5fe4c2c9",
-            "type": "TEAM_PLAYER_NEWS"
-          },
-          {
-            "enabled": true,
-            "forId": 3,
-            "id": "d0c4455b-6f6b-3b77-874b-d68b85260891",
-            "type": "TEAM_PLAYER_STARTBENCH"
-          },
-          {
-            "enabled": true,
-            "forId": 3,
-            "id": "759f4af7-264d-339c-bd37-71ea15eeab5a",
-            "type": "TEAM_TRADE_OFFER"
-          },
-          {
-            "enabled": true,
-            "forId": 3,
-            "id": "a23f9f77-3fa8-30b4-8745-40ae2425fb1b",
-            "type": "DRAFT"
-          },
-          {
-            "enabled": true,
-            "forId": 3,
-            "id": "d5bf4bf6-f61a-300b-be28-2e0d6b532017",
-            "type": "TEAM_MATCHUP_SCORE"
-          }
-        ]
+        "lastName": "Eng"
       }
     ],
     "scoringPeriodId": 19,
@@ -5442,7 +4914,7 @@
         "isTransactionLocked": false,
         "logo": "https://g.espncdn.com/lm-static/ffl/images/default_logos/19.svg",
         "logoType": "VECTOR",
-        "name": "Team Sugar",
+        "name": "Team Jamie",
         "owners": [
           "{278CF87D-5A4F-4F55-AA33-A71F17D0AC51}"
         ],
@@ -6013,7 +5485,7 @@
         "isTransactionLocked": false,
         "logo": "http://i.imgur.com/DwJXoX2.jpg",
         "logoType": "CUSTOM_VALID",
-        "name": "Team Hildebrandt",
+        "name": "Team Ethan",
         "owners": [
           "{844E6A89-CB19-4147-855F-3FCAD8416753}"
         ],

@@ -7,8 +7,13 @@ boundary tie, and that weeks 15-17 contribute no dual points.
 """
 import unittest
 
+import hashlib
+import json
+import os
+
 import build
 import compute
+import fetch
 
 UPDATED = "2026-09-18T13:04:11Z"
 
@@ -970,12 +975,28 @@ class TestShortNames(unittest.TestCase):
         self.assertEqual(m["Casey Pirsig"], "Casey")
         self.assertEqual(m["Pat Benner"], "Pat")
 
-    def test_colliding_first_names_keep_the_full_name(self):
-        # This league really does have both of these.
+    def test_colliding_first_names_get_the_shortest_distinguishing_prefix(self):
+        # This league really does have both Daniels. One letter won't do it
+        # -- they're both S -- so it grows to two.
         m = compute.short_names(["Daniel Senger", "Daniel Sharp", "Pat Benner"])
-        self.assertEqual(m["Daniel Senger"], "Daniel Senger")
-        self.assertEqual(m["Daniel Sharp"], "Daniel Sharp")
+        self.assertEqual(m["Daniel Senger"], "Daniel Se.")
+        self.assertEqual(m["Daniel Sharp"], "Daniel Sh.")
         self.assertEqual(m["Pat Benner"], "Pat")
+
+    def test_one_letter_is_enough_when_it_separates(self):
+        m = compute.short_names(["Daniel Senger", "Daniel Torres"])
+        self.assertEqual(m["Daniel Senger"], "Daniel S.")
+        self.assertEqual(m["Daniel Torres"], "Daniel T.")
+
+    def test_prefix_grows_as_far_as_it_needs_to(self):
+        m = compute.short_names(["Chris Smith", "Chris Smythe"])
+        self.assertEqual(m["Chris Smith"], "Chris Smi.")
+        self.assertEqual(m["Chris Smythe"], "Chris Smy.")
+
+    def test_three_way_collision(self):
+        m = compute.short_names(["Chris Smith", "Chris Smythe", "Chris Jones"])
+        self.assertEqual(sorted(m.values()),
+                         ["Chris Jon.", "Chris Smi.", "Chris Smy."])
 
     def test_similar_but_distinct_first_names_both_shorten(self):
         m = compute.short_names(["Nick Kubit", "Nicholas Polansky"])
@@ -1255,3 +1276,105 @@ class TestRivalriesIncludePostseason(unittest.TestCase):
         self.assertEqual(season["throughWeek"], 14)
         self.assertEqual([w["week"] for w in season["weeks"]],
                          list(range(1, 15)))
+
+
+class TestSurnameRedaction(unittest.TestCase):
+    """fetch.redact_members: nothing world-readable carries a full surname.
+
+    The repo is public (free GitHub Pages requires it), so everything
+    written to data/ is published. See SPEC.md §3.
+    """
+
+    def _raw(self):
+        return {"mTeam": {
+            "members": [
+                {"id": "{a}", "firstName": "Ethan", "lastName": "Hildebrandt",
+                 "displayName": "ethan.h123",
+                 "notificationSettings": [{"id": "noise"}]},
+                {"id": "{b}", "firstName": "Sam", "lastName": "Engsberg",
+                 "displayName": "Sam Engsberg"},
+                {"id": "{c}", "firstName": "Pat", "lastName": "Ben"},
+            ],
+            "teams": [
+                {"id": 1, "primaryOwner": "{a}", "name": "Team Hildebrandt"},
+                {"id": 2, "primaryOwner": "{b}", "name": "Lt. Surge Energy"},
+                {"id": 3, "primaryOwner": "{c}", "name": "Unrelated"},
+            ]}}
+
+    def test_surnames_are_truncated(self):
+        out = fetch.redact_members(self._raw())
+        names = {m["firstName"]: m["lastName"] for m in out["mTeam"]["members"]}
+        self.assertEqual(names["Ethan"], "Hil")
+        self.assertEqual(names["Sam"], "Eng")
+
+    def test_a_display_name_holding_a_full_name_is_truncated_too(self):
+        out = fetch.redact_members(self._raw())
+        sam = next(m for m in out["mTeam"]["members"] if m["firstName"] == "Sam")
+        self.assertEqual(sam["displayName"], "Sam Eng")
+
+    def test_opaque_display_handles_are_left_alone(self):
+        out = fetch.redact_members(self._raw())
+        ethan = next(m for m in out["mTeam"]["members"]
+                     if m["firstName"] == "Ethan")
+        self.assertEqual(ethan["displayName"], "ethan.h123")
+
+    def test_a_team_named_after_its_owner_loses_the_surname(self):
+        out = fetch.redact_members(self._raw())
+        names = {t["id"]: t["name"] for t in out["mTeam"]["teams"]}
+        self.assertEqual(names[1], "Team Ethan")
+        self.assertEqual(names[2], "Lt. Surge Energy")
+        self.assertEqual(names[3], "Unrelated")
+
+    def test_notification_noise_is_dropped(self):
+        out = fetch.redact_members(self._raw())
+        for m in out["mTeam"]["members"]:
+            self.assertNotIn("notificationSettings", m)
+
+    def test_no_full_surname_survives_anywhere(self):
+        blob = json.dumps(fetch.redact_members(self._raw()))
+        for surname in ("Hildebrandt", "Engsberg"):
+            self.assertNotIn(surname, blob)
+
+    def test_running_twice_is_a_no_op(self):
+        once = fetch.redact_members(self._raw())
+        twice = fetch.redact_members(json.loads(json.dumps(once)))
+        self.assertEqual(once, twice)
+
+    def test_already_short_surnames_are_untouched(self):
+        out = fetch.redact_members(self._raw())
+        pat = next(m for m in out["mTeam"]["members"] if m["firstName"] == "Pat")
+        self.assertEqual(pat["lastName"], "Ben")
+
+
+class TestPassphraseGate(unittest.TestCase):
+    """build.phrase_hash: the phrase never ships, only its digest."""
+
+    def setUp(self):
+        self._saved = os.environ.get("LEAGUE_PHRASE")
+
+    def tearDown(self):
+        os.environ.pop("LEAGUE_PHRASE", None)
+        if self._saved is not None:
+            os.environ["LEAGUE_PHRASE"] = self._saved
+
+    def test_no_secret_means_no_gate(self):
+        os.environ.pop("LEAGUE_PHRASE", None)
+        self.assertEqual(build.phrase_hash(), "")
+
+    def test_blank_secret_means_no_gate(self):
+        os.environ["LEAGUE_PHRASE"] = "   "
+        self.assertEqual(build.phrase_hash(), "")
+
+    def test_hash_matches_sha256_and_hides_the_phrase(self):
+        os.environ["LEAGUE_PHRASE"] = "go lions"
+        got = build.phrase_hash()
+        self.assertEqual(
+            got, hashlib.sha256(b"go lions").hexdigest())
+        self.assertNotIn("go lions", got)
+        self.assertEqual(len(got), 64)
+
+    def test_surrounding_whitespace_is_ignored(self):
+        os.environ["LEAGUE_PHRASE"] = "  go lions  "
+        a = build.phrase_hash()
+        os.environ["LEAGUE_PHRASE"] = "go lions"
+        self.assertEqual(a, build.phrase_hash())

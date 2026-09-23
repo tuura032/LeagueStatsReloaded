@@ -28,6 +28,11 @@ jobs:
         run: python -m unittest test_compute -v
 
       - name: Fetch, compute, build
+        # LEAGUE_PHRASE is a repository secret. build.py hashes it and bakes
+        # only the SHA-256 into the pages, so the phrase itself is never
+        # committed. If the secret is unset the gate is simply omitted.
+        env:
+          LEAGUE_PHRASE: ${{ secrets.LEAGUE_PHRASE }}
         run: |
           python fetch.py
           python compute.py

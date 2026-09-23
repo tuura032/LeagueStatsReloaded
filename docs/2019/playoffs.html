@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Dark mode, no-flash: resolve the theme (stored override, else
+         system preference) and set it explicitly on <html> before first
+         paint. Tailwind's dark: variant here (src/tailwind.css) targets
+         [data-theme="dark"] directly rather than a prefers-color-scheme
+         media query, so this is the one place theme resolution happens —
+         CSS never has to guess. -->
+    <script>
+      (function () {
+        var theme = 'light';
+        try {
+          var stored = localStorage.getItem('theme');
+          theme = (stored === 'dark' || stored === 'light') ? stored
+            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+
+    
+
+    <link rel="stylesheet" href="static/css/app.css">
+    <link rel="shortcut icon" type="image/png" href="static/fffIcon.png"/>
+
+    <title>
+    Fantasy Football Fantasy
+</title>
+  </head>
+  <body class="h-full bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+
+    <!-- Header: fixed, full-width, always visible at every breakpoint —
+         the old Bootstrap build hid this entirely below 768px and only
+         home.html had a fallback nav, so playoffs/graph had NO navigation
+         on phones until that was patched. Keeping one header visible
+         everywhere removes that whole class of bug instead of patching
+         around it again. -->
+    <header class="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between bg-slate-900 px-4 shadow-sm dark:bg-black">
+      <a href="index.html" class="text-sm font-semibold tracking-tight text-white sm:text-base">
+        Fantasy Football Fantasy
+      </a>
+      <button class="theme-toggle-btn inline-flex h-8 w-8 items-center justify-center rounded-md border border-white/25 text-white transition hover:border-white/60"
+              type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span data-feather="moon" class="theme-toggle-icon h-4 w-4"></span>
+      </button>
+    </header>
+
+    <!-- Season picker + page nav: rendered once and shown as a sidebar on
+         desktop, a bar under the header on mobile. Same markup, laid out
+         differently by breakpoint utilities, so there's exactly one nav
+         to keep in sync with active_page instead of two. -->
+
+    
+
+    <!-- Desktop sidebar -->
+    <aside class="fixed inset-y-0 left-0 z-20 hidden w-56 flex-col border-r border-slate-200 bg-white pt-14 md:flex dark:border-slate-800 dark:bg-slate-900">
+      <div class="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+        <select class="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            aria-label="Season" onchange="if (this.value) location.href = this.value">
+      
+      
+      <option value="../playoffs.html">2026 (current)</option>
+      
+      
+      
+      <option value="../2025/playoffs.html">2025</option>
+      
+      
+      
+      <option value="../2024/playoffs.html">2024</option>
+      
+      
+      
+      <option value="../2023/playoffs.html">2023</option>
+      
+      
+      
+      <option value="../2022/playoffs.html">2022</option>
+      
+      
+      
+      <option value="../2021/playoffs.html">2021</option>
+      
+      
+      
+      <option value="../2020/playoffs.html">2020</option>
+      
+      
+      
+      <option selected disabled>2019</option>
+      
+      
+    </select>
+        <nav class="space-y-1">
+          <a href="index.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="home" class="h-4 w-4 shrink-0"></span>
+      Home
+    </a>
+
+          <div>
+            <button id="owners-toggle"
+                    class="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                    type="button" aria-expanded="false" aria-controls="owners-panel">
+              <span class="flex items-center gap-2"><span data-feather="users" class="h-4 w-4"></span> Owners</span>
+              <span data-feather="chevron-down" id="owners-chevron" class="h-4 w-4 transition-transform"></span>
+            </button>
+            <ul id="owners-panel" class="mt-1 hidden max-h-64 space-y-0.5 overflow-y-auto pl-2">
+              
+              <li title="Casey Pir — Cooper Troopers">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">1</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Casey</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Cooper Troopers</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Eric Mon — THE CHAMPN&#39;T IS HERE">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">2</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Eric</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">THE CHAMPN&#39;T IS HERE</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Pat Ben — ¡Yo Quiero Tac Odell!">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">3</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Pat</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">¡Yo Quiero Tac Odell!</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Paul Tuu — Kamara Meha">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">4</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Paul</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Kamara Meha</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Nicholas Pol — Ultimate Fulfillment">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">5</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Nicholas</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Ultimate Fulfillment</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Jamie Sug — Team Jamie">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">6</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Jamie</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Jamie</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Sam Eng — Amputees for Taking the Knee">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">7</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Sam</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Amputees for Taking the Knee</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Daniel Sen — Mahomes and Mahomies">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">8</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Daniel Se.</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Mahomes and Mahomies</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Davíd Hui — Team Davíd">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">9</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Davíd</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Davíd</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Nick Kub — Cleveland Bronns">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">10</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Nick</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Cleveland Bronns</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Ethan Hil — Team Ethan">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">11</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Ethan</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Ethan</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Maxwell Abr — Team Beer">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">12</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Maxwell</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Beer</span>
+                  </span>
+                </div>
+              </li>
+              
+            </ul>
+          </div>
+
+          <a href="playoffs.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+      <span data-feather="bar-chart-2" class="h-4 w-4 shrink-0"></span>
+      Playoffs and Prizes<span class="sr-only"> (current)</span>
+    </a>
+          <a href="graph.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="layers" class="h-4 w-4 shrink-0"></span>
+      Stats
+    </a>
+          <a href="rivalries.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="target" class="h-4 w-4 shrink-0"></span>
+      Rivalries
+    </a>
+          <a href="careers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="award" class="h-4 w-4 shrink-0"></span>
+      Career Stats
+    </a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Mobile nav: season picker + horizontally-scrollable page links,
+         directly under the (always-visible) header. -->
+    <div class="border-b border-slate-200 bg-white pt-14 md:hidden dark:border-slate-800 dark:bg-slate-900">
+      <div class="px-4 py-2">
+        <select class="w-full max-w-[12rem] rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            aria-label="Season" onchange="if (this.value) location.href = this.value">
+      
+      
+      <option value="../playoffs.html">2026 (current)</option>
+      
+      
+      
+      <option value="../2025/playoffs.html">2025</option>
+      
+      
+      
+      <option value="../2024/playoffs.html">2024</option>
+      
+      
+      
+      <option value="../2023/playoffs.html">2023</option>
+      
+      
+      
+      <option value="../2022/playoffs.html">2022</option>
+      
+      
+      
+      <option value="../2021/playoffs.html">2021</option>
+      
+      
+      
+      <option value="../2020/playoffs.html">2020</option>
+      
+      
+      
+      <option selected disabled>2019</option>
+      
+      
+    </select>
+      </div>
+      <nav class="flex gap-1 overflow-x-auto px-2 pb-2 text-sm">
+        <a href="index.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="home" class="h-4 w-4 shrink-0"></span>
+      Home
+    </a>
+        <a href="playoffs.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+      <span data-feather="bar-chart-2" class="h-4 w-4 shrink-0"></span>
+      Playoffs<span class="sr-only"> (current)</span>
+    </a>
+        <a href="graph.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="layers" class="h-4 w-4 shrink-0"></span>
+      Stats
+    </a>
+        <a href="rivalries.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="target" class="h-4 w-4 shrink-0"></span>
+      Rivalries
+    </a>
+        <a href="careers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="award" class="h-4 w-4 shrink-0"></span>
+      Careers
+    </a>
+      </nav>
+    </div>
+
+    <main class="px-4 pt-6 pb-16 md:pt-20 md:pl-60 md:pr-8">
+      
+
+
+<style>
+  /* Sort arrows -- same pattern as home.html/careers.html. */
+  #playoff-table th.sortable { cursor: pointer; user-select: none; }
+  #playoff-table th.sortable::after {
+    content: "\2195"; margin-left: .3em; font-size: .8em; color: #94a3b8;
+  }
+  #playoff-table th.sortable:hover::after,
+  #playoff-table th.sortable.asc::after,
+  #playoff-table th.sortable.desc::after { color: #334155; }
+  #playoff-table th.sortable.asc::after { content: "\25B2"; }
+  #playoff-table th.sortable.desc::after { content: "\25BC"; }
+  [data-theme="dark"] #playoff-table th.sortable::after { color: #64748b; }
+  [data-theme="dark"] #playoff-table th.sortable:hover::after,
+  [data-theme="dark"] #playoff-table th.sortable.asc::after,
+  [data-theme="dark"] #playoff-table th.sortable.desc::after { color: #e2e8f0; }
+</style>
+
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Playoffs</h1>
+
+
+<div class="mt-4 flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-500/10">
+  <span class="text-2xl" aria-hidden="true">&#127942;</span>
+  <div>
+    <div class="text-xs font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">2019 Champion</div>
+    <div class="text-lg font-semibold text-slate-900 dark:text-white">Nicholas</div>
+    <div class="text-xs text-slate-600 dark:text-slate-400">
+      Beat Eric 139.1&ndash;121.4 in the week 16 final.
+    </div>
+  </div>
+</div>
+
+
+
+<h2 class="mt-8 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Final Standings</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Where everyone actually finished once the playoffs and consolation brackets were done.
+</p>
+<div class="mt-3 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+    <thead class="bg-slate-50 dark:bg-slate-900/60">
+      <tr>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Finish</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
+        <th class="hidden px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Team</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Reg. Seed</th>
+        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Reg. Record</th>
+        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Points For</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+      
+      <tr class="transition-colors bg-amber-50 dark:bg-amber-500/10">
+        <td class="px-3 py-2">
+          
+            <span class="inline-flex items-center gap-1 rounded bg-amber-300 px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-amber-900 dark:bg-amber-400 dark:text-amber-950">&#127942; 1st</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Nicholas</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">Ultimate Fulfillment</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">5</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">8-5</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1431.4</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="font-semibold text-slate-800 dark:text-slate-100">2nd</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Eric</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">THE CHAMPN&#39;T IS HERE</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">2</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">8-5</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1563.5</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="font-semibold text-slate-800 dark:text-slate-100">3rd</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Pat</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">¡Yo Quiero Tac Odell!</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">3</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">9-4</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1590.3</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="text-slate-600 dark:text-slate-400">4th</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Casey</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">Cooper Troopers</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">1</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">10-3</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1530.2</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="text-slate-600 dark:text-slate-400">5th</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Paul</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">Kamara Meha</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">4</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">9-4</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1376.3</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="text-slate-600 dark:text-slate-400">6th</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Jamie</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">Team Jamie</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">6</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">5-8</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1394.3</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="text-slate-600 dark:text-slate-400">7th</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Daniel Se.</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">Mahomes and Mahomies</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">8</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">6-7</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1348.5</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="text-slate-600 dark:text-slate-400">8th</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Sam</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">Amputees for Taking the Knee</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">7</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">4-9</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1298.9</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="text-slate-600 dark:text-slate-400">9th</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Ethan</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">Team Ethan</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">11</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">4-9</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1330.0</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="text-slate-600 dark:text-slate-400">10th</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Davíd</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">Team Davíd</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">9</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">5-8</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1337.5</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="text-slate-600 dark:text-slate-400">11th</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Nick</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">Cleveland Bronns</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">10</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">6-7</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1251.2</td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2">
+          
+            <span class="text-slate-600 dark:text-slate-400">12th</span>
+          
+        </td>
+        <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Maxwell</td>
+        <td class="hidden px-3 py-2 text-slate-500 sm:table-cell dark:text-slate-400">Team Beer</td>
+        <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">12</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">4-9</td>
+        <td class="hidden px-3 py-2 text-right text-slate-600 sm:table-cell dark:text-slate-400">1245.4</td>
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Regular Season Seeding</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  The dual-point table the playoff bracket was seeded from.
+</p>
+
+
+
+
+<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="playoff-table">
+    <thead class="bg-slate-50 dark:bg-slate-900/60">
+      <tr>
+        <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seed</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins</th>
+        
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Games Back</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Heating Up! Last 3 Trend*</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 11</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 12</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Week 13</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+      
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">1</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Casey</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">20</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-4.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">133.2</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">109.4</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">98.6</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">2</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Eric</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">18</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">2</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-3.6</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">145.2</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">93.3</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">111.7</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">3</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Pat</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">17</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">3</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+9.3</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">110.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">178.8</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">106.0</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">4</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Paul</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">15</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">5</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-34.1</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">71.9</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">82.3</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">61.2</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">5</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Nicholas</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">14</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">6</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-21.9</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">75.4</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">99.2</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">89.9</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">6</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Jamie</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">13</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">7</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-8.3</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">93.9</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">91.7</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">111.5</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">7</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Sam</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">12</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">8</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-1.6</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">87.6</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">93.7</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">113.6</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">8</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Daniel Se.</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">11</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">9</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+16.9</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">102.7</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">135.4</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">123.8</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">9</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Davíd</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">10</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">10</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+13.8</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">81.7</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">127.4</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">140.9</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">10</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Nick</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">10</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">10</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+9.6</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">117.1</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">86.0</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">114.4</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">11</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Ethan</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">8</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">12</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-2.5</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">114.3</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">85.8</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">99.3</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">12</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Maxwell</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">8</td>
+          
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">12</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-0.1</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">106.5</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">76.3</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">104.2</td>
+        </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+
+<p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
+  *Heating up! represents the difference between your average scoring and your average the last 3 weeks.
+</p>
+
+
+
+
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
+  Prize Distribution
+</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  
+    Final. $300 paid out from 12 &times; $25 in entry fees.
+  
+</p>
+
+<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+    <thead class="bg-slate-50 dark:bg-slate-900/60">
+      <tr>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">1st Place ($25) -BYE-</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">2nd Place ($20) -BYE-</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Third Place ($15)</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Reg Season Most PF ($30)</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">1st Overall ($90)</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">2nd Overall ($60)</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">3rd Overall ($30)</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Playoffs Most PF ($30)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="bg-white dark:bg-slate-900">
+        
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Casey</td>
+          
+        
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Eric</td>
+          
+        
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Pat</td>
+          
+        
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Pat</td>
+          
+        
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Nicholas</td>
+          
+        
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Eric</td>
+          
+        
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Pat</td>
+          
+        
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Nicholas</td>
+          
+        
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
+  Payouts
+</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  The same money, ranked by who actually took it home. Winning the title isn't
+  the same as topping this &mdash; the biggest single prize is
+  $90, but stacking the regular-season
+  prizes can beat it.
+</p>
+<div class="mt-3 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+    <thead class="bg-slate-50 dark:bg-slate-900/60">
+      <tr>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">#</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Won</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">From</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+      
+      <tr class="transition-colors bg-emerald-50/60 dark:bg-emerald-500/10">
+        <td class="px-3 py-2 text-slate-500 dark:text-slate-400">1</td>
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">
+          Nicholas
+          
+          <span class="ml-1" title="Champion" aria-label="Champion">&#127942;</span>
+          
+        </td>
+        <td class="px-3 py-2 text-right text-base font-semibold whitespace-nowrap text-emerald-700 dark:text-emerald-400">$120</td>
+        <td class="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
+          <span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 whitespace-nowrap dark:bg-slate-800">1st Overall $90</span><span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 whitespace-nowrap dark:bg-slate-800">Playoffs Most PF $30</span>
+        </td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2 text-slate-500 dark:text-slate-400">2</td>
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">
+          Eric
+          
+        </td>
+        <td class="px-3 py-2 text-right text-base font-semibold whitespace-nowrap text-emerald-700 dark:text-emerald-400">$80</td>
+        <td class="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
+          <span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 whitespace-nowrap dark:bg-slate-800">2nd Place $20</span><span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 whitespace-nowrap dark:bg-slate-800">2nd Overall $60</span>
+        </td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2 text-slate-500 dark:text-slate-400">3</td>
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">
+          Pat
+          
+        </td>
+        <td class="px-3 py-2 text-right text-base font-semibold whitespace-nowrap text-emerald-700 dark:text-emerald-400">$75</td>
+        <td class="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
+          <span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 whitespace-nowrap dark:bg-slate-800">Third Place $15</span><span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 whitespace-nowrap dark:bg-slate-800">Reg Season Most PF $30</span><span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 whitespace-nowrap dark:bg-slate-800">3rd Overall $30</span>
+        </td>
+      </tr>
+      
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 dark:odd:bg-slate-900 dark:even:bg-slate-900/50">
+        <td class="px-3 py-2 text-slate-500 dark:text-slate-400">4</td>
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">
+          Casey
+          
+        </td>
+        <td class="px-3 py-2 text-right text-base font-semibold whitespace-nowrap text-emerald-700 dark:text-emerald-400">$25</td>
+        <td class="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
+          <span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 whitespace-nowrap dark:bg-slate-800">1st Place $25</span>
+        </td>
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+
+
+
+<script src="static/js/hello.js"></script>
+
+
+    </main>
+
+    <!-- Hidden color swatches: Chart.js paints its own canvas, so it can't
+         pick up Tailwind's dark: variant from CSS the way the rest of the
+         page does. These exist only so JS can read a theme-correct
+         getComputedStyle() color instead of hardcoding hex per theme. -->
+    <div class="hidden" aria-hidden="true">
+      <span id="swatch-tick" class="text-slate-500 dark:text-slate-400"></span>
+      <span id="swatch-legend" class="text-slate-600 dark:text-slate-300"></span>
+      <span id="swatch-grid" class="border-slate-200 dark:border-slate-800" style="border-style: solid; border-width: 1px;"></span>
+    </div>
+
+    
+
+    <!-- Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js" integrity="sha512-zMm7+ZQ8AZr1r3W8Z8lDATkH05QG5Gm2xc6MlsCdBz9l6oE8Y7IXByMgSm/rdRQrhuHt99HAYfMljBOEZ68q5A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      (function () {
+        function currentTheme() {
+          return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        }
+        function setIcons(theme) {
+          document.querySelectorAll('.theme-toggle-icon').forEach(function (icon) {
+            icon.setAttribute('data-feather', theme === 'dark' ? 'sun' : 'moon');
+          });
+        }
+
+        setIcons(currentTheme());
+        feather.replace();
+
+        document.querySelectorAll('.theme-toggle-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var next = currentTheme() === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+            setIcons(next);
+            feather.replace();
+            window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
+          });
+        });
+
+        // Owners collapse -- replaces Bootstrap's data-toggle="collapse"
+        // (which needed jQuery + Popper); this is the only interactive
+        // widget on the site that isn't a plain link, click-to-sort, or
+        // the theme toggle, so it doesn't need a library.
+        var ownersToggle = document.getElementById('owners-toggle');
+        var ownersPanel = document.getElementById('owners-panel');
+        var ownersChevron = document.getElementById('owners-chevron');
+        if (ownersToggle && ownersPanel) {
+          ownersToggle.addEventListener('click', function () {
+            var open = ownersPanel.classList.toggle('hidden') === false;
+            ownersToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (ownersChevron) ownersChevron.style.transform = open ? 'rotate(180deg)' : '';
+          });
+        }
+      })();
+    </script>
+
+    <!-- Graphs (dataset rendered from data/standings-<season>.json).
+         Only graph.html has a <canvas>, so the library and the whole
+         dataset payload are skipped on the other four pages rather than
+         downloaded and then ignored. -->
+    
+  </body>
+</html>

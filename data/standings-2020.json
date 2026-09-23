@@ -1,0 +1,2189 @@
+{
+  "season": 2020,
+  "league": "877873",
+  "leagueName": "Fantasy Football Fantasy",
+  "updated": "2026-09-23T11:45:06Z",
+  "regularSeasonWeeks": 13,
+  "playoffTeamCount": 6,
+  "entryFee": 25.0,
+  "throughWeek": 13,
+  "weeks": [
+    {
+      "week": 1,
+      "scoreToBeat": 112.8,
+      "games": [
+        {
+          "home": 2,
+          "away": 11,
+          "homeScore": 95.9,
+          "awayScore": 127.2,
+          "winner": 11
+        },
+        {
+          "home": 10,
+          "away": 9,
+          "homeScore": 133.0,
+          "awayScore": 142.8,
+          "winner": 9
+        },
+        {
+          "home": 3,
+          "away": 4,
+          "homeScore": 116.1,
+          "awayScore": 112.8,
+          "winner": 3
+        },
+        {
+          "home": 6,
+          "away": 5,
+          "homeScore": 94.5,
+          "awayScore": 102.8,
+          "winner": 5
+        },
+        {
+          "home": 1,
+          "away": 12,
+          "homeScore": 135.0,
+          "awayScore": 129.7,
+          "winner": 1
+        },
+        {
+          "home": 7,
+          "away": 8,
+          "homeScore": 91.2,
+          "awayScore": 107.3,
+          "winner": 8
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 135.0,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 2,
+          "score": 95.9,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 3,
+          "score": 116.1,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 4,
+          "score": 112.8,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 5,
+          "score": 102.8,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 6,
+          "score": 94.5,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 7,
+          "score": 91.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 8,
+          "score": 107.3,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 9,
+          "score": 142.8,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 10,
+          "score": 133.0,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 11,
+          "score": 127.2,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 12,
+          "score": 129.7,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "scoreToBeat": 119.8,
+      "games": [
+        {
+          "home": 11,
+          "away": 9,
+          "homeScore": 100.2,
+          "awayScore": 83.2,
+          "winner": 11
+        },
+        {
+          "home": 4,
+          "away": 2,
+          "homeScore": 110.2,
+          "awayScore": 157.8,
+          "winner": 2
+        },
+        {
+          "home": 5,
+          "away": 10,
+          "homeScore": 111.6,
+          "awayScore": 123.9,
+          "winner": 10
+        },
+        {
+          "home": 12,
+          "away": 3,
+          "homeScore": 138.7,
+          "awayScore": 120.6,
+          "winner": 12
+        },
+        {
+          "home": 8,
+          "away": 6,
+          "homeScore": 170.3,
+          "awayScore": 110.1,
+          "winner": 8
+        },
+        {
+          "home": 7,
+          "away": 1,
+          "homeScore": 127.7,
+          "awayScore": 119.8,
+          "winner": 7
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 119.8,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 2,
+          "score": 157.8,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 3,
+          "score": 120.6,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 4,
+          "score": 110.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 5,
+          "score": 111.6,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 6,
+          "score": 110.1,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 7,
+          "score": 127.7,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 8,
+          "score": 170.3,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 9,
+          "score": 83.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 10,
+          "score": 123.9,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 11,
+          "score": 100.2,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 12,
+          "score": 138.7,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "scoreToBeat": 118.1,
+      "games": [
+        {
+          "home": 4,
+          "away": 11,
+          "homeScore": 132.9,
+          "awayScore": 147.8,
+          "winner": 11
+        },
+        {
+          "home": 9,
+          "away": 5,
+          "homeScore": 80.2,
+          "awayScore": 110.1,
+          "winner": 5
+        },
+        {
+          "home": 2,
+          "away": 12,
+          "homeScore": 132.8,
+          "awayScore": 136.0,
+          "winner": 12
+        },
+        {
+          "home": 10,
+          "away": 8,
+          "homeScore": 98.0,
+          "awayScore": 118.1,
+          "winner": 8
+        },
+        {
+          "home": 3,
+          "away": 7,
+          "homeScore": 101.7,
+          "awayScore": 104.4,
+          "winner": 7
+        },
+        {
+          "home": 6,
+          "away": 1,
+          "homeScore": 131.5,
+          "awayScore": 162.7,
+          "winner": 1
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 162.7,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 2,
+          "score": 132.8,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 3,
+          "score": 101.7,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 4,
+          "score": 132.9,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 5,
+          "score": 110.1,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 6,
+          "score": 131.5,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 7,
+          "score": 104.4,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 8,
+          "score": 118.1,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 9,
+          "score": 80.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 10,
+          "score": 98.0,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 11,
+          "score": 147.8,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 12,
+          "score": 136.0,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "scoreToBeat": 110.4,
+      "games": [
+        {
+          "home": 11,
+          "away": 5,
+          "homeScore": 131.5,
+          "awayScore": 107.2,
+          "winner": 11
+        },
+        {
+          "home": 12,
+          "away": 4,
+          "homeScore": 112.1,
+          "awayScore": 146.5,
+          "winner": 4
+        },
+        {
+          "home": 8,
+          "away": 9,
+          "homeScore": 128.1,
+          "awayScore": 46.0,
+          "winner": 8
+        },
+        {
+          "home": 7,
+          "away": 2,
+          "homeScore": 104.6,
+          "awayScore": 87.8,
+          "winner": 7
+        },
+        {
+          "home": 1,
+          "away": 10,
+          "homeScore": 110.4,
+          "awayScore": 101.7,
+          "winner": 1
+        },
+        {
+          "home": 6,
+          "away": 3,
+          "homeScore": 132.4,
+          "awayScore": 112.6,
+          "winner": 6
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 110.4,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 2,
+          "score": 87.8,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 3,
+          "score": 112.6,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 4,
+          "score": 146.5,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 5,
+          "score": 107.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 6,
+          "score": 132.4,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 7,
+          "score": 104.6,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 8,
+          "score": 128.1,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 9,
+          "score": 46.0,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 10,
+          "score": 101.7,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 11,
+          "score": 131.5,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 12,
+          "score": 112.1,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "scoreToBeat": 100.9,
+      "games": [
+        {
+          "home": 12,
+          "away": 11,
+          "homeScore": 158.0,
+          "awayScore": 105.3,
+          "winner": 12
+        },
+        {
+          "home": 5,
+          "away": 8,
+          "homeScore": 131.9,
+          "awayScore": 93.6,
+          "winner": 5
+        },
+        {
+          "home": 4,
+          "away": 7,
+          "homeScore": 29.4,
+          "awayScore": 92.8,
+          "winner": 7
+        },
+        {
+          "home": 9,
+          "away": 1,
+          "homeScore": 100.9,
+          "awayScore": 83.0,
+          "winner": 9
+        },
+        {
+          "home": 2,
+          "away": 6,
+          "homeScore": 136.3,
+          "awayScore": 121.4,
+          "winner": 2
+        },
+        {
+          "home": 10,
+          "away": 3,
+          "homeScore": 116.6,
+          "awayScore": 86.4,
+          "winner": 10
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 83.0,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 2,
+          "score": 136.3,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 3,
+          "score": 86.4,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 4,
+          "score": 29.4,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 5,
+          "score": 131.9,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 6,
+          "score": 121.4,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 7,
+          "score": 92.8,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 8,
+          "score": 93.6,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 9,
+          "score": 100.9,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 10,
+          "score": 116.6,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 11,
+          "score": 105.3,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 12,
+          "score": 158.0,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "scoreToBeat": 95.8,
+      "games": [
+        {
+          "home": 11,
+          "away": 8,
+          "homeScore": 142.7,
+          "awayScore": 95.8,
+          "winner": 11
+        },
+        {
+          "home": 7,
+          "away": 12,
+          "homeScore": 70.6,
+          "awayScore": 92.4,
+          "winner": 12
+        },
+        {
+          "home": 1,
+          "away": 5,
+          "homeScore": 72.2,
+          "awayScore": 125.8,
+          "winner": 5
+        },
+        {
+          "home": 6,
+          "away": 4,
+          "homeScore": 91.3,
+          "awayScore": 105.7,
+          "winner": 4
+        },
+        {
+          "home": 3,
+          "away": 9,
+          "homeScore": 120.1,
+          "awayScore": 78.9,
+          "winner": 3
+        },
+        {
+          "home": 10,
+          "away": 2,
+          "homeScore": 132.0,
+          "awayScore": 117.1,
+          "winner": 10
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 72.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 2,
+          "score": 117.1,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 3,
+          "score": 120.1,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 4,
+          "score": 105.7,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 5,
+          "score": 125.8,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 6,
+          "score": 91.3,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 7,
+          "score": 70.6,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 8,
+          "score": 95.8,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 9,
+          "score": 78.9,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 10,
+          "score": 132.0,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 11,
+          "score": 142.7,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 12,
+          "score": 92.4,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        }
+      ]
+    },
+    {
+      "week": 7,
+      "scoreToBeat": 89.7,
+      "games": [
+        {
+          "home": 7,
+          "away": 11,
+          "homeScore": 48.1,
+          "awayScore": 126.0,
+          "winner": 11
+        },
+        {
+          "home": 8,
+          "away": 1,
+          "homeScore": 133.0,
+          "awayScore": 194.7,
+          "winner": 1
+        },
+        {
+          "home": 12,
+          "away": 6,
+          "homeScore": 89.7,
+          "awayScore": 97.5,
+          "winner": 6
+        },
+        {
+          "home": 5,
+          "away": 3,
+          "homeScore": 66.3,
+          "awayScore": 80.2,
+          "winner": 3
+        },
+        {
+          "home": 4,
+          "away": 10,
+          "homeScore": 103.2,
+          "awayScore": 84.8,
+          "winner": 4
+        },
+        {
+          "home": 9,
+          "away": 2,
+          "homeScore": 88.3,
+          "awayScore": 102.6,
+          "winner": 2
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 194.7,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 2,
+          "score": 102.6,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 3,
+          "score": 80.2,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 4,
+          "score": 103.2,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 5,
+          "score": 66.3,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 6,
+          "score": 97.5,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 7,
+          "score": 48.1,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 8,
+          "score": 133.0,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 9,
+          "score": 88.3,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 10,
+          "score": 84.8,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 11,
+          "score": 126.0,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 12,
+          "score": 89.7,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        }
+      ]
+    },
+    {
+      "week": 8,
+      "scoreToBeat": 84.5,
+      "games": [
+        {
+          "home": 11,
+          "away": 1,
+          "homeScore": 119.8,
+          "awayScore": 124.0,
+          "winner": 1
+        },
+        {
+          "home": 6,
+          "away": 7,
+          "homeScore": 88.0,
+          "awayScore": 116.7,
+          "winner": 7
+        },
+        {
+          "home": 3,
+          "away": 8,
+          "homeScore": 68.2,
+          "awayScore": 79.2,
+          "winner": 8
+        },
+        {
+          "home": 10,
+          "away": 12,
+          "homeScore": 86.8,
+          "awayScore": 83.2,
+          "winner": 10
+        },
+        {
+          "home": 2,
+          "away": 5,
+          "homeScore": 139.8,
+          "awayScore": 82.2,
+          "winner": 2
+        },
+        {
+          "home": 9,
+          "away": 4,
+          "homeScore": 62.8,
+          "awayScore": 84.5,
+          "winner": 4
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 124.0,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 2,
+          "score": 139.8,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 3,
+          "score": 68.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 4,
+          "score": 84.5,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 5,
+          "score": 82.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 6,
+          "score": 88.0,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 7,
+          "score": 116.7,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 8,
+          "score": 79.2,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 9,
+          "score": 62.8,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 10,
+          "score": 86.8,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 11,
+          "score": 119.8,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 12,
+          "score": 83.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        }
+      ]
+    },
+    {
+      "week": 9,
+      "scoreToBeat": 98.3,
+      "games": [
+        {
+          "home": 6,
+          "away": 11,
+          "homeScore": 92.3,
+          "awayScore": 98.3,
+          "winner": 11
+        },
+        {
+          "home": 1,
+          "away": 3,
+          "homeScore": 66.1,
+          "awayScore": 113.3,
+          "winner": 3
+        },
+        {
+          "home": 7,
+          "away": 10,
+          "homeScore": 111.8,
+          "awayScore": 74.2,
+          "winner": 7
+        },
+        {
+          "home": 8,
+          "away": 2,
+          "homeScore": 99.8,
+          "awayScore": 133.5,
+          "winner": 2
+        },
+        {
+          "home": 12,
+          "away": 9,
+          "homeScore": 119.3,
+          "awayScore": 90.4,
+          "winner": 12
+        },
+        {
+          "home": 5,
+          "away": 4,
+          "homeScore": 95.4,
+          "awayScore": 111.5,
+          "winner": 4
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 66.1,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 2,
+          "score": 133.5,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 3,
+          "score": 113.3,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 4,
+          "score": 111.5,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 5,
+          "score": 95.4,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 6,
+          "score": 92.3,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 7,
+          "score": 111.8,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 8,
+          "score": 99.8,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 9,
+          "score": 90.4,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 10,
+          "score": 74.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 11,
+          "score": 98.3,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 12,
+          "score": 119.3,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        }
+      ]
+    },
+    {
+      "week": 10,
+      "scoreToBeat": 97.6,
+      "games": [
+        {
+          "home": 11,
+          "away": 3,
+          "homeScore": 105.7,
+          "awayScore": 66.5,
+          "winner": 11
+        },
+        {
+          "home": 10,
+          "away": 6,
+          "homeScore": 110.0,
+          "awayScore": 75.0,
+          "winner": 10
+        },
+        {
+          "home": 2,
+          "away": 1,
+          "homeScore": 107.3,
+          "awayScore": 146.2,
+          "winner": 1
+        },
+        {
+          "home": 9,
+          "away": 7,
+          "homeScore": 110.9,
+          "awayScore": 50.4,
+          "winner": 9
+        },
+        {
+          "home": 4,
+          "away": 8,
+          "homeScore": 118.6,
+          "awayScore": 94.4,
+          "winner": 4
+        },
+        {
+          "home": 5,
+          "away": 12,
+          "homeScore": 97.6,
+          "awayScore": 70.9,
+          "winner": 5
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 146.2,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 2,
+          "score": 107.3,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 3,
+          "score": 66.5,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 4,
+          "score": 118.6,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 5,
+          "score": 97.6,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 6,
+          "score": 75.0,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 7,
+          "score": 50.4,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 8,
+          "score": 94.4,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 9,
+          "score": 110.9,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 10,
+          "score": 110.0,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 11,
+          "score": 105.7,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 12,
+          "score": 70.9,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        }
+      ]
+    },
+    {
+      "week": 11,
+      "scoreToBeat": 106.4,
+      "games": [
+        {
+          "home": 10,
+          "away": 11,
+          "homeScore": 79.1,
+          "awayScore": 120.9,
+          "winner": 11
+        },
+        {
+          "home": 3,
+          "away": 2,
+          "homeScore": 106.4,
+          "awayScore": 152.4,
+          "winner": 2
+        },
+        {
+          "home": 6,
+          "away": 9,
+          "homeScore": 83.2,
+          "awayScore": 93.7,
+          "winner": 9
+        },
+        {
+          "home": 1,
+          "away": 4,
+          "homeScore": 117.3,
+          "awayScore": 82.7,
+          "winner": 1
+        },
+        {
+          "home": 7,
+          "away": 5,
+          "homeScore": 109.5,
+          "awayScore": 116.9,
+          "winner": 5
+        },
+        {
+          "home": 8,
+          "away": 12,
+          "homeScore": 102.7,
+          "awayScore": 108.4,
+          "winner": 12
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 117.3,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 2,
+          "score": 152.4,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 3,
+          "score": 106.4,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 4,
+          "score": 82.7,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 5,
+          "score": 116.9,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 6,
+          "score": 83.2,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 7,
+          "score": 109.5,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 8,
+          "score": 102.7,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 9,
+          "score": 93.7,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 10,
+          "score": 79.1,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 11,
+          "score": 120.9,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 12,
+          "score": 108.4,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        }
+      ]
+    },
+    {
+      "week": 12,
+      "scoreToBeat": 100.0,
+      "games": [
+        {
+          "home": 11,
+          "away": 2,
+          "homeScore": 100.0,
+          "awayScore": 108.1,
+          "winner": 2
+        },
+        {
+          "home": 9,
+          "away": 10,
+          "homeScore": 100.8,
+          "awayScore": 76.9,
+          "winner": 9
+        },
+        {
+          "home": 4,
+          "away": 3,
+          "homeScore": 89.0,
+          "awayScore": 64.0,
+          "winner": 4
+        },
+        {
+          "home": 5,
+          "away": 6,
+          "homeScore": 202.4,
+          "awayScore": 110.5,
+          "winner": 5
+        },
+        {
+          "home": 12,
+          "away": 1,
+          "homeScore": 120.6,
+          "awayScore": 104.3,
+          "winner": 12
+        },
+        {
+          "home": 8,
+          "away": 7,
+          "homeScore": 77.5,
+          "awayScore": 90.0,
+          "winner": 7
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 104.3,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 2,
+          "score": 108.1,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 3,
+          "score": 64.0,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 4,
+          "score": 89.0,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 5,
+          "score": 202.4,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 6,
+          "score": 110.5,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 7,
+          "score": 90.0,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 8,
+          "score": 77.5,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 9,
+          "score": 100.8,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 10,
+          "score": 76.9,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 11,
+          "score": 100.0,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 12,
+          "score": 120.6,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        }
+      ]
+    },
+    {
+      "week": 13,
+      "scoreToBeat": 86.1,
+      "games": [
+        {
+          "home": 9,
+          "away": 11,
+          "homeScore": 62.5,
+          "awayScore": 156.4,
+          "winner": 11
+        },
+        {
+          "home": 2,
+          "away": 4,
+          "homeScore": 112.0,
+          "awayScore": 71.1,
+          "winner": 2
+        },
+        {
+          "home": 10,
+          "away": 5,
+          "homeScore": 77.1,
+          "awayScore": 97.1,
+          "winner": 5
+        },
+        {
+          "home": 3,
+          "away": 12,
+          "homeScore": 69.8,
+          "awayScore": 144.4,
+          "winner": 12
+        },
+        {
+          "home": 6,
+          "away": 8,
+          "homeScore": 60.8,
+          "awayScore": 86.1,
+          "winner": 8
+        },
+        {
+          "home": 1,
+          "away": 7,
+          "homeScore": 147.4,
+          "awayScore": 134.4,
+          "winner": 1
+        }
+      ],
+      "teams": [
+        {
+          "teamId": 1,
+          "score": 147.4,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 2,
+          "score": 112.0,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 3,
+          "score": 69.8,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 4,
+          "score": 71.1,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 5,
+          "score": 97.1,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 6,
+          "score": 60.8,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 7,
+          "score": 134.4,
+          "h2h": 0,
+          "topHalf": 1,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 8,
+          "score": 86.1,
+          "h2h": 1,
+          "topHalf": 0,
+          "weekPoints": 1
+        },
+        {
+          "teamId": 9,
+          "score": 62.5,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 10,
+          "score": 77.1,
+          "h2h": 0,
+          "topHalf": 0,
+          "weekPoints": 0
+        },
+        {
+          "teamId": 11,
+          "score": 156.4,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        },
+        {
+          "teamId": 12,
+          "score": 144.4,
+          "h2h": 1,
+          "topHalf": 1,
+          "weekPoints": 2
+        }
+      ]
+    }
+  ],
+  "standings": [
+    {
+      "rank": 1,
+      "teamId": 11,
+      "name": "JJets \"Bangers Only\" Fan Club",
+      "owner": "Pat Ben",
+      "points": 20,
+      "h2hPoints": 10,
+      "topHalfPoints": 10,
+      "finalRank": 2,
+      "record": "10-3",
+      "pointsFor": 1581.8,
+      "pointsAgainst": 1253.6,
+      "averageScore": 121.7,
+      "avgLast3": 125.8,
+      "luckIndex": 0,
+      "streak": "W1"
+    },
+    {
+      "rank": 2,
+      "teamId": 2,
+      "name": "Kenyan Feel The Love Tonight?",
+      "owner": "Casey Pir",
+      "points": 19,
+      "h2hPoints": 8,
+      "topHalfPoints": 11,
+      "finalRank": 3,
+      "record": "8-5",
+      "pointsFor": 1583.4,
+      "pointsAgainst": 1425.4,
+      "averageScore": 121.8,
+      "avgLast3": 124.2,
+      "luckIndex": -3,
+      "streak": "W3"
+    },
+    {
+      "rank": 3,
+      "teamId": 12,
+      "name": "Goedamnit  !",
+      "owner": "Dav\u00edd Hui",
+      "points": 17,
+      "h2hPoints": 8,
+      "topHalfPoints": 9,
+      "finalRank": 5,
+      "record": "8-5",
+      "pointsFor": 1503.4,
+      "pointsAgainst": 1359.9,
+      "averageScore": 115.6,
+      "avgLast3": 124.5,
+      "luckIndex": -1,
+      "streak": "W3"
+    },
+    {
+      "rank": 4,
+      "teamId": 1,
+      "name": "Kamara Meha",
+      "owner": "Paul Tuu",
+      "points": 16,
+      "h2hPoints": 8,
+      "topHalfPoints": 8,
+      "finalRank": 1,
+      "record": "8-5",
+      "pointsFor": 1583.1,
+      "pointsAgainst": 1528.4,
+      "averageScore": 121.8,
+      "avgLast3": 123.0,
+      "luckIndex": 0,
+      "streak": "W1"
+    },
+    {
+      "rank": 5,
+      "teamId": 5,
+      "name": "Cleveland Bronns",
+      "owner": "Nick Kub",
+      "points": 13,
+      "h2hPoints": 8,
+      "topHalfPoints": 5,
+      "finalRank": 4,
+      "record": "8-5",
+      "pointsFor": 1447.3,
+      "pointsAgainst": 1295.4,
+      "averageScore": 111.3,
+      "avgLast3": 138.8,
+      "luckIndex": 3,
+      "streak": "W4"
+    },
+    {
+      "rank": 6,
+      "teamId": 4,
+      "name": "Ultimate Fulfillment",
+      "owner": "Nicholas Pol",
+      "points": 13,
+      "h2hPoints": 7,
+      "topHalfPoints": 6,
+      "finalRank": 6,
+      "record": "7-6",
+      "pointsFor": 1298.1,
+      "pointsAgainst": 1348.6,
+      "averageScore": 99.9,
+      "avgLast3": 80.9,
+      "luckIndex": 1,
+      "streak": "L1"
+    },
+    {
+      "rank": 7,
+      "teamId": 7,
+      "name": "Mahomes and Mahomies",
+      "owner": "Daniel Sen",
+      "points": 12,
+      "h2hPoints": 7,
+      "topHalfPoints": 5,
+      "finalRank": 7,
+      "record": "7-6",
+      "pointsFor": 1252.2,
+      "pointsAgainst": 1279.3,
+      "averageScore": 96.3,
+      "avgLast3": 111.3,
+      "luckIndex": 2,
+      "streak": "L1"
+    },
+    {
+      "rank": 8,
+      "teamId": 10,
+      "name": "Team Ethan",
+      "owner": "Ethan Hil",
+      "points": 11,
+      "h2hPoints": 5,
+      "topHalfPoints": 6,
+      "finalRank": 9,
+      "record": "5-8",
+      "pointsFor": 1294.1,
+      "pointsAgainst": 1378.4,
+      "averageScore": 99.5,
+      "avgLast3": 77.7,
+      "luckIndex": -1,
+      "streak": "L3"
+    },
+    {
+      "rank": 9,
+      "teamId": 8,
+      "name": "NoBell Prize",
+      "owner": "Eric Mon",
+      "points": 10,
+      "h2hPoints": 6,
+      "topHalfPoints": 4,
+      "finalRank": 8,
+      "record": "6-7",
+      "pointsFor": 1385.9,
+      "pointsAgainst": 1394.1,
+      "averageScore": 106.6,
+      "avgLast3": 88.8,
+      "luckIndex": 2,
+      "streak": "W1"
+    },
+    {
+      "rank": 10,
+      "teamId": 3,
+      "name": "Amputees for Taking the Knee",
+      "owner": "Sam Eng",
+      "points": 9,
+      "h2hPoints": 4,
+      "topHalfPoints": 5,
+      "finalRank": 12,
+      "record": "4-9",
+      "pointsFor": 1225.9,
+      "pointsAgainst": 1386.9,
+      "averageScore": 94.3,
+      "avgLast3": 80.1,
+      "luckIndex": -1,
+      "streak": "L4"
+    },
+    {
+      "rank": 11,
+      "teamId": 6,
+      "name": "Team Jamie",
+      "owner": "Jamie Sug",
+      "points": 8,
+      "h2hPoints": 2,
+      "topHalfPoints": 6,
+      "finalRank": 11,
+      "record": "2-11",
+      "pointsFor": 1288.5,
+      "pointsAgainst": 1587.3,
+      "averageScore": 99.1,
+      "avgLast3": 84.8,
+      "luckIndex": -4,
+      "streak": "L6"
+    },
+    {
+      "rank": 12,
+      "teamId": 9,
+      "name": "Team Beer",
+      "owner": "Maxwell Abr",
+      "points": 8,
+      "h2hPoints": 5,
+      "topHalfPoints": 3,
+      "finalRank": 10,
+      "record": "5-8",
+      "pointsFor": 1141.4,
+      "pointsAgainst": 1347.8,
+      "averageScore": 87.8,
+      "avgLast3": 85.7,
+      "luckIndex": 2,
+      "streak": "L1"
+    }
+  ],
+  "playoffs": {
+    "champion": 1,
+    "runnerUp": 11,
+    "mostPointsFor": 1,
+    "pointsFor": {
+      "11": 341.1,
+      "12": 97.8,
+      "5": 241.1,
+      "1": 482.5,
+      "4": 110.1,
+      "2": 223.1
+    },
+    "finalWeek": 16,
+    "championScore": 204.5,
+    "runnerUpScore": 115.8,
+    "games": [
+      {
+        "week": 14,
+        "home": 11,
+        "away": null,
+        "homeScore": 97.7,
+        "awayScore": null,
+        "bye": true
+      },
+      {
+        "week": 14,
+        "home": 12,
+        "away": 5,
+        "homeScore": 97.8,
+        "awayScore": 114.9,
+        "bye": false
+      },
+      {
+        "week": 14,
+        "home": 1,
+        "away": 4,
+        "homeScore": 137.5,
+        "awayScore": 110.1,
+        "bye": false
+      },
+      {
+        "week": 14,
+        "home": 2,
+        "away": null,
+        "homeScore": 124.4,
+        "awayScore": null,
+        "bye": true
+      },
+      {
+        "week": 15,
+        "home": 11,
+        "away": 5,
+        "homeScore": 127.6,
+        "awayScore": 126.2,
+        "bye": false
+      },
+      {
+        "week": 15,
+        "home": 2,
+        "away": 1,
+        "homeScore": 98.7,
+        "awayScore": 140.5,
+        "bye": false
+      },
+      {
+        "week": 16,
+        "home": 11,
+        "away": 1,
+        "homeScore": 115.8,
+        "awayScore": 204.5,
+        "bye": false
+      }
+    ]
+  },
+  "postseason": [
+    {
+      "week": 14,
+      "tier": "WINNERS_BRACKET",
+      "home": 12,
+      "away": 5,
+      "homeScore": 97.8,
+      "awayScore": 114.9,
+      "winner": 5
+    },
+    {
+      "week": 14,
+      "tier": "WINNERS_BRACKET",
+      "home": 1,
+      "away": 4,
+      "homeScore": 137.5,
+      "awayScore": 110.1,
+      "winner": 1
+    },
+    {
+      "week": 14,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 7,
+      "away": 8,
+      "homeScore": 98.8,
+      "awayScore": 92.1,
+      "winner": 7
+    },
+    {
+      "week": 14,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 10,
+      "away": 9,
+      "homeScore": 96.0,
+      "awayScore": 106.2,
+      "winner": 9
+    },
+    {
+      "week": 14,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 3,
+      "away": 6,
+      "homeScore": 106.6,
+      "awayScore": 141.3,
+      "winner": 6
+    },
+    {
+      "week": 15,
+      "tier": "WINNERS_BRACKET",
+      "home": 11,
+      "away": 5,
+      "homeScore": 127.6,
+      "awayScore": 126.2,
+      "winner": 11
+    },
+    {
+      "week": 15,
+      "tier": "WINNERS_BRACKET",
+      "home": 2,
+      "away": 1,
+      "homeScore": 98.7,
+      "awayScore": 140.5,
+      "winner": 1
+    },
+    {
+      "week": 15,
+      "tier": "WINNERS_CONSOLATION_LADDER",
+      "home": 12,
+      "away": 4,
+      "homeScore": 131.0,
+      "awayScore": 95.4,
+      "winner": 12
+    },
+    {
+      "week": 15,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 7,
+      "away": 9,
+      "homeScore": 137.8,
+      "awayScore": 71.0,
+      "winner": 7
+    },
+    {
+      "week": 15,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 8,
+      "away": 6,
+      "homeScore": 129.7,
+      "awayScore": 84.4,
+      "winner": 8
+    },
+    {
+      "week": 15,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 10,
+      "away": 3,
+      "homeScore": 143.0,
+      "awayScore": 74.7,
+      "winner": 10
+    },
+    {
+      "week": 16,
+      "tier": "WINNERS_BRACKET",
+      "home": 11,
+      "away": 1,
+      "homeScore": 115.8,
+      "awayScore": 204.5,
+      "winner": 1
+    },
+    {
+      "week": 16,
+      "tier": "WINNERS_CONSOLATION_LADDER",
+      "home": 2,
+      "away": 5,
+      "homeScore": 106.1,
+      "awayScore": 83.6,
+      "winner": 2
+    },
+    {
+      "week": 16,
+      "tier": "WINNERS_CONSOLATION_LADDER",
+      "home": 12,
+      "away": 4,
+      "homeScore": 134.0,
+      "awayScore": 83.7,
+      "winner": 12
+    },
+    {
+      "week": 16,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 7,
+      "away": 8,
+      "homeScore": 109.1,
+      "awayScore": 94.3,
+      "winner": 7
+    },
+    {
+      "week": 16,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 10,
+      "away": 9,
+      "homeScore": 134.9,
+      "awayScore": 88.3,
+      "winner": 10
+    },
+    {
+      "week": 16,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 3,
+      "away": 6,
+      "homeScore": 117.2,
+      "awayScore": 166.0,
+      "winner": 6
+    }
+  ]
+}
