@@ -1,7 +1,6 @@
 # Enhancements
 
-Ideas to work through after the build (after L1–L8). Newest last. See `SPEC.md`
-§0 for the working protocol and §9 for the task list.
+Ideas to work through. Newest last. See `SPEC.md` §0 for the working protocol.
 
 **Format:** id, date, title, description, related spec task (if any), status.
 
@@ -9,26 +8,12 @@ Ideas to work through after the build (after L1–L8). Newest last. See `SPEC.md
 
 ## Open
 
-### ENH-001 — Historical / multi-season data
+_None._
 
-- **Date:** 2026-09-18
-- **Requested by:** league owner
-- **Description:** Fetch and render past seasons, not just the current one. The
-  ESPN endpoint accepts any season — confirmed live, seasons **2022–2025 all
-  return data** — so this is a loop over seasons, storing each season's
-  `raw-<season>.json` and `standings-<season>.json`.
-- **Related spec task:** L9 (Multi-season archive) — already in the spec as
-  optional, and not to start before L1–L8 are done.
-- **Status:** done 2026-09-22 (L9). Seasons 2022–2025 fetched once and
-  rendered at /2025/, /2024/, /2023/, /2022/; newest season with data is
-  the site root.
+## Done
 
-### ENH-002 — Season picker (dropdown to select league year)
-
-- **Date:** 2026-09-18
-- **Requested by:** league owner
-- **Description:** A picklist / combobox / dropdown on the page to choose which
-  league year to view. Depends on ENH-001 (multi-season data) existing first.
-- **Related spec task:** part of L9 ("a loop plus a season picker").
-- **Status:** done 2026-09-22 (L9). Dropdown of plain relative links at
-  the top of the sidebar on all three pages.
+- **ENH-001** — Historical / multi-season data — done 2026-09-22 (L9).
+  Archive now covers 2019–2026; newest season with data is the site root.
+- **ENH-002** — Season picker (dropdown to select league year) — done
+  2026-09-22 (L9). Picker macro in `templates/layout.html`; options keep the
+  current page and are built off `root_season` (BUG-008).
