@@ -317,21 +317,38 @@
       
 
 
+<style>
+  /* Sort arrows -- same pattern as home.html/careers.html. */
+  #playoff-table th.sortable { cursor: pointer; user-select: none; }
+  #playoff-table th.sortable::after {
+    content: "\2195"; margin-left: .3em; font-size: .8em; color: #94a3b8;
+  }
+  #playoff-table th.sortable:hover::after,
+  #playoff-table th.sortable.asc::after,
+  #playoff-table th.sortable.desc::after { color: #334155; }
+  #playoff-table th.sortable.asc::after { content: "\25B2"; }
+  #playoff-table th.sortable.desc::after { content: "\25BC"; }
+  [data-theme="dark"] #playoff-table th.sortable::after { color: #64748b; }
+  [data-theme="dark"] #playoff-table th.sortable:hover::after,
+  [data-theme="dark"] #playoff-table th.sortable.asc::after,
+  [data-theme="dark"] #playoff-table th.sortable.desc::after { color: #e2e8f0; }
+</style>
+
 <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Playoffs</h1>
 
 <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
-  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800" id="playoff-table">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="playoff-table">
     <thead class="bg-slate-50 dark:bg-slate-900/60">
       <tr>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seed</th>
+        <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seed</th>
         <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
-        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins</th>
-        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Wins to Clinch / 0</th>
-        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Games Back</th>
-        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Heating Up! Last 3 Trend*</th>
-        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 12</th>
-        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 13</th>
-        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Week 14</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Wins to Clinch / 0</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Games Back</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Heating Up! Last 3 Trend*</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 12</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 13</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Week 14</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -518,6 +535,8 @@
     </tbody>
   </table>
 </div>
+
+<script src="static/js/hello.js"></script>
 
 
     </main>
