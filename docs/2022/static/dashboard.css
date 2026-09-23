@@ -1,5 +1,9 @@
 body {
   font-size: .875rem;
+  /* Explicit modern system font stack. dashboard.css loads after
+     Bootstrap, so this wins the cascade. */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 .feather {
@@ -82,6 +86,23 @@ a[data-toggle="collapse"] {
  * Content
  */
 
+main[role="main"] {
+  padding-bottom: 2rem;
+}
+
+/* The fixed navbar is 48px tall. The old empty #secretnav wrapper
+   (hidden on desktop) happened to push the content below it; now that
+   the wrapper is d-md-none, main carries the offset itself. */
+@media only screen and (min-width: 768px) {
+  main[role="main"] {
+    padding-top: 3.5rem;
+  }
+}
+
+main h3 {
+  margin-bottom: 1rem;
+}
+
 /*@media only screen and (max-width: 768px) {
   [role="main"] {
     padding-top: 60px; /* Space for fixed navbar
@@ -127,10 +148,5 @@ a[data-toggle="collapse"] {
   }
 }
 
-/* Desktop: display:none, not visibility:hidden — the old rule left an
-   invisible gap at the top of the home page. */
-@media only screen and (min-width: 768px) {
-  #secretnav {
-    display: none;
-  }
-}
+/* Desktop: the #secretnav wrapper in home.html is d-md-none, so the
+   block (and the empty bordered bar it used to leave) is gone there. */

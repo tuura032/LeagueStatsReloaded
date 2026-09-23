@@ -32,14 +32,50 @@
         content: "\25BC"; /* black down-pointing triangle */
         color: #495057;
       }
+
+      /* Table polish (owner request, 2026-09-22): roomier rows
+         (table-sm dropped), hover highlight (table-hover class),
+         right-aligned numbers, small-caps header, top-3 rank badges. */
+      #standings-table thead th {
+        font-size: .72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: #6c757d;
+        white-space: nowrap;
+        border-bottom: 2px solid #dee2e6;
+      }
+      /* Every column except Owner is a number — right-align it so the
+         figures line up. The L6 sort arrows are ::after content, so
+         they align with the label. */
+      #standings-table th:not(:nth-child(2)),
+      #standings-table td:not(:nth-child(2)) {
+        text-align: right;
+      }
+      #standings-table tbody tr {
+        transition: background-color .12s ease;
+      }
+      .rank-badge {
+        display: inline-block;
+        min-width: 1.5rem;
+        padding: .15rem .4rem;
+        border-radius: 1rem;
+        font-size: .78rem;
+        font-weight: 600;
+        text-align: center;
+      }
+      .rank-badge-1 { background: #fde047; color: #713f12; } /* gold */
+      .rank-badge-2 { background: #d1d5db; color: #1f2937; } /* silver */
+      .rank-badge-3 { background: #fdba74; color: #7c2d12; } /* bronze */
     </style>
 
-    <div class=" justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <div class="d-md-none justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
       <!-- Mobile-only nav: below 768px dashboard.css hides the top navbar
            and the sidebar is d-none, so this is the only navigation on
-           phones. display:none on desktop (see dashboard.css). The v1
-           route links (/ , /playoffs, /stats) were dead on the static
-           site; they now point at the rendered pages. -->
+           phones. d-md-none on desktop — the wrapper used to render as
+           an empty bordered bar there. The v1 route links (/ ,
+           /playoffs, /stats) were dead on the static site; they now
+           point at the rendered pages. -->
       <div id="secretnav">
         <p class="text-muted small mb-1">Navigation</p>
         <ul class="nav">
@@ -57,7 +93,7 @@
             <h3>{{ season }} Standings Through Week {{ throughWeek }}</h3>
             {% endif %}
             <div class="table-responsive">
-              <table class="table table-striped table-sm" id="standings-table">
+              <table class="table table-striped table-hover" id="standings-table">
                 <thead>
                   <tr>
                     <th class="sortable">Rank</th>
@@ -72,8 +108,8 @@
                 </thead>
                 <tbody>
                   {% for info in standings %}
-                    <tr> 
-                      <td>{{ loop.index }}</td>
+                    <tr>
+                      <td>{% if loop.index <= 3 %}<span class="rank-badge rank-badge-{{ loop.index }}">{{ loop.index }}</span>{% else %}{{ loop.index }}{% endif %}</td>
                       <td>{{ info.owner }}</td>
                       <td>{{ info.points }}</td>
                       <td>{{ info.pointsFor }}</td>
@@ -90,7 +126,7 @@
             {% if some_week %}
             <h3>Week {{ week }} Scores</h3> 
             <div class="table-responsive">
-              <table class="table table-striped table-sm" style="width:50%">
+              <table class="table table-striped table-hover" style="width:50%">
                 <thead>
                   <tr>
                     <th>Rank</th>
