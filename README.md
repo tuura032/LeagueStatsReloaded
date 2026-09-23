@@ -297,6 +297,8 @@ manual re-enable each August.
 | `data/` | committed raw + computed JSON per season |
 | `data/prizes.json` | the league pot — labels, amounts, and which result each prize is awarded on (`default` list, plus optional per-year overrides) |
 | `tasks.py` | one-command wrappers for fetch/compute/build/test |
-| `BENCH_POINTS.md` | outside UI/UX + product consult, 2026-09-22 |
 | `docs/` | the rendered static site (what Pages serves) |
-| `SPEC.md` | the v2 spec — scoring rule, architecture, task list |
+| `AGENTS.md` | agent working protocol + repo map — read this first |
+| `SPEC.md` | architecture reference — scoring rule, data schema, decisions |
+| `ENHANCEMENTS.md` | the live backlog of open feature/polish work |
+| `BUGS.md` | defect log |

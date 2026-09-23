@@ -14,44 +14,9 @@ from and how the page is served.
 
 ## 0. Working protocol — READ THIS FIRST, EVERY SESSION
 
-**One task per session. Stop when it is done.**
-
-1. **Get on the right branch.** `main` is production — GitHub Pages deploys
-   from `main`/`docs`, and a daily GitHub Actions workflow auto-commits fresh
-   data straight to `main` every morning. **Never commit directly to `main`.**
-   `git checkout dev` (create it from `main` if it doesn't exist yet) before
-   making any change. Merge `dev` → `main` only when the work is ready to
-   publish, and if `main` has moved since (the daily bot), merge
-   `origin/main` into `dev` first — never rebase (it re-hits the same
-   auto-generated-data conflict at every commit). Resolve any
-   `data/*.json` conflict by rerunning `compute.py`/`build.py`, never by
-   hand-editing the JSON.
-2. **Get context.** Read this spec's §9 task list and `WORKLOG.md`. Identify
-   the first task not marked done.
-3. **Do exactly that one task.** Nothing else.
-4. **Document it.** Append an entry to `WORKLOG.md`: what you changed, which
-   files, what you verified, anything you deferred or found surprising.
-5. **Stop.** Say which task is next and end the session. **Do not begin it.**
-
-### Rules that override any instinct to be helpful
-
-- **Do not start the next task**, even when it looks small, obvious, or like a
-  natural continuation. Finishing early is correct behaviour, not a reason to
-  continue.
-- **Do not build anything the task does not ask for.** No extra scripts, no
-  helper abstractions, no "while I was here" refactors, no config frameworks.
-- **If anything is ambiguous, STOP and ask.** Do not guess and do not invent a
-  design. Every decision in this document is already made; a gap is a bug in
-  the spec, not an invitation.
-- **Do not add dependencies.** The list in §2 is complete.
-- **Do not touch `templates/` or `static/` except where a task explicitly says
-  to.** That is the author's 2018 work and it is being kept on purpose.
-
-> This protocol exists for a measured reason. Handed a single task on a sibling
-> project, this model completed it and then continued into the *next* two tasks
-> unprompted, including writing files nobody asked for. The work was not bad —
-> it just was not requested, and reviewing unrequested work costs more than it
-> saves. One task, then stop.
+Moved to `AGENTS.md` (one task per session, branch discipline, WORKLOG entry,
+stop when done). Read that file first; this one is architecture reference,
+not the entry point.
 
 ---
 
@@ -213,40 +178,12 @@ for history; `templates/*.html` structure/Jinja logic is still the v2
 rewrite's work and still the thing being built on, just with Tailwind
 classes instead of Bootstrap ones.
 
-`templates/` and `static/dashboard.css` are v1's work and they stay. The
-standings table in `home.html` **already has the right columns**:
-
-```
-Rank | Owner | Total Wins | Total Points | Average Score | Avg Last 3 | H2H Wins | Top Six Finishes
-```
-
-`info.wins` is the H2H count and `info.top6` the top-half count. The UI already
-models the dual-point system correctly. Only its data source changes.
-
-### Total Flask coupling: five lines
-
-```
-templates/layout.html:12   url_for('static', filename='fffIcon.png')
-templates/layout.html:18   url_for('home')
-templates/layout.html:97   get_flashed_messages()
-templates/layout.html:100  get_flashed_messages()
-templates/home.html:144    url_for('static', filename='js/hello.js')
-```
-
-Replace `url_for(...)` with plain relative paths; delete the
-`get_flashed_messages()` block. Everything else — `{% extends %}`,
-`{% block %}`, `{% for %}`, filters, `loop.index` — is standard Jinja and
-renders unchanged.
-
-### The one structural change: sorting
-
-v1's column headers link to Flask routes (`/total_wins`, `/h2h`, `/top6`,
-`/average_score`) that re-queried and re-sorted server-side. **A static site has
-no routes.** Replace with client-side sorting: keep the `<th>` elements, drop
-the `<a href>`, sort the table in JavaScript on click.
-
-`static/js/hello.js` is a stub from an unfinished "new js table" commit — this
-is that commit, finished. Vanilla JS, no library.
+`templates/` is v1's work and the Jinja structure is still what's being built
+on (now with Tailwind classes). The five lines of literal Flask coupling
+(`url_for`, `get_flashed_messages`) and the server-side sort routes
+(`/total_wins`, `/h2h`, …) were removed during L3/L6 — sorting is vanilla
+client-side JS in `static/js/` now. Historical detail: git history around
+those commits.
 
 ### Pages to render
 
@@ -256,10 +193,6 @@ is that commit, finished. Vanilla JS, no library.
 be dropped. Render the rest only if the data supports them — **do not invent
 data to fill a template.** If a page needs something `standings.json` does not
 have, note it in `WORKLOG.md` and leave the page unrendered.
-
-Note: `layout.html` hardcodes 2018 owner names in the sidebar and a 2018 Chart.js
-dataset. Both should come from the data. That is a task (§9 L5), not something
-to fix opportunistically.
 
 ---
 
@@ -392,40 +325,10 @@ path. The original
 
 ## 9. Task list
 
-One per session. Mark done in `WORKLOG.md`, not here.
-
-- **L1 — `fetch.py`.** Three ESPN calls (`mMatchupScore`, `mTeam`, `mSettings`),
-  1s apart, written verbatim to `data/raw-<season>.json`. No transform.
-  `--season` flag defaulting to the current year.
-
-- **L2 — `compute.py`.** Raw → `data/standings-<season>.json` per §1 and §5.
-  Pure, no network. **Tests are mandatory — this is the only file with real
-  logic.** Cover: a normal week, an H2H tie, a top-half boundary tie, and that
-  weeks 15–17 contribute no dual points.
-
-- **L3 — De-Flask the templates.** The five lines in §4, plus swap the
-  DB-shaped variable names (`sortedbywin`, `info.wins`, `info.top6`,
-  `current_week`) for the JSON's keys. No visual change — the page should look
-  identical.
-
-- **L4 — `build.py`.** Render templates to `docs/`. Static, no server.
-  `home.html` first.
-
-- **L5 — Data-drive the sidebar and chart.** `layout.html` hardcodes 2018 owner
-  names and a 2018 Chart.js dataset; both come from `standings.json`.
-
-- **L6 — Client-side table sorting.** Replace the dead `/total_wins`, `/h2h`,
-  `/top6`, `/average_score` route links with vanilla JS column sorting in
-  `static/js/`. Finishes the abandoned "new js table" commit.
-
-- **L7 — GitHub Action + Pages.** Per §7, commit-only-if-changed.
-
-- **L8 — README + cleanup.** Per §8. Explain the scoring rule, local dev, and
-  the 60-day workflow caveat.
-
-- **L9 (optional) — Multi-season archive.** The endpoint takes any season and
-  FFF has history to 2022. Once one season works this is a loop plus a season
-  picker. **Do not start before L1–L8 are done.**
+L1–L9 (fetch → compute → de-Flask → build → data-drive sidebar → client-side
+sort → GitHub Action/Pages → README → multi-season archive) are all complete
+as of 2026-09-22. See `WORKLOG.md` and git history for what each did. Current
+open work lives in `ENHANCEMENTS.md` and `BUGS.md`, not here.
 
 ---
 
