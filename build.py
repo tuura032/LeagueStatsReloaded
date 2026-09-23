@@ -105,7 +105,15 @@ def main():
     if not prizes_path.exists():
         print("ERROR: data/prizes.json not found.", file=sys.stderr)
         sys.exit(1)
-    prizes = json.loads(prizes_path.read_text(encoding="utf-8"))
+    prize_config = json.loads(prizes_path.read_text(encoding="utf-8"))
+    # All-time winnings, computed once over every season on file. Only
+    # fully-decided seasons contribute, so an in-progress year doesn't pay
+    # out money nobody has won yet.
+    career_money = compute.career_payouts(all_standings, prize_config)
+    # Only seasons that actually paid out, newest first -- the per-year
+    # columns on the all-time winnings table.
+    money_seasons = sorted({year for row in career_money for year in row["bySeason"]},
+                           reverse=True)
 
     # Display names: the league refers to each other by first name, and
     # team names change yearly while people don't. Built from every owner
@@ -147,7 +155,17 @@ def main():
             "rivalry_owners": rivalry_owners,
             "rivalry_matrix": rivalry_matrix,
             "careers": careers,
-            "prizes": prizes,
+            # Prize lines for this season, each already resolved to a
+            # winner, plus the same money re-cut as a ranked payout table.
+            # Both come from one resolver in compute.py -- when the macro
+            # owned that logic the two views could silently disagree.
+            "prizes": compute.resolve_prizes(
+                data, compute.prizes_for_season(prize_config, season)),
+            "payouts": compute.season_payouts(
+                data, compute.prizes_for_season(prize_config, season)),
+            "career_money": career_money,
+            "money_seasons": money_seasons,
+            "entryFee": data.get("entryFee"),
             # How many teams make the playoffs, per the league's own ESPN
             # settings. home.html used to assume half the field, which is
             # right for this league only by coincidence.

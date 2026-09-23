@@ -2,9 +2,10 @@
   "season": 2023,
   "league": "877873",
   "leagueName": "Fantasy Football Fantasy",
-  "updated": "2026-09-23T03:36:11Z",
+  "updated": "2026-09-23T03:41:52Z",
   "regularSeasonWeeks": 14,
   "playoffTeamCount": 6,
+  "entryFee": 25.0,
   "throughWeek": 14,
   "weeks": [
     {

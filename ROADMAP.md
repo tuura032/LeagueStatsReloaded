@@ -125,6 +125,19 @@ positive awards replace them: **The Closer** (biggest first-half to
 second-half jump) and **Clutch** (best record in games decided by under 10,
 minimum 3 such games so one squeaker can't win it).
 
+**Prize money, same day.** A finished season still said "Projected Prize
+Distribution" and carried a permanent TBD under 3rd Overall, so it read as
+half-built. `finalRank` fills 3rd Overall; the heading drops "Projected"
+once every line is decided and states the pot. Added a **Payouts** table
+ranking owners by money actually taken home — the champion does not
+automatically top it (2025: champion $135, runner-up $115 off the
+regular-season prizes) — and an **All-time winnings** table on Career Stats
+with total, net of entry fees, and a column per season. Prize resolution
+moved out of the Jinja macro into `compute.resolve_prizes()` so the prize
+table and the payout table cannot disagree; `data/prizes.json` gained a
+`default` + per-year-override shape so an old season's pot can be corrected
+without rewriting history.
+
 **Display names.** The league talks about each other by first name, and team
 names change yearly while people don't — so the site leads with the person.
 `compute.short_names()` maps each owner to their first name where it's

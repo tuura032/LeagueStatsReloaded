@@ -8,19 +8,19 @@
 
 <style>
   /* Sort arrows -- see home.html for the same pattern/rationale. */
-  #careers-table th.sortable { cursor: pointer; user-select: none; }
-  #careers-table th.sortable::after {
+  #careers-table th.sortable, #money-table th.sortable { cursor: pointer; user-select: none; }
+  #careers-table th.sortable, #money-table th.sortable::after {
     content: "\2195"; margin-left: .3em; font-size: .8em; color: #94a3b8;
   }
-  #careers-table th.sortable:hover::after,
-  #careers-table th.sortable.asc::after,
-  #careers-table th.sortable.desc::after { color: #334155; }
-  #careers-table th.sortable.asc::after { content: "\25B2"; }
-  #careers-table th.sortable.desc::after { content: "\25BC"; }
-  [data-theme="dark"] #careers-table th.sortable::after { color: #64748b; }
-  [data-theme="dark"] #careers-table th.sortable:hover::after,
-  [data-theme="dark"] #careers-table th.sortable.asc::after,
-  [data-theme="dark"] #careers-table th.sortable.desc::after { color: #e2e8f0; }
+  #careers-table th.sortable, #money-table th.sortable:hover::after,
+  #careers-table th.sortable, #money-table th.sortable.asc::after,
+  #careers-table th.sortable, #money-table th.sortable.desc::after { color: #334155; }
+  #careers-table th.sortable, #money-table th.sortable.asc::after { content: "\25B2"; }
+  #careers-table th.sortable, #money-table th.sortable.desc::after { content: "\25BC"; }
+  [data-theme="dark"] #careers-table th.sortable, [data-theme="dark"] #money-table th.sortable, #money-table th.sortable::after { color: #64748b; }
+  [data-theme="dark"] #careers-table th.sortable, [data-theme="dark"] #money-table th.sortable, #money-table th.sortable:hover::after,
+  [data-theme="dark"] #careers-table th.sortable, [data-theme="dark"] #money-table th.sortable, #money-table th.sortable.asc::after,
+  [data-theme="dark"] #careers-table th.sortable, [data-theme="dark"] #money-table th.sortable, #money-table th.sortable.desc::after { color: #e2e8f0; }
 </style>
 
 <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Career Stats</h1>
@@ -89,6 +89,47 @@
 </div>
 {% else %}
   <p class="mt-4 text-slate-500 dark:text-slate-400">No career data yet.</p>
+{% endif %}
+
+{% if career_money %}
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">All-time winnings</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Every dollar paid out across {{ money_seasons | length }} completed season{{ 's' if money_seasons | length != 1 else '' }}.
+  <strong>Net</strong> is winnings minus entry fees &mdash; the number that says whether the
+  league has actually been good to you. A title is the biggest single prize, but it isn't
+  automatically the biggest year.
+</p>
+<div class="mt-3 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="money-table">
+    <thead class="bg-slate-50 dark:bg-slate-900/60">
+      <tr>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Won</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400" title="Winnings minus entry fees">Net</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Entry fees paid in">Paid In</th>
+        {% for y in money_seasons %}
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">'{{ y % 100 }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+      {% for row in career_money %}
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">{{ row.owner | short }}</td>
+        <td class="px-3 py-2 text-right font-semibold whitespace-nowrap {{ 'text-emerald-700 dark:text-emerald-400' if row.total else 'text-slate-400 dark:text-slate-500' }}">${{ row.total }}</td>
+        <td class="px-3 py-2 text-right font-semibold whitespace-nowrap {{ 'text-emerald-600 dark:text-emerald-400' if row.net > 0 else ('text-rose-600 dark:text-rose-400' if row.net < 0 else 'text-slate-400 dark:text-slate-500') }}"
+            data-sort="{{ row.net }}">{{ '+' if row.net > 0 else ('&minus;' | safe if row.net < 0 else '') }}${{ row.net | abs }}</td>
+        <td class="hidden px-3 py-2 text-right whitespace-nowrap text-slate-500 sm:table-cell dark:text-slate-400">${{ row.paid }}</td>
+        {% for y in money_seasons %}
+        {% set amt = row.bySeason.get(y) %}
+        <td class="px-3 py-2 text-right whitespace-nowrap {{ 'font-medium text-slate-800 dark:text-slate-200' if amt else 'text-slate-300 dark:text-slate-600' }}"
+            data-sort="{{ amt or 0 }}">{% if amt %}${{ amt }}{% else %}&mdash;{% endif %}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endif %}
 
 <script src="static/js/hello.js"></script>

@@ -82,6 +82,31 @@ Awards are computed by fixed rules and are **not randomised**: `build.py`
 must stay deterministic so the daily workflow commits only when the data
 actually changed.
 
+## Prize money
+
+`data/prizes.json` holds the pot. Each prize names the result it pays on —
+`standings` (regular-season dual-point rank), `finalRank` (placement after
+the playoffs), `regSeasonPF`, `playoffsPF` — so `compute.resolve_prizes()`
+can fill in every line without the template knowing the rules.
+
+The file is a `default` list plus optional per-year overrides
+(`"2022": [...]`), because a league's pot changes and applying today's
+structure to an old season would invent history.
+
+Two views, one resolver:
+
+- **Prize Distribution** — who won each prize line. Titled "Projected"
+  only while something is still undecided.
+- **Payouts** — the same money ranked by who took it home, because
+  **winning the title is not the same as winning the most**. In 2025 the
+  champion took $135, but the owner who finished 2nd collected $115 by
+  stacking the regular-season prizes.
+
+**Net** is winnings minus the entry fee (`financeSettings.entryFee`, which
+times the league size is exactly the pot). Career Stats carries an all-time
+winnings table — total, net, and a column per season. A championship does
+not guarantee you are up: one owner has a title and is still net −$10.
+
 ## How it works
 
 ```
@@ -166,7 +191,7 @@ manual re-enable each August.
 | `build.py` | renders `templates/` to `docs/`, copies `static/` |
 | `test_compute.py` | unit tests for the scoring rule |
 | `data/` | committed raw + computed JSON per season |
-| `data/prizes.json` | the league pot — labels, amounts, and which result each prize is awarded on |
+| `data/prizes.json` | the league pot — labels, amounts, and which result each prize is awarded on (`default` list, plus optional per-year overrides) |
 | `tasks.py` | one-command wrappers for fetch/compute/build/test |
 | `BENCH_POINTS.md` | outside UI/UX + product consult, 2026-09-22 |
 | `docs/` | the rendered static site (what Pages serves) |

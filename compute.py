@@ -231,6 +231,11 @@ def build_standings(raw, updated):
     # is 6 here only because this league is 12 teams with a 6-team playoff
     # -- correct by coincidence, wrong for any league that splits differently.
     playoff_team_count = schedule_settings.get("playoffTeamCount")
+    # What each owner paid in. The pot is entryFee x size, which is exactly
+    # what data/prizes.json pays out, so winnings minus the fee is a real
+    # profit/loss figure rather than a vanity number.
+    finance = raw["mSettings"]["settings"].get("financeSettings") or {}
+    entry_fee = finance.get("entryFee")
 
     members = {m["id"]: m for m in teams_view.get("members", [])}
     team_info = {}
@@ -338,6 +343,7 @@ def build_standings(raw, updated):
         "updated": updated,
         "regularSeasonWeeks": week_count,
         "playoffTeamCount": playoff_team_count,
+        "entryFee": entry_fee,
         "throughWeek": through_week,
         "weeks": weeks_out,
         "standings": ranked,
@@ -837,6 +843,145 @@ def build_season_stats(season):
     return {"table": table,
             "records": season_records(season),
             "awards": season_awards(season, all_play, profile)}
+
+
+
+# --------------------------------------------------------------------------
+# Prize money.
+#
+# The pot is entryFee x league size, which is exactly what data/prizes.json
+# pays out, so winnings minus the entry fee is a real profit/loss number.
+#
+# Resolution lives here rather than in the template because two different
+# views need it -- the prize table and the payout ranking -- and having the
+# Jinja macro own it once meant the two could silently disagree.
+# --------------------------------------------------------------------------
+
+def prizes_for_season(config, season):
+    """The prize list that applies to one season.
+
+    `config` is either a plain list (one structure for every season) or a
+    dict with a "default" list and optional per-year overrides keyed by the
+    season as a string. The override exists because a league's pot changes
+    over the years and quietly applying today's structure to 2022 would
+    invent history.
+    """
+    if isinstance(config, list):
+        return config
+    if not isinstance(config, dict):
+        return []
+    return config.get(str(season)) or config.get("default") or []
+
+
+def resolve_prizes(season, prizes):
+    """Pair each prize with the owner who won it.
+
+    Returns [{prize, owner, amount, label, decided}]. `owner` is None and
+    `decided` False when the result isn't known yet (mid-season, or a
+    prize whose award key nothing satisfies).
+    """
+    standings = season.get("standings") or []
+    by_final = {s.get("finalRank"): s for s in standings if s.get("finalRank")}
+    playoffs = season.get("playoffs") or {}
+    owner_by_team = {s["teamId"]: s["owner"] for s in standings}
+
+    top_pf = None
+    if standings:
+        top_pf = max(standings, key=lambda s: (s["pointsFor"], -s["teamId"]))
+
+    out = []
+    for prize in prizes:
+        award, rank = prize.get("award"), prize.get("rank", 1)
+        owner = None
+        if award == "standings":
+            row = next((s for s in standings if s["rank"] == rank), None)
+            owner = row["owner"] if row else None
+        elif award == "finalRank":
+            row = by_final.get(rank)
+            owner = row["owner"] if row else None
+        elif award == "regSeasonPF":
+            owner = top_pf["owner"] if top_pf else None
+        elif award == "playoffsPF":
+            owner = owner_by_team.get(playoffs.get("mostPointsFor"))
+        out.append({"label": prize.get("label", ""),
+                    "amount": prize.get("amount", 0),
+                    "bye": prize.get("bye", False),
+                    "owner": owner, "decided": owner is not None})
+    return out
+
+
+def season_payouts(season, prizes):
+    """Who took home what, ranked by total.
+
+    The headline point: the champion does not automatically top this. The
+    title pays $90, but a regular-season winner who also led the league in
+    scoring and finished 2nd overall collects $25 + $30 + $60 = $115. The
+    prize table shows who won each line; this shows who actually cashed.
+
+    Returns rows of {owner, total, net, prizes: [{label, amount}]}, sorted
+    by total desc then owner, including owners who won nothing.
+    """
+    resolved = resolve_prizes(season, prizes)
+    fee = season.get("entryFee") or 0
+
+    rows = {}
+    for s in season.get("standings") or []:
+        rows[s["owner"]] = {"owner": s["owner"], "total": 0, "prizes": []}
+    for item in resolved:
+        if not item["decided"]:
+            continue
+        row = rows.setdefault(item["owner"],
+                              {"owner": item["owner"], "total": 0, "prizes": []})
+        row["total"] += item["amount"]
+        row["prizes"].append({"label": item["label"], "amount": item["amount"]})
+
+    for row in rows.values():
+        row["entryFee"] = fee
+        row["net"] = round(row["total"] - fee, 2)
+        # Whole dollars read better than 115.0 when every prize is an int.
+        if row["net"] == int(row["net"]):
+            row["net"] = int(row["net"])
+
+    return sorted(rows.values(), key=lambda r: (-r["total"], r["owner"]))
+
+
+def career_payouts(all_standings, config):
+    """All-time winnings per owner across every season on file.
+
+    Only seasons whose prizes are fully decided contribute, so an
+    in-progress year doesn't hand out money that hasn't been won. Returns
+    rows of {owner, total, net, seasons, bySeason: {year: amount}, titles},
+    sorted by total desc.
+    """
+    rows = {}
+    for season in all_standings:
+        prizes = prizes_for_season(config, season["season"])
+        resolved = resolve_prizes(season, prizes)
+        # A season pays out only once every prize on it has been decided.
+        if not resolved or not all(item["decided"] for item in resolved):
+            continue
+        year = season["season"]
+        fee = season.get("entryFee") or 0
+        for s in season.get("standings") or []:
+            row = rows.setdefault(s["owner"], {
+                "owner": s["owner"], "total": 0, "paid": 0,
+                "seasons": 0, "bySeason": {}})
+            row["seasons"] += 1
+            row["paid"] += fee
+            row["bySeason"].setdefault(year, 0)
+        for item in resolved:
+            row = rows.get(item["owner"])
+            if row is None:
+                continue
+            row["total"] += item["amount"]
+            row["bySeason"][year] = row["bySeason"].get(year, 0) + item["amount"]
+
+    for row in rows.values():
+        row["net"] = round(row["total"] - row["paid"], 2)
+        for key in ("net", "paid", "total"):
+            if row[key] == int(row[key]):
+                row[key] = int(row[key])
+    return sorted(rows.values(), key=lambda r: (-r["total"], r["owner"]))
 
 
 def main():

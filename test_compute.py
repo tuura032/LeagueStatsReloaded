@@ -1036,3 +1036,154 @@ class TestSurgeAndClutch(unittest.TestCase):
         self.assertIsNone(prof[1]["closeWinPct"])
         keys = {a["key"] for a in compute.build_season_stats(season)["awards"]}
         self.assertNotIn("clutch", keys)
+
+
+class TestPrizeResolution(unittest.TestCase):
+    """resolve_prizes: each prize line paired with the owner who won it."""
+
+    PRIZES = [
+        {"label": "1st Place", "amount": 25, "award": "standings", "rank": 1},
+        {"label": "Reg Season Most PF", "amount": 30, "award": "regSeasonPF"},
+        {"label": "1st Overall", "amount": 90, "award": "finalRank", "rank": 1},
+        {"label": "3rd Overall", "amount": 30, "award": "finalRank", "rank": 3},
+    ]
+
+    def _season(self, **kw):
+        return compute.build_standings(
+            make_raw(full_season_weeks(), **kw), UPDATED)
+
+    def test_finished_season_resolves_every_prize(self):
+        season = self._season(final_ranks={2: 1, 5: 2, 7: 3})
+        items = compute.resolve_prizes(season, self.PRIZES)
+        self.assertTrue(all(i["decided"] for i in items))
+        by_label = {i["label"]: i["owner"] for i in items}
+        self.assertEqual(by_label["1st Overall"], "First2 Last2")
+        self.assertEqual(by_label["3rd Overall"], "First7 Last7")
+        # Team 12 tops the dual-point standings and points-for.
+        self.assertEqual(by_label["1st Place"], "First12 Last12")
+        self.assertEqual(by_label["Reg Season Most PF"], "First12 Last12")
+
+    def test_in_progress_season_leaves_playoff_prizes_undecided(self):
+        items = compute.resolve_prizes(self._season(), self.PRIZES)
+        by_label = {i["label"]: i for i in items}
+        self.assertTrue(by_label["1st Place"]["decided"])
+        self.assertFalse(by_label["1st Overall"]["decided"])
+        self.assertIsNone(by_label["1st Overall"]["owner"])
+
+    def test_prizes_for_season_accepts_a_plain_list(self):
+        self.assertEqual(compute.prizes_for_season(self.PRIZES, 2025),
+                         self.PRIZES)
+
+    def test_prizes_for_season_prefers_a_year_override(self):
+        other = [{"label": "Winner", "amount": 10, "award": "finalRank",
+                  "rank": 1}]
+        config = {"default": self.PRIZES, "2022": other}
+        self.assertEqual(compute.prizes_for_season(config, 2022), other)
+        self.assertEqual(compute.prizes_for_season(config, 2025), self.PRIZES)
+
+    def test_prizes_for_season_handles_junk(self):
+        self.assertEqual(compute.prizes_for_season(None, 2025), [])
+        self.assertEqual(compute.prizes_for_season({}, 2025), [])
+
+
+class TestSeasonPayouts(unittest.TestCase):
+    """season_payouts: the same money, ranked by who took it home."""
+
+    def test_the_champion_does_not_automatically_top_the_payouts(self):
+        # This is the whole point of the table. Team 12 leads the regular
+        # season and scoring ($25 + $30) and finishes 2nd ($60) = $115.
+        # Team 2 wins the title for $90 and collects nothing else.
+        prizes = [
+            {"label": "1st Place", "amount": 25, "award": "standings", "rank": 1},
+            {"label": "Most PF", "amount": 30, "award": "regSeasonPF"},
+            {"label": "1st Overall", "amount": 90, "award": "finalRank", "rank": 1},
+            {"label": "2nd Overall", "amount": 60, "award": "finalRank", "rank": 2},
+        ]
+        season = compute.build_standings(
+            make_raw(full_season_weeks(), final_ranks={2: 1, 12: 2}), UPDATED)
+        rows = compute.season_payouts(season, prizes)
+        self.assertEqual(rows[0]["owner"], "First12 Last12")
+        self.assertEqual(rows[0]["total"], 115)
+        self.assertEqual(rows[1]["owner"], "First2 Last2")
+        self.assertEqual(rows[1]["total"], 90)
+
+    def test_net_subtracts_the_entry_fee(self):
+        prizes = [{"label": "1st Overall", "amount": 90,
+                   "award": "finalRank", "rank": 1}]
+        season = compute.build_standings(
+            make_raw(full_season_weeks(), final_ranks={2: 1}), UPDATED)
+        season["entryFee"] = 25.0
+        rows = {r["owner"]: r for r in compute.season_payouts(season, prizes)}
+        self.assertEqual(rows["First2 Last2"]["net"], 65)
+        # Everyone else is out the entry fee.
+        self.assertEqual(rows["First7 Last7"]["total"], 0)
+        self.assertEqual(rows["First7 Last7"]["net"], -25)
+
+    def test_every_owner_appears_even_with_no_winnings(self):
+        season = compute.build_standings(make_raw(full_season_weeks()), UPDATED)
+        self.assertEqual(len(compute.season_payouts(season, [])), 12)
+
+    def test_payouts_are_ranked_by_total(self):
+        prizes = [
+            {"label": "A", "amount": 10, "award": "standings", "rank": 3},
+            {"label": "B", "amount": 50, "award": "standings", "rank": 1},
+        ]
+        season = compute.build_standings(make_raw(full_season_weeks()), UPDATED)
+        rows = [r for r in compute.season_payouts(season, prizes) if r["total"]]
+        self.assertEqual([r["total"] for r in rows], [50, 10])
+
+
+class TestCareerPayouts(unittest.TestCase):
+    """career_payouts: all-time winnings, overall and per year."""
+
+    PRIZES = [{"label": "1st Overall", "amount": 90,
+               "award": "finalRank", "rank": 1}]
+
+    def _season(self, year, champion):
+        s = compute.build_standings(
+            make_raw(full_season_weeks(), season=year,
+                     final_ranks={champion: 1}), UPDATED)
+        s["entryFee"] = 25.0
+        return s
+
+    def test_totals_and_per_season_breakdown(self):
+        seasons = [self._season(2024, 2), self._season(2025, 2)]
+        rows = {r["owner"]: r
+                for r in compute.career_payouts(seasons, self.PRIZES)}
+        champ = rows["First2 Last2"]
+        self.assertEqual(champ["total"], 180)
+        self.assertEqual(champ["bySeason"], {2024: 90, 2025: 90})
+        self.assertEqual(champ["paid"], 50)
+        self.assertEqual(champ["net"], 130)
+
+    def test_a_champion_can_still_be_net_negative(self):
+        # One title across four seasons of entry fees. This really happens:
+        # Polansky won 2022 and is still down on the league.
+        seasons = [self._season(y, 2 if y == 2022 else 5)
+                   for y in (2022, 2023, 2024, 2025)]
+        rows = {r["owner"]: r
+                for r in compute.career_payouts(seasons, self.PRIZES)}
+        polansky = rows["First2 Last2"]
+        self.assertEqual(polansky["total"], 90)
+        self.assertEqual(polansky["paid"], 100)
+        self.assertEqual(polansky["net"], -10)
+
+    def test_undecided_seasons_pay_nothing(self):
+        # An in-progress season has no finalRank, so no prize is decided and
+        # the season must not contribute money or entry fees.
+        live = compute.build_standings(
+            make_raw(full_season_weeks(), season=2026), UPDATED)
+        live["entryFee"] = 25.0
+        rows = compute.career_payouts([live], self.PRIZES)
+        self.assertEqual(rows, [])
+
+    def test_mixed_decided_and_undecided(self):
+        live = compute.build_standings(
+            make_raw(full_season_weeks(), season=2026), UPDATED)
+        live["entryFee"] = 25.0
+        rows = {r["owner"]: r for r in
+                compute.career_payouts([self._season(2025, 2), live],
+                                       self.PRIZES)}
+        self.assertEqual(rows["First2 Last2"]["total"], 90)
+        self.assertNotIn(2026, rows["First2 Last2"]["bySeason"])
+        self.assertEqual(rows["First2 Last2"]["paid"], 25)
