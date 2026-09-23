@@ -1,8 +1,3 @@
-function myFunction() {
-    document.getElementById("demo").innerHTML += "Hello World!";
-    console.log('hello word, console!');
-  }
-
 // L6 — client-side sorting for the standings table.
 //
 // Replaces the dead v1 route links in the table headers (/total_wins,

@@ -35,20 +35,19 @@
     </style>
 
     <div class=" justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <!-- Mobile-only nav: below 768px dashboard.css hides the top navbar
+           and the sidebar is d-none, so this is the only navigation on
+           phones. display:none on desktop (see dashboard.css). The v1
+           route links (/ , /playoffs, /stats) were dead on the static
+           site; they now point at the rendered pages. -->
       <div id="secretnav">
-        <h1>Mobile Navigation:</h1>
-          <ul>
-          <a href="/">Home</a>    <a href="/playoffs">Playoffs and Prizes</a>    <a href="/stats">Stats</a>
-          </ul>
-      </div>
-      <h1 class="h2"></h1>
-      {% if welcome %}
-      <span>{{ welcome.title }}
-        <ul>
-          <li>{{ welcome.message }}</li>
+        <p class="text-muted small mb-1">Navigation</p>
+        <ul class="nav">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="playoffs.html">Playoffs and Prizes</a></li>
+          <li class="nav-item"><a class="nav-link" href="graph.html">Stats</a></li>
         </ul>
-      </span>
-      {% endif %}
+      </div>
     </div>
 
 
@@ -115,63 +114,6 @@
               </table>
             </div>
             {% endif %}
-
-            <nav aria-label="Page navigation example">
-              <ul class="pagination justify-content-center">
-                <li class="page-item disabled">
-                  <a class="page-link" href="#" tabindex="-1">VIEW WEEK</a>
-                </li>
-                <li class="page-item"><a class="page-link" href="/1">1</a></li>
-                <li class="page-item"><a class="page-link" href="/2">2</a></li>
-                <li class="page-item"><a class="page-link" href="/3">3</a></li>
-                <li class="page-item"><a class="page-link" href="/4">4</a></li>
-                <li class="page-item"><a class="page-link" href="/5">5</a></li>
-                <li class="page-item"><a class="page-link" href="/6">6</a></li>
-                <li class="page-item"><a class="page-link" href="/7">7</a></li>
-                <li class="page-item"><a class="page-link" href="/8">8</a></li>
-                <li class="page-item"><a class="page-link" href="/9">9</a></li>
-                <li class="page-item"><a class="page-link" href="/10">10</a></li>
-                <li class="page-item"><a class="page-link" href="/11">11</a></li>
-                <li class="page-item"><a class="page-link" href="/12">12</a></li>
-                <li class="page-item"><a class="page-link" href="/13">13</a></li>
-              </ul>
-            </nav>
-
-            <div>
-              <p>New Features</p>
-              <button type="button" id="myButton" onclick="myFunction()">Click me!
-              </button>
-            </div>
-
-            <h3 id="demo">JS Table</h3> 
-            <div class="table-responsive">
-              <table class="table table-striped table-sm">
-                <thead>
-                  <tr>
-                    <th><a href="javascript:void(0)">Column 1</a></th>
-                    <th><a href="javascript:void(0)">Column 2</a></th>
-                    <th><a href="javascript:void(0)">Column 3</a></th>
-                  </tr>
-                </thead>
-                <tbody>
-                    <tr> 
-                      <td>Row 1, Coloumn 1</td>
-                      <td>Row 1, Coloumn 2</td>
-                      <td>Row 1, Coloumn 3</td>
-                    </tr>
-                    <tr> 
-                      <td>Row 2, Coloumn 1</td>
-                      <td>Row 2, Coloumn 2</td>
-                      <td>Row 2, Coloumn 3</td>
-                    </tr>
-                    <tr> 
-                      <td>Row 3, Coloumn 1</td>
-                      <td>Row 3, Coloumn 2</td>
-                      <td>Row 3, Coloumn 3</td>
-                    </tr>
-                </tbody>
-              </table>
-            </div>
 
             <script type="text/javascript" src="static/js/hello.js">
             </script>

@@ -118,17 +118,19 @@ a[data-toggle="collapse"] {
   box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
 }
 
+/* Mobile: below 768px the fixed navbar is hidden and the sidebar is
+   d-none, so home.html's #secretnav is the only navigation on phones.
+   (The old "#sercretnav" rule was a typo that matched nothing.) */
 @media only screen and (max-width: 768px) {
   #navbar {
     visibility: hidden;
   }
-  #sercretnav {
-    visibility: visible!important;
-    }
 }
 
+/* Desktop: display:none, not visibility:hidden — the old rule left an
+   invisible gap at the top of the home page. */
 @media only screen and (min-width: 768px) {
   #secretnav {
-    visibility: hidden;
+    display: none;
   }
 }
