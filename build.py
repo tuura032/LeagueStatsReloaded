@@ -78,6 +78,20 @@ def phrase_hash():
     return ""
 
 
+def previous_gate_hash(docs):
+    """The gate digest already baked into a built site, or "".
+
+    Read back out of docs/index.html so a rebuild can tell whether it is
+    about to remove a gate that is currently live.
+    """
+    page = docs / "index.html"
+    if not page.exists():
+        return ""
+    match = re.search(r"var HASH = '([0-9a-f]{64})'",
+                      page.read_text(encoding="utf-8"))
+    return match.group(1) if match else ""
+
+
 def ordinal(n):
     """1 -> '1st', 2 -> '2nd', 12 -> '12th', 23 -> '23rd'.
 
@@ -98,6 +112,8 @@ def main():
     parser = argparse.ArgumentParser(description="Render the FFF static site to docs/.")
     parser.add_argument("--season", type=int, default=None,
                         help="Build only this season (default: every season with a standings file)")
+    parser.add_argument("--no-gate", action="store_true",
+                        help="Allow a build that removes an existing passphrase gate")
     args = parser.parse_args()
 
     data_dir = Path("data")
@@ -164,6 +180,21 @@ def main():
     if gate_hash:
         print("Passphrase gate: enabled (hash baked in, phrase not stored)")
     else:
+        # Refuse to silently un-gate a site that is currently gated. This
+        # has already happened once: a rebuild during unrelated work
+        # dropped the gate from every page and `git add -A` committed it,
+        # publishing the league ungated until someone noticed. A build that
+        # removes the gate must now say so out loud, or be told to.
+        existing = previous_gate_hash(Path("docs"))
+        if existing and not args.no_gate:
+            print("\n".join([
+                "ERROR: docs/ is currently gated but no passphrase is set, "
+                "so this build would strip the gate from every page.",
+                "  Set LEAGUE_PHRASE, or pass the existing digest:",
+                f"    LEAGUE_PHRASE_SHA256={existing} python build.py",
+                "  If removing the gate is intended, re-run with --no-gate.",
+            ]), file=sys.stderr)
+            sys.exit(1)
         print("Passphrase gate: disabled (set LEAGUE_PHRASE to enable)")
     # `short` on a full owner name; `names` on a list of them, joined as
     # "A", "A & B" or "A, B & C".

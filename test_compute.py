@@ -1471,3 +1471,48 @@ class TestCustomDomain(unittest.TestCase):
                                               encoding="utf-8")
         self.assertEqual(self._write_cname().read_text(encoding="utf-8"),
                          "fff.example.com\n")
+
+
+class TestGateRegressionGuard(unittest.TestCase):
+    """build.previous_gate_hash: don't silently un-gate a gated site.
+
+    Regression for a real incident: a rebuild during unrelated work ran
+    without the digest, stripped the gate from all 40 pages, and `git add
+    -A` committed it -- publishing the league ungated until someone
+    noticed. build.py now refuses that build unless --no-gate is passed.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.docs = pathlib.Path(self.tmp) / "docs"
+        self.docs.mkdir()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_reads_back_the_digest_from_a_built_page(self):
+        digest = "a" * 64
+        (self.docs / "index.html").write_text(
+            f"<html><script>var HASH = '{digest}';</script></html>",
+            encoding="utf-8")
+        self.assertEqual(build.previous_gate_hash(self.docs), digest)
+
+    def test_no_docs_yet_is_not_a_gate(self):
+        self.assertEqual(build.previous_gate_hash(self.docs), "")
+
+    def test_an_ungated_page_reports_no_gate(self):
+        (self.docs / "index.html").write_text("<html>no gate here</html>",
+                                              encoding="utf-8")
+        self.assertEqual(build.previous_gate_hash(self.docs), "")
+
+    def test_an_empty_hash_is_not_treated_as_a_gate(self):
+        # build.py renders var HASH = '' when the gate is off; that must
+        # not look like an existing gate or every later build would fail.
+        (self.docs / "index.html").write_text(
+            "<script>var HASH = '';</script>", encoding="utf-8")
+        self.assertEqual(build.previous_gate_hash(self.docs), "")
+
+    def test_a_malformed_digest_is_not_treated_as_a_gate(self):
+        (self.docs / "index.html").write_text(
+            "<script>var HASH = 'nope';</script>", encoding="utf-8")
+        self.assertEqual(build.previous_gate_hash(self.docs), "")

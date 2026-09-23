@@ -205,8 +205,20 @@ the effort.
 
 `LEAGUE_PHRASE_SHA256` can be set instead, to rebuild the site identically
 without knowing the phrase (the digest is public in the deployed page
-anyway). Without it, anyone rebuilding locally would silently ship a
-gate-less site.
+anyway). Without it, anyone rebuilding locally would ship a gate-less site.
+
+That is not hypothetical — it happened on 2026-09-23, during unrelated work,
+and `git add -A` committed the result. So `build.py` now reads the digest
+back out of `docs/index.html` and **refuses** to build when doing so would
+remove a live gate, printing the command to recover:
+
+```
+ERROR: docs/ is currently gated but no passphrase is set, so this build
+would strip the gate from every page.
+  Set LEAGUE_PHRASE, or pass the existing digest:
+    LEAGUE_PHRASE_SHA256=<digest> python build.py
+  If removing the gate is intended, re-run with --no-gate.
+```
 
 **Staying out of search results.** The gate only hides content visually, so
 a crawler would happily index straight through it. Two things stop that:
