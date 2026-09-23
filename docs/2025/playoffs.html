@@ -317,6 +317,8 @@
       
 
 
+
+
 <style>
   /* Sort arrows -- same pattern as home.html/careers.html. */
   #playoff-table th.sortable { cursor: pointer; user-select: none; }
@@ -336,6 +338,21 @@
 
 <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Playoffs</h1>
 
+
+<div class="mt-4 flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-500/10">
+  <span class="text-2xl" aria-hidden="true">&#127942;</span>
+  <div>
+    <div class="text-xs font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">2025 Champion</div>
+    <div class="text-lg font-semibold text-slate-900 dark:text-white">Davíd Huisken</div>
+    <div class="text-xs text-slate-600 dark:text-slate-400">
+      Beat Casey Pirsig 154.5&ndash;108.9 in the week 17 final.
+    </div>
+  </div>
+</div>
+
+
+
+
 <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
   <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="playoff-table">
     <thead class="bg-slate-50 dark:bg-slate-900/60">
@@ -343,7 +360,7 @@
         <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seed</th>
         <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
         <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins</th>
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Wins to Clinch / 0</th>
+        
         <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Games Back</th>
         <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Heating Up! Last 3 Trend*</th>
         <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 12</th>
@@ -353,157 +370,160 @@
     </thead>
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
       
+      
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">1</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Casey Pirsig</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">21</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">-8</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">-21.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">102</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">96</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">109</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-21.1</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">102.8</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">96.9</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">109.7</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">2</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Pat Benner</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">20</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">-7</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">5.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">120</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">133</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">114</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+5.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">120.7</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">133.2</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">114.8</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">3</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Davíd Huisken</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">18</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">-5</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">3</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">2.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">120</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">106</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">124</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+2.4</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">120.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">106.4</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">124.0</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">4</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Nick Kubit</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">17</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">-4</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">4</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">9.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">153</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">82</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">129</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+9.1</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">153.3</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">82.7</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">129.5</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">5</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Daniel Sharp</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">16</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">-3</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">5</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">3.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">123</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">121</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">108</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+3.4</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">123.8</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">121.9</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">108.0</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">6</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Paul Tuura</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">13</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">0</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">8</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">-27.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">70</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">94</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">68</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-26.8</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">70.8</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">94.1</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">68.3</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">7</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Eric Monson</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">13</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">0</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">8</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">10.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">135</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">116</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">72</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+9.5</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">135.9</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">116.6</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">72.8</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">8</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Ethan Hildebrandt</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">12</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">9</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">-12.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">72</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">99</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">102</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-11.9</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">72.8</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">99.2</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">102.5</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">9</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Jamie Sugar</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">12</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">9</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">1.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">129</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">103</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">75</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+0.9</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">129.6</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">103.8</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">75.5</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">10</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Daniel Senger</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">10</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">3</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">11</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">13.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">113</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">80</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">131</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+13.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">113.3</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">80.8</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">131.2</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">11</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Nicholas Polansky</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">9</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">4</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">12</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">-11.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">80</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">74</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">96</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-rose-600 dark:text-rose-400">-10.8</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">80.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">74.5</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">96.2</td>
         </tr>
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">12</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Sam Engsberg</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">7</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">6</td>
+          
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">14</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">89</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">119</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">67</td>
+          <td class="hidden px-3 py-2 text-right font-medium sm:table-cell text-emerald-600 dark:text-emerald-400">+0.2</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">89.4</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">119.9</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">67.6</td>
         </tr>
       
     </tbody>
   </table>
 </div>
 
+
 <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
   *Heating up! represents the difference between your average scoring and your average the last 3 weeks.
 </p>
+
 
 <h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Projected Prize Distribution</h2>
 
@@ -511,30 +531,58 @@
   <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
     <thead class="bg-slate-50 dark:bg-slate-900/60">
       <tr>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">1st Place ($25) -BYE-</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">2nd Place ($20) -BYE-</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Third Place ($15)</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Reg Season Most PF ($30)</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">1st Overall ($90)</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">2nd Overall ($60)</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">3rd Overall ($30)</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Playoffs Most PF ($30)</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">1st Place ($25) -BYE-</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">2nd Place ($20) -BYE-</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Third Place ($15)</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Reg Season Most PF ($30)</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">1st Overall ($90)</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">2nd Overall ($60)</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">3rd Overall ($30)</th><th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Playoffs Most PF ($30)</th>
       </tr>
     </thead>
     <tbody>
       <tr class="bg-white dark:bg-slate-900">
+        
+          
+          
         <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Casey Pirsig</td>
+          
+        
+          
+          
         <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Pat Benner</td>
+          
+        
+          
+          
         <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Davíd Huisken</td>
+          
+        
+          
+          
         <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Casey Pirsig</td>
+          
+        
+          
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Davíd Huisken</td>
+          
+        
+          
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Casey Pirsig</td>
+          
+        
+          
+          
         <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
-        <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
-        <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
-        <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
+          
+        
+          
+          
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Davíd Huisken</td>
+          
+        
       </tr>
     </tbody>
   </table>
 </div>
+
+
 
 <script src="static/js/hello.js"></script>
 
@@ -552,7 +600,7 @@
     </div>
 
     <!-- Icons -->
-    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js" integrity="sha512-zMm7+ZQ8AZr1r3W8Z8lDATkH05QG5Gm2xc6MlsCdBz9l6oE8Y7IXByMgSm/rdRQrhuHt99HAYfMljBOEZ68q5A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
       (function () {
         function currentTheme() {
@@ -595,666 +643,10 @@
       })();
     </script>
 
-    <!-- Graphs (dataset rendered from data/standings-<season>.json) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-    <script>
-      
-      
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-        
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-          
-          
-        
-        
-        
-      
-      var chartData = {"datasets": [{"backgroundColor": "#0072B2", "borderColor": "#0072B2", "data": [128.3, 111.9, 130.4, 129.8, 116.6, 137.6, 144.7, 165.9, 93.5, 142.2, 129.1, 102.8, 96.9, 109.7], "hidden": false, "label": "Casey Pirsig", "pointBackgroundColor": "#0072B2", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#D55E00", "borderColor": "#D55E00", "data": [105.7, 110.4, 90.1, 129.4, 112.1, 111.5, 125.4, 86.7, 131.0, 143.4, 136.7, 120.7, 133.2, 114.8], "hidden": false, "label": "Pat Benner", "pointBackgroundColor": "#D55E00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#009E73", "borderColor": "#009E73", "data": [93.1, 125.7, 101.4, 124.3, 103.2, 100.6, 143.4, 106.9, 120.8, 116.9, 115.0, 120.0, 106.4, 124.0], "hidden": false, "label": "Dav\u00edd Huisken", "pointBackgroundColor": "#009E73", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#E69F00", "borderColor": "#E69F00", "data": [115.0, 116.3, 93.1, 124.5, 105.7, 124.2, 145.7, 113.0, 100.4, 115.6, 58.6, 153.3, 82.7, 129.5], "hidden": true, "label": "Nick Kubit", "pointBackgroundColor": "#E69F00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#CC79A7", "borderColor": "#CC79A7", "data": [77.3, 153.4, 100.5, 95.1, 98.4, 101.4, 150.9, 140.6, 101.3, 106.9, 122.8, 123.8, 121.9, 108.0], "hidden": true, "label": "Daniel Sharp", "pointBackgroundColor": "#CC79A7", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#56B4E9", "borderColor": "#56B4E9", "data": [88.4, 72.2, 123.8, 136.0, 143.8, 125.2, 73.3, 109.1, 135.7, 124.9, 97.0, 70.8, 94.1, 68.3], "hidden": true, "label": "Paul Tuura", "pointBackgroundColor": "#56B4E9", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#F0E442", "borderColor": "#F0E442", "data": [108.3, 87.6, 81.5, 131.7, 118.2, 79.7, 76.8, 80.2, 130.8, 115.6, 49.0, 135.9, 116.6, 72.8], "hidden": true, "label": "Eric Monson", "pointBackgroundColor": "#F0E442", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#999999", "borderColor": "#999999", "data": [119.8, 99.7, 123.5, 100.0, 108.9, 95.4, 88.1, 129.5, 103.5, 86.1, 118.5, 72.8, 99.2, 102.5], "hidden": true, "label": "Ethan Hildebrandt", "pointBackgroundColor": "#999999", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#882255", "borderColor": "#882255", "data": [82.9, 91.1, 122.0, 127.0, 114.1, 100.4, 92.7, 106.4, 92.3, 70.4, 121.0, 129.6, 103.8, 75.5], "hidden": true, "label": "Jamie Sugar", "pointBackgroundColor": "#882255", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#44AA99", "borderColor": "#44AA99", "data": [110.6, 114.7, 105.6, 69.9, 113.3, 61.9, 62.5, 67.3, 116.2, 102.0, 86.8, 113.3, 80.8, 131.2], "hidden": true, "label": "Daniel Senger", "pointBackgroundColor": "#44AA99", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#994499", "borderColor": "#994499", "data": [92.0, 133.5, 89.8, 112.1, 117.4, 83.4, 94.0, 99.0, 76.0, 114.5, 59.2, 80.0, 74.5, 96.2], "hidden": true, "label": "Nicholas Polansky", "pointBackgroundColor": "#994499", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#332288", "borderColor": "#332288", "data": [86.6, 86.1, 110.3, 80.8, 71.1, 86.4, 149.4, 96.3, 104.0, 47.6, 94.6, 89.4, 119.9, 67.6], "hidden": true, "label": "Sam Engsberg", "pointBackgroundColor": "#332288", "pointBorderColor": "#fff", "pointBorderWidth": 1}], "labels": ["Wk 1", "Wk 2", "Wk 3", "Wk 4", "Wk 5", "Wk 6", "Wk 7", "Wk 8", "Wk 9", "Wk 10", "Wk 11", "Wk 12", "Wk 13", "Wk 14"]};
-      var ctx = document.getElementById("myChart");
-      if (ctx) {
-        function swatchColor(id) {
-          var el = document.getElementById(id);
-          return el ? getComputedStyle(el).color : '#868e96';
-        }
-        var fffChart = new Chart(ctx, {
-          type: 'line',
-          data: chartData,
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            hover: { mode: 'nearest', intersect: false },
-            elements: {
-              line: { borderWidth: 2, tension: 0 },
-              point: { radius: 2.5, hoverRadius: 6, hitRadius: 10 }
-            },
-            scales: {
-              xAxes: [{
-                gridLines: { display: false },
-                ticks: { fontColor: swatchColor('swatch-tick') }
-              }],
-              yAxes: [{
-                gridLines: { color: getComputedStyle(document.getElementById('swatch-grid')).borderColor },
-                ticks: { fontColor: swatchColor('swatch-tick'), beginAtZero: false }
-              }]
-            },
-            legend: {
-              position: 'bottom',
-              labels: {
-                usePointStyle: true,
-                pointStyle: 'circle',
-                boxWidth: 8,
-                fontColor: swatchColor('swatch-legend'),
-                padding: 12
-              }
-            },
-            tooltips: {
-              mode: 'nearest',
-              intersect: false,
-              backgroundColor: 'rgba(15, 23, 42, .92)',
-              titleFontStyle: 'normal',
-              bodySpacing: 2,
-              callbacks: {
-                label: function (item) {
-                  return ' ' + item.dataset.label + ': ' + item.yLabel;
-                }
-              }
-            }
-          }
-        });
-        window.addEventListener('themechange', function () {
-          var o = fffChart.options;
-          o.scales.xAxes[0].ticks.fontColor = swatchColor('swatch-tick');
-          o.scales.yAxes[0].ticks.fontColor = swatchColor('swatch-tick');
-          o.scales.yAxes[0].gridLines.color = getComputedStyle(document.getElementById('swatch-grid')).borderColor;
-          o.legend.labels.fontColor = swatchColor('swatch-legend');
-          fffChart.update();
-        });
-      }
-    </script>
+    <!-- Graphs (dataset rendered from data/standings-<season>.json).
+         Only graph.html has a <canvas>, so the library and the whole
+         dataset payload are skipped on the other four pages rather than
+         downloaded and then ignored. -->
+    
   </body>
 </html>

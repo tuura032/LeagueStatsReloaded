@@ -21,6 +21,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Q3: the scoring math is the only real logic in the repo, and the
+      # bot commits its output straight to production. Fail before fetching
+      # rather than publishing standings computed by broken code.
+      - name: Run tests
+        run: python -m unittest test_compute -v
+
       - name: Fetch, compute, build
         run: |
           python fetch.py

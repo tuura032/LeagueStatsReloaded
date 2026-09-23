@@ -1,8 +1,10 @@
 {
   "season": 2024,
   "league": "877873",
-  "updated": "2026-09-23T00:35:29Z",
+  "leagueName": "Fantasy Football Fantasy",
+  "updated": "2026-09-23T02:57:38Z",
   "regularSeasonWeeks": 14,
+  "playoffTeamCount": 6,
   "throughWeek": 14,
   "weeks": [
     {
@@ -2075,5 +2077,79 @@
       "luckIndex": 1,
       "streak": "L1"
     }
-  ]
+  ],
+  "playoffs": {
+    "champion": 11,
+    "runnerUp": 1,
+    "mostPointsFor": 11,
+    "pointsFor": {
+      "5": 180.8,
+      "11": 414.2,
+      "10": 122.3,
+      "1": 290.2,
+      "2": 99.0,
+      "8": 258.8
+    },
+    "finalWeek": 17,
+    "championScore": 120.8,
+    "runnerUpScore": 73.2,
+    "games": [
+      {
+        "week": 15,
+        "home": 5,
+        "away": null,
+        "homeScore": 74.6,
+        "awayScore": null,
+        "bye": true
+      },
+      {
+        "week": 15,
+        "home": 11,
+        "away": 10,
+        "homeScore": 125.1,
+        "awayScore": 122.3,
+        "bye": false
+      },
+      {
+        "week": 15,
+        "home": 1,
+        "away": 2,
+        "homeScore": 101.0,
+        "awayScore": 99.0,
+        "bye": false
+      },
+      {
+        "week": 15,
+        "home": 8,
+        "away": null,
+        "homeScore": 152.7,
+        "awayScore": null,
+        "bye": true
+      },
+      {
+        "week": 16,
+        "home": 5,
+        "away": 11,
+        "homeScore": 106.2,
+        "awayScore": 168.3,
+        "bye": false
+      },
+      {
+        "week": 16,
+        "home": 1,
+        "away": 8,
+        "homeScore": 116.0,
+        "awayScore": 106.1,
+        "bye": false
+      },
+      {
+        "week": 17,
+        "home": 1,
+        "away": 11,
+        "homeScore": 73.2,
+        "awayScore": 120.8,
+        "bye": false
+      }
+    ]
+  }
 }

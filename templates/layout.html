@@ -138,7 +138,7 @@
     </div>
 
     <!-- Icons -->
-    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js" integrity="sha512-zMm7+ZQ8AZr1r3W8Z8lDATkH05QG5Gm2xc6MlsCdBz9l6oE8Y7IXByMgSm/rdRQrhuHt99HAYfMljBOEZ68q5A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
       (function () {
         function currentTheme() {
@@ -181,7 +181,11 @@
       })();
     </script>
 
-    <!-- Graphs (dataset rendered from data/standings-<season>.json) -->
+    <!-- Graphs (dataset rendered from data/standings-<season>.json).
+         Only graph.html has a <canvas>, so the library and the whole
+         dataset payload are skipped on the other four pages rather than
+         downloaded and then ignored. -->
+    {% if active_page == 'graph.html' %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script>
       {% set palette = ['#0072B2', '#D55E00', '#009E73', '#E69F00', '#CC79A7', '#56B4E9',
@@ -205,6 +209,7 @@
           'pointBackgroundColor': color,
           'pointBorderColor': '#fff',
           'pointBorderWidth': 1,
+          'fill': false,
           'hidden': loop.index0 >= 3
         }) %}
       {% endfor %}
@@ -253,8 +258,9 @@
               titleFontStyle: 'normal',
               bodySpacing: 2,
               callbacks: {
-                label: function (item) {
-                  return ' ' + item.dataset.label + ': ' + item.yLabel;
+                label: function (item, data) {
+                  var ds = data.datasets[item.datasetIndex];
+                  return ' ' + ds.label + ': ' + item.yLabel;
                 }
               }
             }
@@ -270,5 +276,6 @@
         });
       }
     </script>
+    {% endif %}
   </body>
 </html>

@@ -22,8 +22,16 @@ it's a menu, not a backlog. Picks at the bottom.
 - Bonus, found along the way: `build.py`'s static-file copy no longer leaves stale orphans behind (`4efac06`); the Playoffs table also got click-to-sort for parity with Home/Career Stats (`9fc6699`)
 
 Rows below marked **DONE** are confirmed shipped and kept only for history — treat
-everything still marked open as the real to-do list. `BUGS.md` has nothing open;
-its entries were build-time spec gaps (L1/L2), unrelated to the bugs tracked here.
+everything still marked open as the real to-do list.
+
+**2026-09-22 bug sweep.** An outside consult (`BENCH_POINTS.md`) found five
+defects that were not on this list, all now fixed and written up as BUG-003
+through BUG-007 in `BUGS.md`: the site credited the **wrong champion** (weeks
+15-17 were discarded, so "Titles" silently meant regular-season #1 — four of
+five stars named the wrong owner); click-to-sort was **dead on the Home page**;
+the Stats chart rendered as a **filled blob** with throwing tooltips;
+`score_to_beat()` hardcoded a 12-team field; and leading an unfinished season
+counted as a title. Same pass closed B3, B4, B5, U4, U7, M3, Q1, Q3 and Q5.
 
 ---
 
@@ -33,12 +41,13 @@ its entries were build-time spec gaps (L1/L2), unrelated to the bugs tracked her
 |---|---|---|---|---|---|
 | B1 | `playoffs.html` | "Wins to Clinch" hardcoded a 12-team league. | XS | Med | **DONE** |
 | B2 | `playoffs.html` | "Games Back" rendered negative for everyone but the leader. | XS | Med | **DONE** |
-| B3 | `playoffs.html:47-49` | The 3 week columns are still `Week {{ throughWeek - 2 }}` / `- 1` / `{{ throughWeek }}`, unguarded. At week 1 this renders "Week -1 / Week 0 / Week 1" on the live page. | XS | Low | Open |
-| B4 | `playoffs.html:80-87` | Prize amounts ($25/$20/$15/$30/$90/$60/$30/$30) are still hardcoded in the template header text. Any year the pot changes, this is a template edit instead of a data edit. | S | Med | Open |
-| B5 | `home.html:77-78` | `avgLast3` still renders `| round | int` (integer) while `averageScore` on the same row renders its raw one-decimal value. Inconsistent precision on adjacent columns. | XS | Low | Open |
+| B3 | `playoffs.html` | Week columns unguarded — rendered "Week -1 / Week 0" early season. | XS | Low | **DONE** 2026-09-22 |
+| B4 | `playoffs.html` | Prize amounts hardcoded in the template. | S | Med | **DONE** 2026-09-22 — moved to `data/prizes.json`; header *and* body both loop it, and each prize names its own `award` so winners resolve by key, not column position |
+| B5 | `home.html` | `avgLast3` rendered as an integer beside `averageScore`'s one decimal. | XS | Low | **DONE** 2026-09-22 — also fixed the same truncation on Playoffs week scores |
 | B6 | `home.html` | Dead "Week N Scores" block, never populated by `build.py`. | XS | Low | **DONE** — deleted in the dead-link cleanup pass |
 
-B3/B4/B5 are the real remaining bugs — all small, well-isolated template edits, good candidates to hand off.
+All six are now closed. The bugs that actually mattered were not in this
+table — see the 2026-09-22 sweep note above and `BUGS.md` BUG-003..007.
 
 ---
 
@@ -49,10 +58,10 @@ B3/B4/B5 are the real remaining bugs — all small, well-isolated template edits
 | U1 | Highlight the current user's row in the standings table. | S | High | **DONE** — click-to-pin row, `localStorage`-remembered |
 | U2 | Color the H2H/Top-Six cells green/red by whether the owner is over or under 50% that stat. | S | High | **DONE** |
 | U3 | Mobile pass — responsive table reflow. | M | High | **DONE** — came with the Tailwind rewrite |
-| U4 | The sortable-column arrows are nice but undiscoverable — add a one-line "click a header to sort" hint, or a subtle affordance on load. | XS | Low | Open — no hint text found anywhere in the templates |
+| U4 | Sortable columns undiscoverable. | XS | Low | **DONE** 2026-09-22 — "Click a column header to sort." on Home |
 | U5 | Favicon/branding refresh — `static/fffIcon.png` is still referenced in `layout.html:26`, still the old placeholder. | XS | Med | Open |
 | U6 | Dark mode via `prefers-color-scheme`. | S | Med | **DONE** |
-| U7 | Loading/empty states for week 0 (preseason) — `graph.html` has a "No weeks of data yet." fallback; `home.html` and `playoffs.html` still have no such guard and would render zeros/blank rows before week 1 posts. | XS | Low | Open |
+| U7 | No preseason/empty state on `home.html` / `playoffs.html`. | XS | Low | **DONE** 2026-09-22 — both guard on `throughWeek == 0`; Playoffs also stops indexing `standings[0..2]` unguarded |
 
 ---
 
@@ -88,11 +97,11 @@ over the existing `weeks[].games`.
 
 | # | Idea | Effort | Payoff | Status |
 |---|---|---|---|---|
-| Q1 | `data/raw-*.json` sensitivity review — double-check nothing sensitive sneaks in as data grows. | XS | Low | Open (never actually re-checked, just low-risk) |
+| Q1 | `data/raw-*.json` sensitivity review. | XS | Low | **DONE** 2026-09-22 — 354 distinct keys scanned across all 5 raw files, zero matching email/phone/address/token/auth/cookie/SWID patterns |
 | Q2 | `__pycache__/*.pyc` in `.gitignore`. | XS | Low | **DONE** — `.gitignore` covers `__pycache__/` and `*.pyc` |
-| Q3 | CI: run `python -m unittest test_compute` on every push, not just locally. | S | Med | Open — `.github/workflows/update-standings.yml` only runs fetch→compute→build, no test step |
+| Q3 | CI: run the tests, not just fetch→compute→build. | S | Med | **DONE** 2026-09-22 — test step runs *before* the fetch, so broken math never reaches production |
 | Q4 | `build.py --check` mode that fails if `docs/` would change on a clean rebuild — catches template/data drift early. | S | Low | Open |
-| Q5 | One-command task runner (`Makefile`/`justfile`) wrapping fetch/compute/build. | XS | Med | Open |
+| Q5 | One-command task runner wrapping fetch/compute/build. | XS | Med | **DONE** 2026-09-22 — `tasks.py` (stdlib only). A Makefile was written first and discarded: `make` is not installed on the Windows dev box, and a runner you cannot run is not a runner |
 
 ---
 
@@ -101,8 +110,8 @@ over the existing `weeks[].games`.
 | # | Idea | Effort | Payoff | Status |
 |---|---|---|---|---|
 | M1 | Drop Bootstrap 4/jQuery/Popper, modernize the stack. | L | Low | **DONE** — full Tailwind rewrite |
-| M2 | Chart.js 2.7.1 → 4.x. | M | Low | Open — `layout.html` still loads `Chart.js/2.7.1` from cdnjs |
-| M3 | `player1.html`'s `</br></br></br></br>` (literal) — cosmetic leftover, fix whenever that page gets built out (F8). | XS | Low | Open — page is still unrendered so it's invisible, but the stray tags are still there |
+| M2 | Chart.js 2.7.1 → 4.x. | M | Low | Open — still 2.7.1, but the two *bugs* it was masking (fill-blob, 3.x tooltip API on a 2.x build) are fixed, and it now loads only on `graph.html`. Upgrading is a want, not a need |
+| M3 | `player1.html`'s literal `</br></br></br></br>`. | XS | Low | **DONE** 2026-09-22 |
 
 ---
 
@@ -119,16 +128,55 @@ per L5/L9). The real work is:
   assuming one league at the root.
 - A landing page listing leagues, since right now the root *is* the one
   league's home page.
-- B1 above (the hardcoded `standings[6]`) needs fixing first — it's the one
-  piece of template logic that silently assumes "12 teams," which won't hold
-  across leagues.
+- ~~B1 above (the hardcoded `standings[6]`) needs fixing first~~ — done. As of
+  2026-09-22 the playoff cut comes from `scheduleSettings.playoffTeamCount`
+  (surfaced through `standings-<season>.json`) on both Home and Playoffs, and
+  `score_to_beat()` derives the top-half boundary from the field size instead
+  of hardcoding the 6th-lowest of 12 (BUG-006). The scoring math no longer
+  assumes a 12-team league anywhere.
+- Still league-specific: `LEAGUE_ID` in `fetch.py`/`compute.py`, and the
+  literal string "Fantasy Football Fantasy" in 9 templates —
+  `mSettings.settings.name` is already fetched and now carried on
+  `standings-<season>.json` as `leagueName`, so the templates just need to
+  use it.
 
 This is genuinely a different, smaller project once the single-league site
 is fun and finished — I'd sequence it last.
 
 ---
 
-## My picks — what's next now (updated 2026-09-22, re-verified against the code)
+## My picks — what's next now (updated 2026-09-22 after the bug sweep)
+
+Everything in sections 1, 2 (except U5) and 4 (except Q4) is closed. What is
+left is features, not defects. Ranked:
+
+1. **F4 Closest games / blowouts** — still the cheapest, highest-payoff item
+   on the board. Pure derived data over `weeks[].games`.
+2. **League Rules page** — new, and the biggest value-per-hour item found in
+   the consult. `fetch.py` already downloads `mSettings` every morning and the
+   site uses exactly one field from it (`matchupPeriodCount`); the rest is the
+   whole rulebook — PPR, auction draft, $200 FAAB, 2 keepers, 6 playoff teams,
+   trade deadline, $25 entry fee. No new call, no new data source.
+3. **Team logos + abbreviations** — `teams[].logo` and `teams[].abbrev` are
+   already in every raw file. Cosmetic, trivial, and the single biggest jump
+   in perceived quality available.
+4. **OG/meta tags** — this link gets pasted into the league chat weekly and
+   currently unfurls as a bare URL.
+5. **F6 Weekly recap**, then **F3 matchup visualizer**, then **F8 owner
+   pages** (which would also give the dead "Owners" sidebar accordion
+   somewhere to link to).
+6. **F7 Championship simulator** — biggest payoff left, wants more of the
+   season played out first.
+
+Multi-league (section 6) is now genuinely unblocked: BUG-006 fixed the one
+piece of *math* that assumed 12 teams, and `playoffTeamCount` is read from
+the league's own settings instead of guessed. What remains is packaging —
+league ID into config, the league name out of 9 templates, and
+`docs/<league>/<season>/`.
+
+---
+
+## Previous picks (superseded, kept for history)
 
 U1, U2, F1, F2, F5, F9, F10, M1 are all shipped — the earlier picks list is
 mostly done. What's actually left, ranked:

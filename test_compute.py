@@ -41,15 +41,33 @@ def week_games(scores, week=1):
             for i in range(6)]
 
 
-def make_raw(weeks, week_count=14, season=2025):
+def make_bracket_matchup(week, home_id, away_id, home_score, away_score,
+                         tier="WINNERS_BRACKET", played=True):
+    """A playoff-bracket schedule entry. away_id=None makes it a bye (no
+    'away' side at all), which is how ESPN represents a top-seed bye.
+    """
+    m = make_matchup(week, home_id, away_id or 1, home_score,
+                     away_score or 0.0, played=played)
+    m["playoffTierType"] = tier
+    if away_id is None:
+        del m["away"]
+        m["winner"] = "UNDECIDED"
+    return m
+
+
+def make_raw(weeks, week_count=14, season=2025, bracket=None,
+             playoff_team_count=6, name="Fantasy Football Fantasy"):
     """Build a raw-fetch-shaped dict.
 
     weeks: {week: [(home_id, away_id, home_score, away_score[, played]), ...]}
+    bracket: optional list of pre-built playoff schedule entries.
     """
     schedule = []
     for week, games in weeks.items():
         for game in games:
             schedule.append(make_matchup(week, *game))
+    for m in bracket or []:
+        schedule.append(m)
     teams = [{"id": i, "name": f"Team {i}", "primaryOwner": f"{{o{i}}}",
               "owners": [f"{{o{i}}}"]} for i in range(1, 13)]
     members = [{"id": f"{{o{i}}}", "firstName": f"First{i}",
@@ -58,8 +76,10 @@ def make_raw(weeks, week_count=14, season=2025):
     return {
         "mMatchupScore": {"seasonId": season, "id": 877873, "schedule": schedule},
         "mTeam": {"teams": teams, "members": members},
-        "mSettings": {"settings": {"scheduleSettings":
-                                   {"matchupPeriodCount": week_count}}},
+        "mSettings": {"settings": {"name": name,
+                                   "scheduleSettings":
+                                   {"matchupPeriodCount": week_count,
+                                    "playoffTeamCount": playoff_team_count}}},
     }
 
 
@@ -398,7 +418,10 @@ class TestCareerStats(unittest.TestCase):
         self.assertEqual(team12["wins"], 28)
         self.assertEqual(team12["losses"], 0)
         self.assertEqual(team12["gamesPlayed"], 28)
-        self.assertEqual(team12["titles"], 2)  # rank 1 both seasons
+        # Finishing #1 in the regular season is NOT a championship. Neither
+        # test season has a playoff bracket, so nobody has a title.
+        self.assertEqual(team12["regularSeasonFirsts"], 2)
+        self.assertEqual(team12["titles"], 0)
 
     def test_career_average_is_weighted_not_mean_of_seasons(self):
         careers = compute.build_career_stats([self.season1, self.season2])
@@ -432,3 +455,195 @@ class TestCareerStats(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class TestScoreToBeatScalesWithLeagueSize(unittest.TestCase):
+    """score_to_beat derives the boundary from the field size.
+
+    v1 hardcoded index [5], the 6th-lowest of 12. Any other league size
+    silently computed the wrong top-half boundary -- the scoring rule this
+    whole project exists to get right.
+    """
+
+    def test_twelve_team_league_is_unchanged(self):
+        scores = [100 + i for i in range(12)]  # 100..111
+        self.assertEqual(compute.score_to_beat(scores), 105)
+        self.assertEqual(compute.score_to_beat(scores), sorted(scores)[5])
+
+    def test_ten_team_league_uses_fifth_lowest(self):
+        scores = [100 + i for i in range(10)]  # 100..109
+        self.assertEqual(compute.score_to_beat(scores), 104)
+        self.assertEqual(len([s for s in scores if s > 104]), 5)
+
+    def test_eight_team_league_uses_fourth_lowest(self):
+        scores = [100 + i for i in range(8)]
+        self.assertEqual(compute.score_to_beat(scores), 103)
+        self.assertEqual(len([s for s in scores if s > 103]), 4)
+
+    def test_odd_league_rounds_the_top_half_up(self):
+        scores = [100 + i for i in range(11)]  # 100..110
+        self.assertEqual(compute.score_to_beat(scores), 104)
+        self.assertEqual(len([s for s in scores if s > 104]), 6)
+
+    def test_order_does_not_matter(self):
+        self.assertEqual(compute.score_to_beat([5, 1, 4, 2, 3, 6]),
+                         compute.score_to_beat([1, 2, 3, 4, 5, 6]))
+
+    def test_too_few_scores_raises(self):
+        with self.assertRaises(ValueError):
+            compute.score_to_beat([100])
+
+
+class TestPlayoffBracket(unittest.TestCase):
+    """build_playoffs: who actually won the league.
+
+    Regression cover for the bug where weeks 15-17 were discarded entirely,
+    so Career Stats credited the title to the regular-season #1 finisher
+    even when that owner lost the championship game.
+    """
+
+    def _season_with_final(self, home_id, away_id, home_score, away_score,
+                           season=2025):
+        bracket = [
+            make_bracket_matchup(15, 3, None, 110.0, None),   # 1-seed bye
+            make_bracket_matchup(15, 5, 9, 136.0, 177.4),
+            make_bracket_matchup(16, 3, 9, 140.9, 115.8),
+            make_bracket_matchup(17, home_id, away_id, home_score, away_score),
+        ]
+        return compute.build_standings(
+            make_raw(full_season_weeks(), season=season, bracket=bracket),
+            UPDATED)
+
+    def test_champion_is_the_winner_of_the_final(self):
+        out = self._season_with_final(2, 12, 108.9, 154.5)
+        self.assertEqual(out["playoffs"]["champion"], 12)
+        self.assertEqual(out["playoffs"]["runnerUp"], 2)
+        self.assertEqual(out["playoffs"]["finalWeek"], 17)
+        self.assertEqual(out["playoffs"]["championScore"], 154.5)
+        self.assertEqual(out["playoffs"]["runnerUpScore"], 108.9)
+
+    def test_home_team_can_win_the_final(self):
+        out = self._season_with_final(4, 12, 102.3, 80.0)
+        self.assertEqual(out["playoffs"]["champion"], 4)
+        self.assertEqual(out["playoffs"]["runnerUp"], 12)
+
+    def test_champion_need_not_be_the_regular_season_leader(self):
+        # Team 12 tops the regular season in full_season_weeks(); team 2
+        # wins the final. The champion must be team 2.
+        out = self._season_with_final(2, 5, 150.0, 100.0)
+        self.assertEqual(out["standings"][0]["teamId"], 12)
+        self.assertEqual(out["playoffs"]["champion"], 2)
+
+    def test_no_bracket_means_no_champion(self):
+        out = compute.build_standings(make_raw(full_season_weeks()), UPDATED)
+        self.assertIsNone(out["playoffs"])
+
+    def test_undecided_final_means_no_champion_yet(self):
+        bracket = [
+            make_bracket_matchup(15, 5, 9, 136.0, 177.4),
+            make_bracket_matchup(16, 3, 9, 140.9, 115.8),
+            make_bracket_matchup(17, 3, 9, 0.0, 0.0, played=False),
+        ]
+        out = compute.build_standings(
+            make_raw(full_season_weeks(), bracket=bracket), UPDATED)
+        self.assertIsNone(out["playoffs"])
+
+    def test_mid_playoffs_does_not_crown_a_semifinal_winner(self):
+        # The final exists but is unplayed. Picking the highest *played*
+        # bracket week would wrongly crown the week-16 winner.
+        bracket = [
+            make_bracket_matchup(16, 3, 9, 140.9, 115.8),
+            make_bracket_matchup(17, 3, 11, 0.0, 0.0, played=False),
+        ]
+        out = compute.build_standings(
+            make_raw(full_season_weeks(), bracket=bracket), UPDATED)
+        self.assertIsNone(out["playoffs"])
+
+    def test_consolation_ladder_never_produces_a_champion(self):
+        bracket = [
+            make_bracket_matchup(17, 7, 8, 120.0, 90.0,
+                                 tier="LOSERS_CONSOLATION_LADDER"),
+            make_bracket_matchup(17, 5, 6, 130.0, 95.0,
+                                 tier="WINNERS_CONSOLATION_LADDER"),
+        ]
+        out = compute.build_standings(
+            make_raw(full_season_weeks(), bracket=bracket), UPDATED)
+        self.assertIsNone(out["playoffs"])
+
+    def test_tied_final_reports_no_champion(self):
+        out = self._season_with_final(2, 12, 120.0, 120.0)
+        self.assertIsNone(out["playoffs"])
+
+    def test_bracket_byes_are_recorded_without_an_away_team(self):
+        out = self._season_with_final(2, 12, 108.9, 154.5)
+        byes = [g for g in out["playoffs"]["games"] if g["bye"]]
+        self.assertEqual(len(byes), 1)
+        self.assertEqual(byes[0]["home"], 3)
+        self.assertIsNone(byes[0]["away"])
+
+    def test_playoff_scores_still_contribute_no_dual_points(self):
+        out = self._season_with_final(2, 12, 108.9, 154.5)
+        self.assertEqual(out["throughWeek"], 14)
+        self.assertEqual([w["week"] for w in out["weeks"]], list(range(1, 15)))
+
+    def test_playoff_team_count_and_league_name_come_from_settings(self):
+        out = compute.build_standings(
+            make_raw(full_season_weeks(), playoff_team_count=4,
+                     name="Some Other League"), UPDATED)
+        self.assertEqual(out["playoffTeamCount"], 4)
+        self.assertEqual(out["leagueName"], "Some Other League")
+
+
+class TestCareerChampionships(unittest.TestCase):
+    """Career titles count championships won, not regular seasons led."""
+
+    def setUp(self):
+        # Team 12 dominates both regular seasons. Team 2 wins the 2024
+        # final; team 12 wins the 2025 final.
+        self.s2024 = compute.build_standings(
+            make_raw(full_season_weeks(), season=2024, bracket=[
+                make_bracket_matchup(17, 2, 12, 150.0, 100.0)]), UPDATED)
+        self.s2025 = compute.build_standings(
+            make_raw(full_season_weeks(), season=2025, bracket=[
+                make_bracket_matchup(17, 12, 2, 150.0, 100.0)]), UPDATED)
+
+    def test_titles_track_the_final_not_the_standings(self):
+        by_owner = {c["owner"]: c
+                    for c in compute.build_career_stats([self.s2024, self.s2025])}
+        t12, t2 = by_owner["First12 Last12"], by_owner["First2 Last2"]
+        # Team 12 led the regular season twice but won one title.
+        self.assertEqual(t12["regularSeasonFirsts"], 2)
+        self.assertEqual(t12["titles"], 1)
+        self.assertEqual(t12["championshipYears"], [2025])
+        self.assertEqual(t12["runnerUps"], 1)
+        # Team 2 never led the regular season but has a ring.
+        self.assertEqual(t2["regularSeasonFirsts"], 0)
+        self.assertEqual(t2["titles"], 1)
+        self.assertEqual(t2["championshipYears"], [2024])
+        self.assertEqual(t2["runnerUps"], 1)
+
+    def test_owners_without_rings_have_none(self):
+        by_owner = {c["owner"]: c
+                    for c in compute.build_career_stats([self.s2024, self.s2025])}
+        self.assertEqual(by_owner["First7 Last7"]["titles"], 0)
+        self.assertEqual(by_owner["First7 Last7"]["championshipYears"], [])
+
+    def test_season_without_a_bracket_awards_no_titles(self):
+        plain = compute.build_standings(
+            make_raw(full_season_weeks(), season=2026), UPDATED)
+        by_owner = {c["owner"]: c for c in compute.build_career_stats([plain])}
+        self.assertEqual(sum(c["titles"] for c in by_owner.values()), 0)
+        self.assertEqual(by_owner["First12 Last12"]["regularSeasonFirsts"], 1)
+
+    def test_leading_an_unfinished_season_is_not_a_regular_season_title(self):
+        # Two weeks played out of 14: nobody has finished anything yet.
+        partial = compute.build_standings(
+            make_raw({w: week_games([100 + 10 * w + i for i in range(12)],
+                                     week=w) for w in (1, 2)}, season=2026),
+            UPDATED)
+        self.assertEqual(partial["throughWeek"], 2)
+        by_owner = {c["owner"]: c
+                    for c in compute.build_career_stats([partial])}
+        self.assertEqual(partial["standings"][0]["owner"], "First12 Last12")
+        self.assertEqual(by_owner["First12 Last12"]["regularSeasonFirsts"], 0)
+        self.assertEqual(sum(c["regularSeasonFirsts"]
+                             for c in by_owner.values()), 0)

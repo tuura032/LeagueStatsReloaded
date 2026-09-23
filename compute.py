@@ -42,12 +42,21 @@ def current_streak(h2h_seq):
 
 
 def score_to_beat(scores):
-    """The week's score to beat: the 6th-lowest of the 12 scores.
+    """The week's score to beat: the highest score that missed the top half.
 
-    v1's getApiData.getScoresToBeat(): sort ascending, index [5] is the
-    highest score that missed the top six.
+    v1's getApiData.getScoresToBeat() hardcoded index [5] -- correct for a
+    12-team league and silently wrong for any other size, which made the
+    whole scoring rule (SPEC.md §1, the reason this project exists) compute
+    the wrong answer for a league that isn't 12 teams. Derived from the
+    field size instead: index [n//2 - 1] is the highest score that missed
+    the top half, which is [5] when n == 12.
+
+    For an odd field the top half rounds up (11 teams -> 6 earn the point).
     """
-    return sorted(scores)[5]
+    n = len(scores)
+    if n < 2:
+        raise ValueError(f"score_to_beat needs at least 2 scores, got {n}")
+    return sorted(scores)[n // 2 - 1]
 
 
 def _played(matchup):
@@ -112,6 +121,92 @@ def compute_week(week, matchups):
     }
 
 
+def build_playoffs(schedule, week_count):
+    """Winners-bracket results for a season, or None if no champion yet.
+
+    The dual-point scoring stops at week_count (SPEC.md §1) and everything
+    after it used to be discarded outright -- which meant the site could not
+    say who actually won the league, and Career Stats credited the "title"
+    to whoever finished the regular season at #1. In 2025 that was Casey
+    Pirsig, who then lost the final to Davíd Huisken by 45 points.
+
+    ESPN tags each schedule entry with playoffTierType; WINNERS_BRACKET is
+    the championship bracket (LOSERS_/WINNERS_CONSOLATION_LADDER are the
+    also-ran ladders and are ignored). The final is the single bracket game
+    in the highest bracket week.
+
+    The final week is taken from every bracket entry, not just the played
+    ones: mid-playoffs the later rounds exist but are UNDECIDED, and picking
+    the highest *played* week would crown a semifinal winner as champion.
+    Returns None until the final itself is decided.
+    """
+    bracket = [m for m in schedule
+               if m.get("playoffTierType") == "WINNERS_BRACKET"
+               and m["matchupPeriodId"] > week_count]
+    if not bracket:
+        return None
+
+    final_week = max(m["matchupPeriodId"] for m in bracket)
+    finals = [m for m in bracket if m["matchupPeriodId"] == final_week]
+    # Exactly one game decides the title. Anything else is a bracket shape
+    # this function does not understand, and guessing a champion is worse
+    # than reporting none.
+    if len(finals) != 1 or not _played(finals[0]):
+        return None
+
+    final = finals[0]
+    home, away = final["home"], final["away"]
+    if home["totalPoints"] > away["totalPoints"]:
+        champion, runner_up = home["teamId"], away["teamId"]
+    elif away["totalPoints"] > home["totalPoints"]:
+        champion, runner_up = away["teamId"], home["teamId"]
+    else:
+        # A tied final has no winner to report; ESPN breaks these by rule,
+        # not by score, and that rule is not in this payload.
+        return None
+
+    games = []
+    # Sort by week, then ESPN's entry id to keep output stable across runs.
+    # id is always present in real payloads; default 0 so the function does
+    # not depend on a field it never otherwise reads.
+    for m in sorted(bracket, key=lambda g: (g["matchupPeriodId"], g.get("id", 0))):
+        h, a = m.get("home"), m.get("away")
+        games.append({
+            "week": m["matchupPeriodId"],
+            # A bye carries no 'away' side at all (2025 week 15 has 7
+            # entries for this reason -- the SPEC.md §3 trap).
+            "home": h["teamId"] if h else None,
+            "away": a["teamId"] if a else None,
+            "homeScore": round(h["totalPoints"], 1) if h else None,
+            "awayScore": round(a["totalPoints"], 1) if a else None,
+            "bye": a is None or h is None,
+        })
+
+    # Points scored in the championship bracket, per team. Byes contribute
+    # the bye week's score; a team that lost in round 1 simply has fewer
+    # games in the sum, which is what "most points in the playoffs" means.
+    playoff_points = {}
+    for g in games:
+        for team_id, score in ((g["home"], g["homeScore"]),
+                               (g["away"], g["awayScore"])):
+            if team_id is not None and score is not None:
+                playoff_points[team_id] = round(
+                    playoff_points.get(team_id, 0.0) + score, 1)
+    most_pf = (max(playoff_points, key=lambda t: playoff_points[t])
+               if playoff_points else None)
+
+    return {
+        "champion": champion,
+        "runnerUp": runner_up,
+        "mostPointsFor": most_pf,
+        "pointsFor": playoff_points,
+        "finalWeek": final_week,
+        "championScore": round(max(home["totalPoints"], away["totalPoints"]), 1),
+        "runnerUpScore": round(min(home["totalPoints"], away["totalPoints"]), 1),
+        "games": games,
+    }
+
+
 def build_standings(raw, updated):
     """Raw fetch dict (mMatchupScore + mTeam + mSettings) -> §5 standings dict.
 
@@ -120,7 +215,13 @@ def build_standings(raw, updated):
     """
     ms = raw["mMatchupScore"]
     teams_view = raw["mTeam"]
-    week_count = raw["mSettings"]["settings"]["scheduleSettings"]["matchupPeriodCount"]
+    schedule_settings = raw["mSettings"]["settings"]["scheduleSettings"]
+    week_count = schedule_settings["matchupPeriodCount"]
+    # How many teams make the playoffs is a league setting, not a constant.
+    # home.html used to draw its playoff line at len(standings) // 2, which
+    # is 6 here only because this league is 12 teams with a 6-team playoff
+    # -- correct by coincidence, wrong for any league that splits differently.
+    playoff_team_count = schedule_settings.get("playoffTeamCount")
 
     members = {m["id"]: m for m in teams_view.get("members", [])}
     team_info = {}
@@ -208,11 +309,15 @@ def build_standings(raw, updated):
     return {
         "season": ms["seasonId"],
         "league": str(ms.get("id", LEAGUE_ID)),
+        "leagueName": raw["mSettings"]["settings"].get("name"),
         "updated": updated,
         "regularSeasonWeeks": week_count,
+        "playoffTeamCount": playoff_team_count,
         "throughWeek": through_week,
         "weeks": weeks_out,
         "standings": ranked,
+        # None until the season's championship game is decided.
+        "playoffs": build_playoffs(ms.get("schedule", []), week_count),
     }
 
 
@@ -274,10 +379,26 @@ def build_career_stats(all_standings):
     for season in all_standings:
         year = season["season"]
         owner_by_team = {s["teamId"]: s["owner"] for s in season["standings"]}
+        playoffs = season.get("playoffs")
+        champion_owner = (owner_by_team.get(playoffs["champion"])
+                          if playoffs else None)
+        runner_up_owner = (owner_by_team.get(playoffs["runnerUp"])
+                           if playoffs else None)
+        # Leading an unfinished season is not a regular-season title. Without
+        # this, whoever happens to top the standings in week 2 is credited
+        # with a finish they haven't earned.
+        season_complete = (season.get("throughWeek")
+                           == season.get("regularSeasonWeeks"))
         for row in season["standings"]:
             c = careers.setdefault(row["owner"], {
                 "owner": row["owner"], "seasons": 0, "wins": 0, "losses": 0,
-                "ties": 0, "pointsFor": 0.0, "gamesPlayed": 0, "titles": 0,
+                "ties": 0, "pointsFor": 0.0, "gamesPlayed": 0,
+                # "titles" counts actual championships (won the final);
+                # "regularSeasonFirsts" counts finishing #1 in the dual-point
+                # standings. These are NOT the same thing and conflating them
+                # is what made the site name the wrong 2025 champion.
+                "titles": 0, "regularSeasonFirsts": 0, "runnerUps": 0,
+                "championshipYears": [],
                 "topHalfPoints": 0, "luckIndex": 0,
                 "bestWeek": None, "worstWeek": None, "bestSeason": None,
             })
@@ -292,8 +413,13 @@ def build_career_stats(all_standings):
             c["gamesPlayed"] += w + l + t
             c["topHalfPoints"] += row["topHalfPoints"]
             c["luckIndex"] += row["luckIndex"]
-            if row["rank"] == 1:
+            if row["rank"] == 1 and season_complete:
+                c["regularSeasonFirsts"] += 1
+            if champion_owner is not None and row["owner"] == champion_owner:
                 c["titles"] += 1
+                c["championshipYears"].append(year)
+            if runner_up_owner is not None and row["owner"] == runner_up_owner:
+                c["runnerUps"] += 1
             if c["bestSeason"] is None or row["points"] > c["bestSeason"]["points"]:
                 c["bestSeason"] = {"points": row["points"], "season": year}
         for w in season["weeks"]:

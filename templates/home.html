@@ -31,8 +31,15 @@
 {% else %}
 <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{{ season }} Standings Through Week {{ throughWeek }}</h1>
 {% endif %}
-<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Tap your name to pin your row.</p>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Click a column header to sort. Tap your name to pin your row.
+</p>
 
+{% if not standings or throughWeek == 0 %}
+  <p class="mt-4 text-slate-500 dark:text-slate-400">
+    No completed weeks yet for {{ season }} — standings appear once week 1 is final.
+  </p>
+{% else %}
 <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
   <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="standings-table">
     <thead class="bg-slate-50 dark:bg-slate-900/60">
@@ -50,7 +57,7 @@
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-      {% set playoff_spots = (standings | length) // 2 %}
+      {% set playoff_spots = playoffTeamCount or ((standings | length) // 2) %}
       {% for info in standings %}
         {% set h2h_rate = (info.h2hPoints / throughWeek) if throughWeek else none %}
         {% set top_rate = (info.topHalfPoints / throughWeek) if throughWeek else none %}
@@ -75,7 +82,7 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ info.points }}</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ info.pointsFor }}</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ info.averageScore }}</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ info.avgLast3 | round | int }}</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ info.avgLast3 }}</td>
           <td class="hidden px-3 py-2 text-right sm:table-cell {{ 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300' if h2h_rate is not none and h2h_rate >= 0.5 else ('bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300' if h2h_rate is not none and h2h_rate < 0.5 else 'text-slate-700 dark:text-slate-300') }}">{{ info.h2hPoints }}</td>
           <td class="hidden px-3 py-2 text-right sm:table-cell {{ 'bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300' if top_rate is not none and top_rate >= 0.5 else ('bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300' if top_rate is not none and top_rate < 0.5 else 'text-slate-700 dark:text-slate-300') }}">{{ info.topHalfPoints }}</td>
           <td class="px-3 py-2 text-right">
@@ -98,6 +105,7 @@
     </tbody>
   </table>
 </div>
+{% endif %}
 
 <script src="static/js/hello.js"></script>
 <script>

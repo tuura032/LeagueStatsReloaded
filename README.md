@@ -25,9 +25,10 @@ Twelve teams, six matchups, so each week distributes 6 H2H points and 6
 top-half points. ESPN shows W/L and points-for and leaves the second point
 uncomputed — that gap is the product.
 
-**Top half** is decided by the *score to beat*: sort the 12 weekly scores
-ascending; index `[5]` is the threshold — the highest score that missed the
-top six. A team earns the point by scoring **strictly greater** than it.
+**Top half** is decided by the *score to beat*: sort the weekly scores
+ascending; index `[n // 2 - 1]` is the threshold — the highest score that
+missed the top half (index `[5]` for this 12-team league). A team earns the
+point by scoring **strictly greater** than it.
 
 Ties (matching v1's strictly-greater comparison):
 
@@ -37,7 +38,21 @@ Ties (matching v1's strictly-greater comparison):
 
 **Regular season only.** Dual points stop after week `matchupPeriodCount`
 (14) — read from the ESPN API, never hardcoded. Weeks 15–17 are the playoff
-bracket and accumulate nothing.
+bracket and accumulate no dual points — but they *are* parsed, separately,
+to record who actually won the league (see below).
+
+## Champions
+
+Weeks 15–17 carry ESPN's `playoffTierType`. `compute.py` reads the
+`WINNERS_BRACKET` entries and records the winner of the final as that
+season's champion, under a `playoffs` key on
+`data/standings-<season>.json` (`null` until the final is decided).
+
+This matters because "finished #1 in the regular season" and "won the
+league" are different things and the site used to conflate them — Career
+Stats counted regular-season firsts and called them titles, which named
+the wrong owner for four of the five seasons on file. **Titles** 🏆 and
+**Reg #1** are now separate columns.
 
 Standings sort by total points, then points-for.
 
@@ -64,6 +79,15 @@ pip install -r requirements.txt
 python fetch.py --season 2026     # --season defaults to the current year
 python compute.py --season 2026
 python build.py --season 2026
+```
+
+Or via the task runner (stdlib only, no extra dependency):
+
+```
+python tasks.py all        # recompute every season on file, rebuild, test
+python tasks.py build      # just re-render docs/
+python tasks.py refresh    # fetch this season too (hits the network)
+python tasks.py test
 ```
 
 Open `docs/index.html` in a browser.
@@ -112,9 +136,12 @@ manual re-enable each August.
 | Path | What |
 | --- | --- |
 | `fetch.py` | ESPN API → `data/raw-<season>.json` (verbatim, no transform) |
-| `compute.py` | raw → `data/standings-<season>.json` (the dual-point math) |
+| `compute.py` | raw → `data/standings-<season>.json` (the dual-point math + playoff bracket) |
 | `build.py` | renders `templates/` to `docs/`, copies `static/` |
 | `test_compute.py` | unit tests for the scoring rule |
 | `data/` | committed raw + computed JSON per season |
+| `data/prizes.json` | the league pot — labels, amounts, and which result each prize is awarded on |
+| `tasks.py` | one-command wrappers for fetch/compute/build/test |
+| `BENCH_POINTS.md` | outside UI/UX + product consult, 2026-09-22 |
 | `docs/` | the rendered static site (what Pages serves) |
 | `SPEC.md` | the v2 spec — scoring rule, architecture, task list |

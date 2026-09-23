@@ -5,6 +5,22 @@
 {% endblock %}
 
 {% block main %}
+{% macro prize_winner(prize) -%}
+{#- Who a prize goes to, keyed off prize.award in data/prizes.json. A prize
+    with no award key (or one that isn't decided yet) renders as TBD. -#}
+{%- if prize.award == 'standings' and standings | length > prize.rank | default(1) - 1 -%}
+{{ standings[prize.rank | default(1) - 1].owner }}
+{%- elif prize.award == 'regSeasonPF' and standings -%}
+{{ (standings | sort(attribute='pointsFor', reverse=true) | first).owner }}
+{%- elif prize.award == 'champion' and playoffs -%}
+{{ owner_by_team[playoffs.champion] }}
+{%- elif prize.award == 'runnerUp' and playoffs -%}
+{{ owner_by_team[playoffs.runnerUp] }}
+{%- elif prize.award == 'playoffsPF' and playoffs and playoffs.mostPointsFor -%}
+{{ owner_by_team[playoffs.mostPointsFor] }}
+{%- endif -%}
+{%- endmacro %}
+
 {% macro weekScore(weeks, teamId, week) -%}
 {%- if weeks and week > 0 -%}
 {%- set w = weeks | selectattr('week', 'equalto', week) | first -%}
@@ -34,6 +50,25 @@
 
 <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Playoffs</h1>
 
+{% if playoffs %}
+<div class="mt-4 flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-500/10">
+  <span class="text-2xl" aria-hidden="true">&#127942;</span>
+  <div>
+    <div class="text-xs font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">{{ season }} Champion</div>
+    <div class="text-lg font-semibold text-slate-900 dark:text-white">{{ owner_by_team[playoffs.champion] }}</div>
+    <div class="text-xs text-slate-600 dark:text-slate-400">
+      Beat {{ owner_by_team[playoffs.runnerUp] }} {{ playoffs.championScore }}&ndash;{{ playoffs.runnerUpScore }} in the week {{ playoffs.finalWeek }} final.
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if not standings or throughWeek == 0 %}
+  <p class="mt-4 text-slate-500 dark:text-slate-400">
+    No completed weeks yet for {{ season }} — seeding and prizes appear once week 1 is final.
+  </p>
+{% else %}
+
 <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
   <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="playoff-table">
     <thead class="bg-slate-50 dark:bg-slate-900/60">
@@ -41,35 +76,38 @@
         <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seed</th>
         <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
         <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins</th>
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Wins to Clinch / {{ ((regularSeasonWeeks - throughWeek)*2) }}</th>
+        {% if throughWeek < regularSeasonWeeks %}<th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Wins to Clinch<span class="block text-[.65rem] font-normal normal-case">of {{ ((regularSeasonWeeks - throughWeek)*2) }} still available</span></th>{% endif %}
         <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Games Back</th>
-        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Heating Up! Last 3 Trend*</th>
-        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week {{ throughWeek - 2 }}</th>
-        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week {{ throughWeek - 1 }}</th>
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Week {{ throughWeek }}</th>
+        {% if throughWeek >= 4 %}<th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Heating Up! Last 3 Trend*</th>{% endif %}
+        {% if throughWeek - 2 > 0 %}<th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week {{ throughWeek - 2 }}</th>{% endif %}
+        {% if throughWeek - 1 > 0 %}<th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week {{ throughWeek - 1 }}</th>{% endif %}
+        {% if throughWeek > 0 %}<th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Week {{ throughWeek }}</th>{% endif %}
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+      {% set playoff_cut = (playoffTeamCount or ((standings | length) // 2)) %}
       {% for info in standings %}
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">{{ loop.index }}</td>
           <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">{{ info.owner }}</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ info.points }}</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ (((regularSeasonWeeks - throughWeek) *2) + standings[(standings | length) // 2].points - info.points) | round }}</td>
+          {% if throughWeek < regularSeasonWeeks %}<td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ [0, (((regularSeasonWeeks - throughWeek) * 2) + standings[playoff_cut].points - info.points) | round | int] | max }}</td>{% endif %}
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ standings[0].points - info.points }}</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ (info.avgLast3 - info.averageScore) | round }}</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ weekScore(weeks, info.teamId, throughWeek - 2) | int }}</td>
-          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ weekScore(weeks, info.teamId, throughWeek - 1) | int }}</td>
-          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ weekScore(weeks, info.teamId, throughWeek) | int }}</td>
+          {% if throughWeek >= 4 %}{% set trend = (info.avgLast3 - info.averageScore) | round(1) %}<td class="hidden px-3 py-2 text-right font-medium sm:table-cell {{ 'text-emerald-600 dark:text-emerald-400' if trend > 0 else ('text-rose-600 dark:text-rose-400' if trend < 0 else 'text-slate-400 dark:text-slate-500') }}">{{ '+' if trend > 0 else '' }}{{ trend }}</td>{% endif %}
+          {% if throughWeek - 2 > 0 %}<td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ weekScore(weeks, info.teamId, throughWeek - 2) }}</td>{% endif %}
+          {% if throughWeek - 1 > 0 %}<td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ weekScore(weeks, info.teamId, throughWeek - 1) }}</td>{% endif %}
+          {% if throughWeek > 0 %}<td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ weekScore(weeks, info.teamId, throughWeek) }}</td>{% endif %}
         </tr>
       {% endfor %}
     </tbody>
   </table>
 </div>
 
+{% if throughWeek >= 4 %}
 <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
   *Heating up! represents the difference between your average scoring and your average the last 3 weeks.
 </p>
+{% endif %}
 
 <h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Projected Prize Distribution</h2>
 
@@ -77,30 +115,25 @@
   <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
     <thead class="bg-slate-50 dark:bg-slate-900/60">
       <tr>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">1st Place ($25) -BYE-</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">2nd Place ($20) -BYE-</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Third Place ($15)</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Reg Season Most PF ($30)</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">1st Overall ($90)</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">2nd Overall ($60)</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">3rd Overall ($30)</th>
-        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Playoffs Most PF ($30)</th>
+        {% for prize in prizes %}<th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">{{ prize.label }} (${{ prize.amount }}){% if prize.bye %} -BYE-{% endif %}</th>{% endfor %}
       </tr>
     </thead>
     <tbody>
       <tr class="bg-white dark:bg-slate-900">
-        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">{{ standings[0].owner }}</td>
-        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">{{ standings[1].owner }}</td>
-        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">{{ standings[2].owner }}</td>
-        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">{{ (standings | sort(attribute='pointsFor', reverse=true) | first).owner }}</td>
+        {% for prize in prizes %}
+          {% set winner = prize_winner(prize) %}
+          {% if winner %}
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">{{ winner }}</td>
+          {% else %}
         <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
-        <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
-        <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
-        <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
+          {% endif %}
+        {% endfor %}
       </tr>
     </tbody>
   </table>
 </div>
+
+{% endif %}
 
 <script src="static/js/hello.js"></script>
 

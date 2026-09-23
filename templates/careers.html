@@ -27,9 +27,12 @@
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
   Every owner's all-time totals, {{ careers | length }} owners across every
   season on file. Click a column header to re-rank — e.g. by Points For for
-  an all-time scoring leaderboard. "Titles" counts regular-season #1
-  finishes (playoffs aren't tracked here); "Career Average" is points-for
-  divided by games played, not the average of each season's average.
+  an all-time scoring leaderboard. <strong>Titles</strong> 🏆 are real
+  championships — won the playoff final; hover one for the years.
+  <strong>Reg #1</strong> is finishing first in the dual-point regular-season
+  standings, which is <em>not</em> the same thing and only counts once a
+  season is complete. "Career Average" is points-for divided by games played,
+  not the average of each season's average.
 </p>
 
 {% if careers %}
@@ -42,7 +45,8 @@
         <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Record</th>
         <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Career Average</th>
         <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Points For</th>
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Titles</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400" title="Championships won (winner of the playoff final)">Titles</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Finished #1 in the dual-point regular-season standings">Reg #1</th>
         <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Top-Half Pts</th>
         <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Best Week</th>
         <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Worst Week</th>
@@ -58,11 +62,13 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ c.pointsFor }}</td>
           <td class="px-3 py-2 text-right">
             {% if c.titles %}
-              <span class="inline-block min-w-[1.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-amber-300 text-amber-900 dark:bg-amber-400 dark:text-amber-950">{{ c.titles }}&#9733;</span>
+              <span class="inline-block min-w-[1.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-amber-300 text-amber-900 dark:bg-amber-400 dark:text-amber-950"
+                    title="Champion {{ c.championshipYears | join(', ') }}">{{ c.titles }}&#127942;</span>
             {% else %}
               <span class="text-slate-400 dark:text-slate-500">0</span>
             {% endif %}
           </td>
+          <td class="hidden px-3 py-2 text-right sm:table-cell {{ 'text-slate-700 dark:text-slate-300' if c.regularSeasonFirsts else 'text-slate-400 dark:text-slate-500' }}">{{ c.regularSeasonFirsts }}</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ c.topHalfPoints }}</td>
           <td class="hidden px-3 py-2 text-right whitespace-nowrap sm:table-cell">
             {% if c.bestWeek %}

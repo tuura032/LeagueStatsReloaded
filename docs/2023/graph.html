@@ -1316,7 +1316,7 @@
     </div>
 
     <!-- Icons -->
-    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.2/feather.min.js" integrity="sha512-zMm7+ZQ8AZr1r3W8Z8lDATkH05QG5Gm2xc6MlsCdBz9l6oE8Y7IXByMgSm/rdRQrhuHt99HAYfMljBOEZ68q5A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
       (function () {
         function currentTheme() {
@@ -1359,7 +1359,11 @@
       })();
     </script>
 
-    <!-- Graphs (dataset rendered from data/standings-<season>.json) -->
+    <!-- Graphs (dataset rendered from data/standings-<season>.json).
+         Only graph.html has a <canvas>, so the library and the whole
+         dataset payload are skipped on the other four pages rather than
+         downloaded and then ignored. -->
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script>
       
@@ -1958,7 +1962,7 @@
         
         
       
-      var chartData = {"datasets": [{"backgroundColor": "#0072B2", "borderColor": "#0072B2", "data": [108.9, 123.5, 132.6, 148.6, 108.5, 108.6, 99.3, 119.8, 95.4, 102.0, 129.2, 160.4, 126.3, 113.1], "hidden": false, "label": "Dav\u00edd Huisken", "pointBackgroundColor": "#0072B2", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#D55E00", "borderColor": "#D55E00", "data": [97.2, 99.6, 122.0, 101.4, 143.5, 105.3, 113.9, 129.3, 109.8, 101.1, 104.3, 107.9, 133.3, 133.0], "hidden": false, "label": "Eric Monson", "pointBackgroundColor": "#D55E00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#009E73", "borderColor": "#009E73", "data": [126.3, 115.1, 115.7, 142.2, 69.9, 109.2, 104.3, 121.7, 94.1, 111.0, 106.6, 97.1, 107.0, 122.5], "hidden": false, "label": "Pat Benner", "pointBackgroundColor": "#009E73", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#E69F00", "borderColor": "#E69F00", "data": [84.8, 119.3, 146.7, 130.2, 164.8, 88.2, 98.0, 133.1, 95.7, 165.4, 103.6, 144.1, 140.4, 114.5], "hidden": true, "label": "Ethan Hildebrandt", "pointBackgroundColor": "#E69F00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#CC79A7", "borderColor": "#CC79A7", "data": [102.5, 140.9, 100.0, 108.5, 84.8, 97.6, 96.2, 107.6, 130.9, 132.2, 109.5, 132.6, 126.2, 82.1], "hidden": true, "label": "Daniel Senger", "pointBackgroundColor": "#CC79A7", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#56B4E9", "borderColor": "#56B4E9", "data": [100.3, 137.8, 118.5, 95.9, 77.4, 82.6, 141.8, 95.7, 101.0, 108.5, 115.4, 105.7, 94.3, 134.1], "hidden": true, "label": "Daniel Sharp", "pointBackgroundColor": "#56B4E9", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#F0E442", "borderColor": "#F0E442", "data": [96.7, 90.2, 132.5, 112.6, 183.1, 135.2, 123.4, 115.9, 93.9, 80.1, 78.3, 140.1, 89.9, 118.8], "hidden": true, "label": "Paul Tuura", "pointBackgroundColor": "#F0E442", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#999999", "borderColor": "#999999", "data": [95.7, 106.4, 105.2, 92.5, 105.5, 80.1, 91.7, 132.3, 80.8, 124.2, 150.2, 99.3, 67.2, 96.1], "hidden": true, "label": "Casey Pirsig", "pointBackgroundColor": "#999999", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#882255", "borderColor": "#882255", "data": [74.4, 63.6, 77.2, 115.3, 117.2, 111.3, 105.3, 75.1, 84.7, 80.1, 95.8, 122.9, 100.5, 79.1], "hidden": true, "label": "Jamie Sugar", "pointBackgroundColor": "#882255", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#44AA99", "borderColor": "#44AA99", "data": [89.0, 116.7, 151.5, 67.4, 99.5, 98.5, 78.8, 54.4, 74.6, 108.1, 77.9, 93.8, 114.5, 87.5], "hidden": true, "label": "Nick Kubit", "pointBackgroundColor": "#44AA99", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#994499", "borderColor": "#994499", "data": [75.9, 113.2, 104.2, 97.4, 115.8, 67.6, 97.2, 120.8, 92.0, 119.7, 75.4, 94.4, 95.0, 95.7], "hidden": true, "label": "Sam Engsberg", "pointBackgroundColor": "#994499", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#332288", "borderColor": "#332288", "data": [87.8, 95.0, 84.2, 101.9, 53.3, 92.1, 81.5, 101.4, 147.3, 98.9, 79.8, 108.1, 91.8, 57.7], "hidden": true, "label": "Nicholas Polansky", "pointBackgroundColor": "#332288", "pointBorderColor": "#fff", "pointBorderWidth": 1}], "labels": ["Wk 1", "Wk 2", "Wk 3", "Wk 4", "Wk 5", "Wk 6", "Wk 7", "Wk 8", "Wk 9", "Wk 10", "Wk 11", "Wk 12", "Wk 13", "Wk 14"]};
+      var chartData = {"datasets": [{"backgroundColor": "#0072B2", "borderColor": "#0072B2", "data": [108.9, 123.5, 132.6, 148.6, 108.5, 108.6, 99.3, 119.8, 95.4, 102.0, 129.2, 160.4, 126.3, 113.1], "fill": false, "hidden": false, "label": "Dav\u00edd Huisken", "pointBackgroundColor": "#0072B2", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#D55E00", "borderColor": "#D55E00", "data": [97.2, 99.6, 122.0, 101.4, 143.5, 105.3, 113.9, 129.3, 109.8, 101.1, 104.3, 107.9, 133.3, 133.0], "fill": false, "hidden": false, "label": "Eric Monson", "pointBackgroundColor": "#D55E00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#009E73", "borderColor": "#009E73", "data": [126.3, 115.1, 115.7, 142.2, 69.9, 109.2, 104.3, 121.7, 94.1, 111.0, 106.6, 97.1, 107.0, 122.5], "fill": false, "hidden": false, "label": "Pat Benner", "pointBackgroundColor": "#009E73", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#E69F00", "borderColor": "#E69F00", "data": [84.8, 119.3, 146.7, 130.2, 164.8, 88.2, 98.0, 133.1, 95.7, 165.4, 103.6, 144.1, 140.4, 114.5], "fill": false, "hidden": true, "label": "Ethan Hildebrandt", "pointBackgroundColor": "#E69F00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#CC79A7", "borderColor": "#CC79A7", "data": [102.5, 140.9, 100.0, 108.5, 84.8, 97.6, 96.2, 107.6, 130.9, 132.2, 109.5, 132.6, 126.2, 82.1], "fill": false, "hidden": true, "label": "Daniel Senger", "pointBackgroundColor": "#CC79A7", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#56B4E9", "borderColor": "#56B4E9", "data": [100.3, 137.8, 118.5, 95.9, 77.4, 82.6, 141.8, 95.7, 101.0, 108.5, 115.4, 105.7, 94.3, 134.1], "fill": false, "hidden": true, "label": "Daniel Sharp", "pointBackgroundColor": "#56B4E9", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#F0E442", "borderColor": "#F0E442", "data": [96.7, 90.2, 132.5, 112.6, 183.1, 135.2, 123.4, 115.9, 93.9, 80.1, 78.3, 140.1, 89.9, 118.8], "fill": false, "hidden": true, "label": "Paul Tuura", "pointBackgroundColor": "#F0E442", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#999999", "borderColor": "#999999", "data": [95.7, 106.4, 105.2, 92.5, 105.5, 80.1, 91.7, 132.3, 80.8, 124.2, 150.2, 99.3, 67.2, 96.1], "fill": false, "hidden": true, "label": "Casey Pirsig", "pointBackgroundColor": "#999999", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#882255", "borderColor": "#882255", "data": [74.4, 63.6, 77.2, 115.3, 117.2, 111.3, 105.3, 75.1, 84.7, 80.1, 95.8, 122.9, 100.5, 79.1], "fill": false, "hidden": true, "label": "Jamie Sugar", "pointBackgroundColor": "#882255", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#44AA99", "borderColor": "#44AA99", "data": [89.0, 116.7, 151.5, 67.4, 99.5, 98.5, 78.8, 54.4, 74.6, 108.1, 77.9, 93.8, 114.5, 87.5], "fill": false, "hidden": true, "label": "Nick Kubit", "pointBackgroundColor": "#44AA99", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#994499", "borderColor": "#994499", "data": [75.9, 113.2, 104.2, 97.4, 115.8, 67.6, 97.2, 120.8, 92.0, 119.7, 75.4, 94.4, 95.0, 95.7], "fill": false, "hidden": true, "label": "Sam Engsberg", "pointBackgroundColor": "#994499", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#332288", "borderColor": "#332288", "data": [87.8, 95.0, 84.2, 101.9, 53.3, 92.1, 81.5, 101.4, 147.3, 98.9, 79.8, 108.1, 91.8, 57.7], "fill": false, "hidden": true, "label": "Nicholas Polansky", "pointBackgroundColor": "#332288", "pointBorderColor": "#fff", "pointBorderWidth": 1}], "labels": ["Wk 1", "Wk 2", "Wk 3", "Wk 4", "Wk 5", "Wk 6", "Wk 7", "Wk 8", "Wk 9", "Wk 10", "Wk 11", "Wk 12", "Wk 13", "Wk 14"]};
       var ctx = document.getElementById("myChart");
       if (ctx) {
         function swatchColor(id) {
@@ -2003,8 +2007,9 @@
               titleFontStyle: 'normal',
               bodySpacing: 2,
               callbacks: {
-                label: function (item) {
-                  return ' ' + item.dataset.label + ': ' + item.yLabel;
+                label: function (item, data) {
+                  var ds = data.datasets[item.datasetIndex];
+                  return ' ' + ds.label + ': ' + item.yLabel;
                 }
               }
             }
@@ -2020,5 +2025,6 @@
         });
       }
     </script>
+    
   </body>
 </html>

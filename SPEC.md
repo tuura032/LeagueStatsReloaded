@@ -76,9 +76,15 @@ exists at all.
 For each week:
 1. Collect all 12 team scores.
 2. **H2H:** in each of the 6 matchups, the higher score takes the point.
-3. **Top half:** sort the 12 scores ascending. Index `[5]` is the **threshold** —
-   the highest score that missed the top six. A team earns the point by scoring
-   **strictly greater** than it.
+3. **Top half:** sort the scores ascending. Index `[n // 2 - 1]` is the
+   **threshold** — the highest score that missed the top half, which is `[5]`
+   for this 12-team league. A team earns the point by scoring **strictly
+   greater** than it.
+
+   *Amended 2026-09-22 (BUG-006).* This originally said "index `[5]`", ported
+   verbatim from v1. That is correct for 12 teams and silently the wrong
+   scoring rule for any other league size, so it is now derived from the
+   field size. No change to FFF's numbers.
 
 v1 called that threshold the **"score to beat"** and computed it exactly this
 way in `getApiData.py:getScoresToBeat()`. It is correct. Keep the name — it is
@@ -259,6 +265,23 @@ to fix opportunistically.
 Keep the per-week detail — it is what makes a weekly-recap view possible later
 without re-fetching, and it is how you audit a standings change by diffing two
 commits.
+
+**Added 2026-09-22:** `leagueName`, `playoffTeamCount`, and `playoffs` —
+the last being the winners-bracket result (`null` until a season's final is
+decided):
+
+```jsonc
+"playoffs": {
+  "champion": 12, "runnerUp": 2,
+  "championScore": 154.5, "runnerUpScore": 108.9,
+  "mostPointsFor": 12, "pointsFor": { "12": 494.7 },
+  "finalWeek": 17,
+  "games": [ { "week": 15, "home": 2, "away": null, "bye": true } ]
+}
+```
+
+Weeks 15-17 still contribute **no dual points** (§1) — the bracket is read
+only to record who won, which is a different question from the standings.
 
 **Standings sort:** `points` desc, then `pointsFor` desc.
 

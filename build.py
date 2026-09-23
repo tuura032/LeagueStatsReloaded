@@ -80,6 +80,17 @@ def main():
     rivalry_owners, rivalry_matrix = compute.build_rivalries(all_standings)
     careers = compute.build_career_stats(all_standings)
 
+    # Prize amounts (the league pot) are a league setting, not ESPN data, so
+    # they live in data/prizes.json instead of being hardcoded in the
+    # template. The owner edits that file when the pot changes; build.py just
+    # reads it. Read once here (not per-season) since the pot is a single
+    # league-wide setting shared by every rendered season.
+    prizes_path = data_dir / "prizes.json"
+    if not prizes_path.exists():
+        print("ERROR: data/prizes.json not found.", file=sys.stderr)
+        sys.exit(1)
+    prizes = json.loads(prizes_path.read_text(encoding="utf-8"))
+
     env = Environment(loader=FileSystemLoader("templates"),
                       autoescape=select_autoescape())
     docs = Path("docs")
@@ -102,6 +113,18 @@ def main():
             "rivalry_owners": rivalry_owners,
             "rivalry_matrix": rivalry_matrix,
             "careers": careers,
+            "prizes": prizes,
+            # How many teams make the playoffs, per the league's own ESPN
+            # settings. home.html used to assume half the field, which is
+            # right for this league only by coincidence.
+            "playoffTeamCount": data.get("playoffTeamCount"),
+            # Championship results (None until a season's final is decided),
+            # plus a teamId -> owner lookup so the prize table can name a
+            # champion without re-scanning standings in the template.
+            "playoffs": data.get("playoffs"),
+            "owner_by_team": {s["teamId"]: s["owner"] for s in data["standings"]},
+            "updated": data.get("updated"),
+            "leagueName": data.get("leagueName"),
         }
         for template, out_name in PAGES:
             out = out_dir / out_name

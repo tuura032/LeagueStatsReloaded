@@ -1,0 +1,10 @@
+[
+  { "label": "1st Place",          "amount": 25, "bye": true,  "award": "standings",   "rank": 1 },
+  { "label": "2nd Place",          "amount": 20, "bye": true,  "award": "standings",   "rank": 2 },
+  { "label": "Third Place",        "amount": 15, "bye": false, "award": "standings",   "rank": 3 },
+  { "label": "Reg Season Most PF", "amount": 30, "bye": false, "award": "regSeasonPF" },
+  { "label": "1st Overall",        "amount": 90, "bye": false, "award": "champion" },
+  { "label": "2nd Overall",        "amount": 60, "bye": false, "award": "runnerUp" },
+  { "label": "3rd Overall",        "amount": 30, "bye": false },
+  { "label": "Playoffs Most PF",   "amount": 30, "bye": false, "award": "playoffsPF" }
+]
