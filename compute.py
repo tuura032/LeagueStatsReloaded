@@ -349,7 +349,40 @@ def build_standings(raw, updated):
         "standings": ranked,
         # None until the season's championship game is decided.
         "playoffs": build_playoffs(ms.get("schedule", []), week_count),
+        # Every decided game after the regular season, any bracket. These
+        # contribute no dual points (SPEC.md §1) -- they're kept so an
+        # "all-time head-to-head" record can actually mean all-time.
+        "postseason": postseason_games(ms.get("schedule", []), week_count),
     }
+
+
+def postseason_games(schedule, week_count):
+    """Decided games after the regular season, across every bracket tier.
+
+    Separate from build_playoffs(), which deliberately looks at only the
+    winners bracket because it is answering "who won the league". This is
+    answering "who has played whom", so a consolation-ladder meeting counts
+    just as much.
+    """
+    out = []
+    for m in sorted(schedule, key=lambda g: (g["matchupPeriodId"], g.get("id", 0))):
+        if m["matchupPeriodId"] <= week_count or not _played(m):
+            continue
+        home, away = m["home"], m["away"]
+        home_score = round(home["totalPoints"], 1)
+        away_score = round(away["totalPoints"], 1)
+        if home_score > away_score:
+            winner = home["teamId"]
+        elif away_score > home_score:
+            winner = away["teamId"]
+        else:
+            winner = None
+        out.append({"week": m["matchupPeriodId"],
+                    "tier": m.get("playoffTierType"),
+                    "home": home["teamId"], "away": away["teamId"],
+                    "homeScore": home_score, "awayScore": away_score,
+                    "winner": winner})
+    return out
 
 
 def build_rivalries(all_standings):
@@ -361,34 +394,56 @@ def build_rivalries(all_standings):
     identity is what a "rivalry" actually means. A game between two teams
     with the same owner (shouldn't normally happen) is skipped.
 
+    **Counts the postseason too.** This used to read only the regular-season
+    weeks while calling itself "all-time", which hid real meetings: Paul
+    Tuura is 0-4 against Casey Pirsig in the regular season but has also
+    played him three times in the playoffs and won two, including knocking
+    him out of the 2024 winners bracket 101.0-99.0. A head-to-head record
+    that omits playoff games is not a head-to-head record.
+
     Returns (owners, matrix): owners is every owner name seen, sorted;
-    matrix[a][b] is {"wins", "losses", "ties"} -- a's record against b.
-    Only pairs that have actually played each other get an entry.
+    matrix[a][b] is a's record against b -- {"wins", "losses", "ties"}
+    overall, plus the same three split into "reg*" and "post*" so the UI
+    can break it out. Only pairs that have actually played get an entry.
     """
     owners = set()
     matrix = {}
+
+    def cell():
+        return {"wins": 0, "losses": 0, "ties": 0,
+                "regWins": 0, "regLosses": 0, "regTies": 0,
+                "postWins": 0, "postLosses": 0, "postTies": 0}
+
+    def record(owner_by_team, g, phase):
+        a, b = owner_by_team.get(g["home"]), owner_by_team.get(g["away"])
+        if not a or not b or a == b:
+            return
+        owners.add(a)
+        owners.add(b)
+        cell_a = matrix.setdefault(a, {}).setdefault(b, cell())
+        cell_b = matrix.setdefault(b, {}).setdefault(a, cell())
+        if g["winner"] == g["home"]:
+            won, lost = cell_a, cell_b
+        elif g["winner"] == g["away"]:
+            won, lost = cell_b, cell_a
+        else:
+            for c in (cell_a, cell_b):
+                c["ties"] += 1
+                c[phase + "Ties"] += 1
+            return
+        won["wins"] += 1
+        won[phase + "Wins"] += 1
+        lost["losses"] += 1
+        lost[phase + "Losses"] += 1
+
     for season in all_standings:
         owner_by_team = {s["teamId"]: s["owner"] for s in season["standings"]}
         for w in season["weeks"]:
             for g in w["games"]:
-                a, b = owner_by_team.get(g["home"]), owner_by_team.get(g["away"])
-                if not a or not b or a == b:
-                    continue
-                owners.add(a)
-                owners.add(b)
-                cell_a = matrix.setdefault(a, {}).setdefault(
-                    b, {"wins": 0, "losses": 0, "ties": 0})
-                cell_b = matrix.setdefault(b, {}).setdefault(
-                    a, {"wins": 0, "losses": 0, "ties": 0})
-                if g["winner"] == g["home"]:
-                    cell_a["wins"] += 1
-                    cell_b["losses"] += 1
-                elif g["winner"] == g["away"]:
-                    cell_b["wins"] += 1
-                    cell_a["losses"] += 1
-                else:
-                    cell_a["ties"] += 1
-                    cell_b["ties"] += 1
+                record(owner_by_team, g, "reg")
+        for g in season.get("postseason") or []:
+            record(owner_by_team, g, "post")
+
     return sorted(owners), matrix
 
 

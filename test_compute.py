@@ -384,8 +384,13 @@ class TestRivalries(unittest.TestCase):
         # full_season_weeks(), 14 times per season, 2 seasons = 28 meetings.
         a, b = "First1 Last1", "First2 Last2"
         self.assertIn(a, owners)
-        self.assertEqual(matrix[a][b], {"wins": 0, "losses": 28, "ties": 0})
-        self.assertEqual(matrix[b][a], {"wins": 28, "losses": 0, "ties": 0})
+        self.assertEqual((matrix[a][b]["wins"], matrix[a][b]["losses"],
+                          matrix[a][b]["ties"]), (0, 28, 0))
+        self.assertEqual((matrix[b][a]["wins"], matrix[b][a]["losses"],
+                          matrix[b][a]["ties"]), (28, 0, 0))
+        # No playoff games in the fixture, so it is all regular season.
+        self.assertEqual(matrix[a][b]["regLosses"], 28)
+        self.assertEqual(matrix[a][b]["postLosses"], 0)
 
     def test_teams_that_never_met_have_no_entry(self):
         _, matrix = compute.build_rivalries([self.season1])
@@ -1187,3 +1192,66 @@ class TestCareerPayouts(unittest.TestCase):
         self.assertEqual(rows["First2 Last2"]["total"], 90)
         self.assertNotIn(2026, rows["First2 Last2"]["bySeason"])
         self.assertEqual(rows["First2 Last2"]["paid"], 25)
+
+
+class TestRivalriesIncludePostseason(unittest.TestCase):
+    """A head-to-head record that calls itself all-time must count playoffs.
+
+    Regression for a real miss: the Rivalries page showed Paul Tuura 0-4
+    against Casey Pirsig, which is right for the regular season and hid
+    three playoff meetings that Tuura won two of -- including knocking
+    Pirsig out of the 2024 winners bracket 101.0-99.0.
+    """
+
+    def _season(self, bracket):
+        return compute.build_standings(
+            make_raw(full_season_weeks(), bracket=bracket), UPDATED)
+
+    def test_postseason_games_are_captured(self):
+        season = self._season([
+            make_bracket_matchup(15, 1, 2, 120.0, 100.0),
+            make_bracket_matchup(16, 3, 4, 90.0, 95.0,
+                                 tier="LOSERS_CONSOLATION_LADDER"),
+        ])
+        post = season["postseason"]
+        self.assertEqual(len(post), 2)
+        self.assertEqual(post[0]["winner"], 1)
+        self.assertEqual(post[1]["winner"], 4)
+        self.assertEqual(post[1]["tier"], "LOSERS_CONSOLATION_LADDER")
+
+    def test_consolation_meetings_count_toward_the_rivalry(self):
+        # Team 1 loses to team 2 all 14 regular-season weeks, then beats
+        # them twice in a consolation bracket.
+        season = self._season([
+            make_bracket_matchup(15, 1, 2, 120.0, 100.0,
+                                 tier="LOSERS_CONSOLATION_LADDER"),
+            make_bracket_matchup(16, 1, 2, 130.0, 100.0,
+                                 tier="LOSERS_CONSOLATION_LADDER"),
+        ])
+        _, matrix = compute.build_rivalries([season])
+        cell = matrix["First1 Last1"]["First2 Last2"]
+        self.assertEqual((cell["wins"], cell["losses"]), (2, 14))
+        self.assertEqual((cell["regWins"], cell["regLosses"]), (0, 14))
+        self.assertEqual((cell["postWins"], cell["postLosses"]), (2, 0))
+
+    def test_the_split_always_sums_to_the_total(self):
+        season = self._season([make_bracket_matchup(15, 1, 2, 120.0, 100.0)])
+        _, matrix = compute.build_rivalries([season])
+        for a, opponents in matrix.items():
+            for b, c in opponents.items():
+                self.assertEqual(c["wins"], c["regWins"] + c["postWins"])
+                self.assertEqual(c["losses"], c["regLosses"] + c["postLosses"])
+                self.assertEqual(c["ties"], c["regTies"] + c["postTies"])
+
+    def test_unplayed_and_bye_entries_are_skipped(self):
+        season = self._season([
+            make_bracket_matchup(15, 1, None, 120.0, None),        # bye
+            make_bracket_matchup(16, 1, 2, 0.0, 0.0, played=False),
+        ])
+        self.assertEqual(season["postseason"], [])
+
+    def test_postseason_still_contributes_no_dual_points(self):
+        season = self._season([make_bracket_matchup(15, 1, 2, 200.0, 100.0)])
+        self.assertEqual(season["throughWeek"], 14)
+        self.assertEqual([w["week"] for w in season["weeks"]],
+                         list(range(1, 15)))

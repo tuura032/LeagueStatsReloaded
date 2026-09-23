@@ -191,7 +191,6 @@
         <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">#</th>
         <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
         <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Won</th>
-        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Winnings minus the entry fee">Net</th>
         <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">From</th>
       </tr>
     </thead>
@@ -206,9 +205,6 @@
           {% endif %}
         </td>
         <td class="px-3 py-2 text-right text-base font-semibold whitespace-nowrap text-emerald-700 dark:text-emerald-400">${{ row.total }}</td>
-        <td class="hidden px-3 py-2 text-right whitespace-nowrap sm:table-cell {{ 'text-emerald-600 dark:text-emerald-400' if row.net > 0 else ('text-rose-600 dark:text-rose-400' if row.net < 0 else 'text-slate-400 dark:text-slate-500') }}">
-          {{ '+' if row.net > 0 else '' }}${{ row.net }}
-        </td>
         <td class="px-3 py-2 text-xs text-slate-500 dark:text-slate-400">
           {% for p in row.prizes %}<span class="mr-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 whitespace-nowrap dark:bg-slate-800">{{ p.label }} ${{ p.amount }}</span>{% endfor %}
         </td>
@@ -217,11 +213,6 @@
     </tbody>
   </table>
 </div>
-{% if entryFee %}
-<p class="mt-2 text-xs text-slate-400 dark:text-slate-500">
-  Net is winnings minus the ${{ entryFee | int }} entry fee. Everyone not listed won nothing and is out ${{ entryFee | int }}.
-</p>
-{% endif %}
 {% endif %}
 
 {% endif %}

@@ -2,7 +2,7 @@
   "season": 2023,
   "league": "877873",
   "leagueName": "Fantasy Football Fantasy",
-  "updated": "2026-09-23T03:41:52Z",
+  "updated": "2026-09-23T11:19:35Z",
   "regularSeasonWeeks": 14,
   "playoffTeamCount": 6,
   "entryFee": 25.0,
@@ -2164,5 +2164,160 @@
         "bye": false
       }
     ]
-  }
+  },
+  "postseason": [
+    {
+      "week": 15,
+      "tier": "WINNERS_BRACKET",
+      "home": 10,
+      "away": 7,
+      "homeScore": 111.4,
+      "awayScore": 96.3,
+      "winner": 10
+    },
+    {
+      "week": 15,
+      "tier": "WINNERS_BRACKET",
+      "home": 11,
+      "away": 9,
+      "homeScore": 84.0,
+      "awayScore": 131.1,
+      "winner": 9
+    },
+    {
+      "week": 15,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 2,
+      "away": 1,
+      "homeScore": 85.4,
+      "awayScore": 74.4,
+      "winner": 2
+    },
+    {
+      "week": 15,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 5,
+      "away": 6,
+      "homeScore": 129.8,
+      "awayScore": 95.8,
+      "winner": 5
+    },
+    {
+      "week": 15,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 3,
+      "away": 4,
+      "homeScore": 108.0,
+      "awayScore": 85.6,
+      "winner": 3
+    },
+    {
+      "week": 16,
+      "tier": "WINNERS_BRACKET",
+      "home": 12,
+      "away": 10,
+      "homeScore": 128.3,
+      "awayScore": 108.1,
+      "winner": 12
+    },
+    {
+      "week": 16,
+      "tier": "WINNERS_BRACKET",
+      "home": 8,
+      "away": 9,
+      "homeScore": 95.5,
+      "awayScore": 129.5,
+      "winner": 9
+    },
+    {
+      "week": 16,
+      "tier": "WINNERS_CONSOLATION_LADDER",
+      "home": 11,
+      "away": 7,
+      "homeScore": 101.6,
+      "awayScore": 109.6,
+      "winner": 7
+    },
+    {
+      "week": 16,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 2,
+      "away": 5,
+      "homeScore": 117.6,
+      "awayScore": 53.2,
+      "winner": 2
+    },
+    {
+      "week": 16,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 1,
+      "away": 3,
+      "homeScore": 104.5,
+      "awayScore": 98.6,
+      "winner": 1
+    },
+    {
+      "week": 16,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 6,
+      "away": 4,
+      "homeScore": 85.9,
+      "awayScore": 157.1,
+      "winner": 4
+    },
+    {
+      "week": 17,
+      "tier": "WINNERS_BRACKET",
+      "home": 12,
+      "away": 9,
+      "homeScore": 113.4,
+      "awayScore": 118.7,
+      "winner": 9
+    },
+    {
+      "week": 17,
+      "tier": "WINNERS_CONSOLATION_LADDER",
+      "home": 8,
+      "away": 10,
+      "homeScore": 120.7,
+      "awayScore": 82.0,
+      "winner": 8
+    },
+    {
+      "week": 17,
+      "tier": "WINNERS_CONSOLATION_LADDER",
+      "home": 11,
+      "away": 7,
+      "homeScore": 118.8,
+      "awayScore": 114.4,
+      "winner": 11
+    },
+    {
+      "week": 17,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 2,
+      "away": 1,
+      "homeScore": 113.2,
+      "awayScore": 144.7,
+      "winner": 1
+    },
+    {
+      "week": 17,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 5,
+      "away": 4,
+      "homeScore": 74.4,
+      "awayScore": 107.7,
+      "winner": 4
+    },
+    {
+      "week": 17,
+      "tier": "LOSERS_CONSOLATION_LADDER",
+      "home": 6,
+      "away": 3,
+      "homeScore": 125.5,
+      "awayScore": 72.7,
+      "winner": 6
+    }
+  ]
 }

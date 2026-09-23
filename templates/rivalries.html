@@ -9,8 +9,13 @@
 <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Rivalries</h1>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
   Every owner's all-time head-to-head record, {{ rivalry_owners | length }} owners
-  across every season on file. Read a cell as the row owner's record
-  (W-L-T) against the column owner.
+  across every season on file &mdash; regular season <em>and</em> playoffs.
+  Read a cell as the row owner's record (W-L-T) against the column owner;
+  hover one for the regular-season and playoff split.
+</p>
+
+<p class="mt-1 text-xs text-slate-400 dark:text-slate-500">
+  A <span aria-hidden="true">&#9679;</span> marks a pairing that has met in the playoffs as well.
 </p>
 
 {% if rivalry_owners %}
@@ -41,7 +46,11 @@
               {% else %}
                 {% set cell_class = "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300" %}
               {% endif %}
-              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 {{ cell_class }}">{{ rec.wins }}-{{ rec.losses }}{% if rec.ties %}-{{ rec.ties }}{% endif %}</td>
+              {%- set split -%}
+              {{ owner }} vs {{ opp }} — regular season {{ rec.regWins }}-{{ rec.regLosses }}{% if rec.regTies %}-{{ rec.regTies }}{% endif %}{% if rec.postWins or rec.postLosses or rec.postTies %}, playoffs {{ rec.postWins }}-{{ rec.postLosses }}{% if rec.postTies %}-{{ rec.postTies }}{% endif %}{% endif %}
+              {%- endset -%}
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 {{ cell_class }}"
+                  title="{{ split | trim }}">{{ rec.wins }}-{{ rec.losses }}{% if rec.ties %}-{{ rec.ties }}{% endif %}{% if rec.postWins or rec.postLosses %}<span class="ml-0.5 align-super text-[.55rem] opacity-60" aria-hidden="true">&#9679;</span>{% endif %}</td>
             {% else %}
               <td class="border-b border-slate-100 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:text-slate-600">&ndash;</td>
             {% endif %}

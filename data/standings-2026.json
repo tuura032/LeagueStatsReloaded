@@ -2,7 +2,7 @@
   "season": 2026,
   "league": "877873",
   "leagueName": "Fantasy Football Fantasy",
-  "updated": "2026-09-23T03:41:53Z",
+  "updated": "2026-09-23T11:19:35Z",
   "regularSeasonWeeks": 14,
   "playoffTeamCount": 6,
   "entryFee": 25.0,
@@ -483,5 +483,6 @@
       "streak": "L2"
     }
   ],
-  "playoffs": null
+  "playoffs": null,
+  "postseason": []
 }

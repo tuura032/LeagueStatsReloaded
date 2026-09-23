@@ -125,6 +125,22 @@ positive awards replace them: **The Closer** (biggest first-half to
 second-half jump) and **Clutch** (best record in games decided by under 10,
 minimum 3 such games so one squeaker can't win it).
 
+**Rivalries counted only half the games (2026-09-23).** The page said "all-time
+head-to-head record" and read only the regular-season weeks. Found by the owner
+asking whether an 0-4 record against one opponent could really be right: it was,
+for weeks 1-14, but they had also played three playoff games and won two,
+including a 101.0-99.0 winners-bracket knockout. `postseason_games()` now stores
+every decided game after the regular season (all bracket tiers, not just the
+winners bracket that `build_playoffs()` cares about) and `build_rivalries()`
+counts them, keeping a reg/post split for the tooltip. Playoff games still
+contribute no dual points.
+
+**Winnings show winnings, not losses (2026-09-23).** Owner call: the all-time
+board lists only owners who have actually cashed, ranked by career total, with
+no net-of-entry-fees column and no negative numbers. Same on the per-season
+Payouts table. `career_payouts()` still computes `net`/`paid` — nothing renders
+them, so the number is there if it is ever wanted.
+
 **Prize money, same day.** A finished season still said "Projected Prize
 Distribution" and carried a permanent TBD under 3rd Overall, so it read as
 half-built. `finalRank` fills 3rd Overall; the heading drops "Projected"
