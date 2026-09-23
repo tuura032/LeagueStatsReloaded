@@ -9294,7 +9294,7 @@
           "totalPointsLive": 0.0,
           "totalProjectedPoints": 110.01772586,
           "totalProjectedPointsLive": 110.01772586,
-          "winProbability": 0.64
+          "winProbability": 0.52
         },
         "home": {
           "adjustment": 0.0,
@@ -9572,7 +9572,7 @@
                 }
               },
               {
-                "lineupSlotId": 0,
+                "lineupSlotId": 20,
                 "playerPoolEntry": {
                   "player": {
                     "stats": [
@@ -10311,7 +10311,7 @@
                 }
               },
               {
-                "lineupSlotId": 20,
+                "lineupSlotId": 0,
                 "playerPoolEntry": {
                   "player": {
                     "stats": [
@@ -10419,9 +10419,9 @@
           "tiebreak": 0.0,
           "totalPoints": 0.0,
           "totalPointsLive": 0.0,
-          "totalProjectedPoints": 86.90777076,
-          "totalProjectedPointsLive": 86.90777076,
-          "winProbability": 0.36
+          "totalProjectedPoints": 107.22537304,
+          "totalProjectedPointsLive": 107.22537304,
+          "winProbability": 0.48
         },
         "id": 16,
         "matchupPeriodId": 3,
@@ -15149,8 +15149,7 @@
                         "seasonId": 2026,
                         "statSourceId": 1,
                         "statSplitTypeId": 1,
-                        "stats": {},
-                        "variance": {}
+                        "stats": {}
                       }
                     ]
                   }
@@ -19018,7 +19017,7 @@
             "3": 1
           },
           "misc": 0,
-          "moveToActive": 4,
+          "moveToActive": 5,
           "moveToIR": 0,
           "paid": 0.0,
           "teamCharges": 0.0,
