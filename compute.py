@@ -216,6 +216,46 @@ def build_standings(raw, updated):
     }
 
 
+def build_rivalries(all_standings):
+    """All-time head-to-head records between owners, across every given
+    season's §5 standings dict (as many seasons as are passed in).
+
+    Matches games by owner name rather than teamId, since a teamId's owner
+    can change between seasons (and a team can be renamed) but the owner
+    identity is what a "rivalry" actually means. A game between two teams
+    with the same owner (shouldn't normally happen) is skipped.
+
+    Returns (owners, matrix): owners is every owner name seen, sorted;
+    matrix[a][b] is {"wins", "losses", "ties"} -- a's record against b.
+    Only pairs that have actually played each other get an entry.
+    """
+    owners = set()
+    matrix = {}
+    for season in all_standings:
+        owner_by_team = {s["teamId"]: s["owner"] for s in season["standings"]}
+        for w in season["weeks"]:
+            for g in w["games"]:
+                a, b = owner_by_team.get(g["home"]), owner_by_team.get(g["away"])
+                if not a or not b or a == b:
+                    continue
+                owners.add(a)
+                owners.add(b)
+                cell_a = matrix.setdefault(a, {}).setdefault(
+                    b, {"wins": 0, "losses": 0, "ties": 0})
+                cell_b = matrix.setdefault(b, {}).setdefault(
+                    a, {"wins": 0, "losses": 0, "ties": 0})
+                if g["winner"] == g["home"]:
+                    cell_a["wins"] += 1
+                    cell_b["losses"] += 1
+                elif g["winner"] == g["away"]:
+                    cell_b["wins"] += 1
+                    cell_a["losses"] += 1
+                else:
+                    cell_a["ties"] += 1
+                    cell_b["ties"] += 1
+    return sorted(owners), matrix
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Compute FFF dual-point standings from raw ESPN data.")

@@ -1,0 +1,1652 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="static/dashboard.css">
+    <style>
+      /* L5 — data-driven sidebar roster + chart page. Scoped to the new
+         components; static/dashboard.css is untouched. */
+      .sidebar-owner {
+        display: flex;
+        gap: .5rem;
+        padding: .3rem .75rem .3rem 1rem;
+        border-radius: .25rem;
+      }
+      .sidebar-owner:hover {
+        background-color: rgba(0, 0, 0, .04);
+      }
+      .sidebar-owner-rank {
+        flex: 0 0 1.1rem;
+        padding-top: .15rem;
+        font-size: .7rem;
+        font-weight: 600;
+        color: #adb5bd;
+        text-align: right;
+      }
+      .sidebar-owner-meta {
+        min-width: 0;
+      }
+      .sidebar-owner-name {
+        display: block;
+        font-size: .8rem;
+        font-weight: 500;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidebar-owner-team {
+        display: block;
+        font-size: .7rem;
+        color: #868e96;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .chart-wrap {
+        position: relative;
+        height: 420px;
+        width: 100%;
+      }
+      @media (max-width: 768px) {
+        .chart-wrap {
+          height: 320px;
+        }
+      }
+      .stat-label {
+        font-size: .7rem;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        color: #868e96;
+      }
+      .stat-value {
+        font-size: 1.35rem;
+        font-weight: 600;
+        color: #212529;
+      }
+      .stat-sub {
+        font-size: .75rem;
+        color: #868e96;
+      }
+    </style>
+
+    <link rel="shortcut icon" type="image/png" href="static/fffIcon.png"/>
+
+    <title>
+    Fantasy Football Fantasy
+</title>
+  </head>
+  <body>
+    <nav id="navbar" class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="index.html">Fantasy Football Fantasy</a>
+    </nav>
+  
+      <div class="container-fluid">
+        <div class="row">
+          <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <div class="sidebar-sticky">
+              <ul class="nav flex-column">
+                <li class="nav-item">
+                  <!-- L9 — season picker. Plain links, relative to this
+                       page: "base" is "" at the root and "../" in a season
+                       subdirectory; the newest season's URL is the root. -->
+                  <select class="form-control form-control-sm mb-2" aria-label="Season"
+                          onchange="if (this.value) location.href = this.value">
+                    
+                    
+                    <option selected disabled>2026 (current)</option>
+                    
+                    
+                    
+                    <option value="2025/">2025</option>
+                    
+                    
+                    
+                    <option value="2024/">2024</option>
+                    
+                    
+                    
+                    <option value="2023/">2023</option>
+                    
+                    
+                    
+                    <option value="2022/">2022</option>
+                    
+                    
+                  </select>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="index.html">
+                    <span data-feather="home"></span>
+                    Home
+                  </a>
+                </li>
+                <li class="nav-item" >
+                  <a class="nav-link dropdown-toggle" href="#ownerSubmenu" data-toggle="collapse" aria-expanded="false">
+                    <span data-feather="users"></span>
+                    Owners
+                  </a>
+                  <ul class="collapse list-unstyled sidebar-owners" id="ownerSubmenu">
+                    
+                    <li class="sidebar-owner" title="Jamie Sugar — Team Sugar">
+                      <span class="sidebar-owner-rank">1</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Jamie Sugar</span>
+                        <span class="sidebar-owner-team">Team Sugar</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Daniel Sharp — Wyld Stallyns">
+                      <span class="sidebar-owner-rank">2</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Daniel Sharp</span>
+                        <span class="sidebar-owner-team">Wyld Stallyns</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Pat Benner — De&#39;Von to Break Free">
+                      <span class="sidebar-owner-rank">3</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Pat Benner</span>
+                        <span class="sidebar-owner-team">De&#39;Von to Break Free</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Daniel Senger — Daniel&#39;s Driven Team">
+                      <span class="sidebar-owner-rank">4</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Daniel Senger</span>
+                        <span class="sidebar-owner-team">Daniel&#39;s Driven Team</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Paul Tuura — Walker, Kenneth Ranger">
+                      <span class="sidebar-owner-rank">5</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Paul Tuura</span>
+                        <span class="sidebar-owner-team">Walker, Kenneth Ranger</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Nick Kubit — Saquon Deez Nuts">
+                      <span class="sidebar-owner-rank">6</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Nick Kubit</span>
+                        <span class="sidebar-owner-team">Saquon Deez Nuts</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Casey Pirsig — Taylor Sailors">
+                      <span class="sidebar-owner-rank">7</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Casey Pirsig</span>
+                        <span class="sidebar-owner-team">Taylor Sailors</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Davíd Huisken — Praise JA">
+                      <span class="sidebar-owner-rank">8</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Davíd Huisken</span>
+                        <span class="sidebar-owner-team">Praise JA</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Ethan Hildebrandt — Team Hildebrandt">
+                      <span class="sidebar-owner-rank">9</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Ethan Hildebrandt</span>
+                        <span class="sidebar-owner-team">Team Hildebrandt</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Sam Engsberg — Chat, Draft My Team">
+                      <span class="sidebar-owner-rank">10</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Sam Engsberg</span>
+                        <span class="sidebar-owner-team">Chat, Draft My Team</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Nicholas Polansky — Ultimate Fulfillment">
+                      <span class="sidebar-owner-rank">11</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Nicholas Polansky</span>
+                        <span class="sidebar-owner-team">Ultimate Fulfillment</span>
+                      </span>
+                    </li>
+                    
+                    <li class="sidebar-owner" title="Eric Monson — C0KER COLA">
+                      <span class="sidebar-owner-rank">12</span>
+                      <span class="sidebar-owner-meta">
+                        <span class="sidebar-owner-name">Eric Monson</span>
+                        <span class="sidebar-owner-team">C0KER COLA</span>
+                      </span>
+                    </li>
+                    
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="playoffs.html">
+                    <span data-feather="bar-chart-2"></span>
+                    Playoffs and Prizes
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="graph.html">
+                    <span data-feather="layers"></span>
+                    Stats
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" href="rivalries.html">
+                    <span data-feather="target"></span>
+                    Rivalries <span class="sr-only">(current)</span>
+                  </a>
+                </li>
+              </ul>
+  
+            </div>
+          </nav>
+  
+          <main role="main" class="ml-sm-auto col-lg-10 px-4">
+
+            <!-- Mobile-only nav: below 768px dashboard.css hides the top
+                 navbar and the sidebar is d-none, so on a phone this is
+                 the only way to move between pages. Previously only
+                 home.html had this block, so playoffs.html and graph.html
+                 had NO navigation at all on mobile (mobile QoL fix,
+                 2026-09-22). Shared here in layout.html so every page
+                 gets it once, matching the desktop sidebar's active-page
+                 highlight and season picker via the same context vars. -->
+            <div class="d-md-none pt-3 pb-2 mb-3 border-bottom">
+              <div id="secretnav">
+                <select class="form-control form-control-sm mb-2" aria-label="Season"
+                        onchange="if (this.value) location.href = this.value">
+                  
+                  
+                  <option selected disabled>2026 (current)</option>
+                  
+                  
+                  
+                  <option value="2025/">2025</option>
+                  
+                  
+                  
+                  <option value="2024/">2024</option>
+                  
+                  
+                  
+                  <option value="2023/">2023</option>
+                  
+                  
+                  
+                  <option value="2022/">2022</option>
+                  
+                  
+                </select>
+                <ul class="nav">
+                  <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                  <li class="nav-item"><a class="nav-link" href="playoffs.html">Playoffs and Prizes</a></li>
+                  <li class="nav-item"><a class="nav-link" href="graph.html">Stats</a></li>
+                  <li class="nav-item"><a class="nav-link active" href="rivalries.html">Rivalries</a></li>
+                </ul>
+              </div>
+            </div>
+
+            
+<style>
+  /* Rivalry matrix: read a cell as the ROW owner's record against the
+     COLUMN owner. Diagonal (self vs self) is blank. Cell tint follows
+     the row owner's win rate against that opponent -- green they lead,
+     red they trail, gray even or never played -- so the grid reads at a
+     glance instead of forcing you to parse every "W-L". */
+  #rivalry-table {
+    font-size: .8rem;
+  }
+  #rivalry-table th, #rivalry-table td {
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  #rivalry-table th.row-owner {
+    text-align: right;
+    font-weight: 600;
+    white-space: normal;
+    max-width: 9rem;
+  }
+  #rivalry-table thead th {
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: #6c757d;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    padding: .5rem .25rem;
+  }
+  #rivalry-table td.self {
+    background: #f1f3f5;
+  }
+  #rivalry-table td.never {
+    color: #adb5bd;
+  }
+  #rivalry-table td.leads { background: #dcfce7; color: #166534; }
+  #rivalry-table td.trails { background: #fee2e2; color: #991b1b; }
+  #rivalry-table td.even { background: #f8f9fa; color: #495057; }
+
+  /* Mobile: the full NxN grid can't be tamed by hiding columns, so keep
+     it in a horizontally-scrollable strip with the owner names pinned
+     on the left, rather than dropping data. */
+  #rivalry-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #rivalry-table th.row-owner {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    box-shadow: 1px 0 0 rgba(0, 0, 0, .08);
+  }
+</style>
+
+<div class="pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2 mb-0">Rivalries</h1>
+</div>
+<p class="text-muted">
+  Every owner's all-time head-to-head record, 12 owners
+  across every season on file. Read a cell as the row owner's record
+  (W-L-T) against the column owner.
+</p>
+
+
+<div class="table-responsive" id="rivalry-scroll">
+  <table class="table table-sm table-bordered" id="rivalry-table">
+    <thead>
+      <tr>
+        <th></th>
+        
+          <th>Casey Pirsig</th>
+        
+          <th>Daniel Senger</th>
+        
+          <th>Daniel Sharp</th>
+        
+          <th>Davíd Huisken</th>
+        
+          <th>Eric Monson</th>
+        
+          <th>Ethan Hildebrandt</th>
+        
+          <th>Jamie Sugar</th>
+        
+          <th>Nicholas Polansky</th>
+        
+          <th>Nick Kubit</th>
+        
+          <th>Pat Benner</th>
+        
+          <th>Paul Tuura</th>
+        
+          <th>Sam Engsberg</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      
+        <tr>
+          <th class="row-owner">Casey Pirsig</th>
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">2-7</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">0-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">4-0</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">5-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">4-0</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">8-0</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Daniel Senger</th>
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">4-5</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">3-6</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">3-5</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Daniel Sharp</th>
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">0-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">7-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">4-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">6-3</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Davíd Huisken</th>
+          
+            
+              
+              
+                <td class="leads">7-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">3-5</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">6-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Eric Monson</th>
+          
+            
+              
+              
+                <td class="leads">4-0</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">4-0</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">5-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">5-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">6-3</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Ethan Hildebrandt</th>
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">5-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">5-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">5-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Jamie Sugar</th>
+          
+            
+              
+              
+                <td class="trails">0-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">6-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">3-6</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="trails">3-5</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">0-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">4-0</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Nicholas Polansky</th>
+          
+            
+              
+              
+                <td class="trails">4-5</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">2-7</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">5-3</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="trails">0-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">0-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Nick Kubit</th>
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">4-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">4-5</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">4-0</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="trails">4-5</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Pat Benner</th>
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">3-5</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">4-0</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">5-4</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="leads">7-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Paul Tuura</th>
+          
+            
+              
+              
+                <td class="trails">0-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">5-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">4-5</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">4-0</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">2-7</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+            
+              
+              
+                <td class="leads">4-0</td>
+              
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="row-owner">Sam Engsberg</th>
+          
+            
+              
+              
+                <td class="trails">0-8</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">3-6</td>
+              
+            
+          
+            
+              
+              
+                <td class="leads">3-1</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">3-6</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">1-3</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">0-4</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="even">2-2</td>
+              
+            
+          
+            
+              
+              
+                <td class="trails">0-4</td>
+              
+            
+          
+            
+              <td class="self">&mdash;</td>
+            
+          
+        </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+
+
+            
+            
+          </main>
+        </div>
+      </div>
+  
+      <!-- Icons -->
+      <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+      <script>
+        feather.replace()
+      </script>
+  
+      <!-- Graphs (L5: dataset rendered from data/standings-<season>.json) -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+      <script>
+        
+        
+        
+          
+        
+          
+        
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+          
+          
+            
+            
+          
+            
+            
+          
+          
+          
+        
+        var chartData = {"datasets": [{"backgroundColor": "#0072B2", "borderColor": "#0072B2", "data": [154.3, 137.7], "hidden": false, "label": "Jamie Sugar", "pointBackgroundColor": "#0072B2", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#D55E00", "borderColor": "#D55E00", "data": [120.8, 92.8], "hidden": false, "label": "Daniel Sharp", "pointBackgroundColor": "#D55E00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#009E73", "borderColor": "#009E73", "data": [149.9, 114.5], "hidden": false, "label": "Pat Benner", "pointBackgroundColor": "#009E73", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#E69F00", "borderColor": "#E69F00", "data": [123.3, 130.2], "hidden": true, "label": "Daniel Senger", "pointBackgroundColor": "#E69F00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#CC79A7", "borderColor": "#CC79A7", "data": [91.3, 176.7], "hidden": true, "label": "Paul Tuura", "pointBackgroundColor": "#CC79A7", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#56B4E9", "borderColor": "#56B4E9", "data": [122.9, 91.3], "hidden": true, "label": "Nick Kubit", "pointBackgroundColor": "#56B4E9", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#F0E442", "borderColor": "#F0E442", "data": [93.4, 115.3], "hidden": true, "label": "Casey Pirsig", "pointBackgroundColor": "#F0E442", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#999999", "borderColor": "#999999", "data": [107.9, 82.9], "hidden": true, "label": "Dav\u00edd Huisken", "pointBackgroundColor": "#999999", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#882255", "borderColor": "#882255", "data": [95.0, 91.4], "hidden": true, "label": "Ethan Hildebrandt", "pointBackgroundColor": "#882255", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#44AA99", "borderColor": "#44AA99", "data": [104.2, 78.0], "hidden": true, "label": "Sam Engsberg", "pointBackgroundColor": "#44AA99", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#994499", "borderColor": "#994499", "data": [95.9, 78.1], "hidden": true, "label": "Nicholas Polansky", "pointBackgroundColor": "#994499", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#332288", "borderColor": "#332288", "data": [101.8, 67.2], "hidden": true, "label": "Eric Monson", "pointBackgroundColor": "#332288", "pointBorderColor": "#fff", "pointBorderWidth": 1}], "labels": ["Wk 1", "Wk 2"]};
+        var ctx = document.getElementById("myChart");
+        if (ctx) {
+          new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              hover: { mode: 'nearest', intersect: false },
+              elements: {
+                line: { borderWidth: 2, tension: 0 },
+                point: { radius: 2.5, hoverRadius: 6, hitRadius: 10 }
+              },
+              scales: {
+                xAxes: [{
+                  gridLines: { display: false },
+                  ticks: { fontColor: '#868e96' }
+                }],
+                yAxes: [{
+                  gridLines: { color: 'rgba(0, 0, 0, .06)' },
+                  ticks: { fontColor: '#868e96', beginAtZero: false }
+                }]
+              },
+              legend: {
+                position: 'bottom',
+                labels: {
+                  usePointStyle: true,
+                  pointStyle: 'circle',
+                  boxWidth: 8,
+                  fontColor: '#495057',
+                  padding: 12
+                }
+              },
+              tooltips: {
+                mode: 'nearest',
+                intersect: false,
+                backgroundColor: 'rgba(33, 37, 41, .92)',
+                titleFontStyle: 'normal',
+                bodySpacing: 2,
+                callbacks: {
+                  label: function (item) {
+                    return ' ' + item.dataset.label + ': ' + item.yLabel;
+                  }
+                }
+              }
+            }
+          });
+        }
+      </script>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html>

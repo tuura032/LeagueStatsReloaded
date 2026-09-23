@@ -341,5 +341,43 @@ class TestLuckIndexAndStreak(unittest.TestCase):
             self.assertEqual(r["luckIndex"], 0)
 
 
+class TestRivalries(unittest.TestCase):
+    """build_rivalries: all-time head-to-head records, matched by owner."""
+
+    def setUp(self):
+        self.season1 = compute.build_standings(
+            make_raw(full_season_weeks(), season=2024), UPDATED)
+        # Same owners, same team ids, second season -- as if the same
+        # 12-team league played a second year (make_raw's team/owner
+        # mapping is deterministic by id, so this reuses it exactly).
+        self.season2 = compute.build_standings(
+            make_raw(full_season_weeks(), season=2025), UPDATED)
+
+    def test_record_accumulates_across_seasons(self):
+        owners, matrix = compute.build_rivalries([self.season1, self.season2])
+        # team 1 (First1 Last1) always loses to team 2 (First2 Last2) in
+        # full_season_weeks(), 14 times per season, 2 seasons = 28 meetings.
+        a, b = "First1 Last1", "First2 Last2"
+        self.assertIn(a, owners)
+        self.assertEqual(matrix[a][b], {"wins": 0, "losses": 28, "ties": 0})
+        self.assertEqual(matrix[b][a], {"wins": 28, "losses": 0, "ties": 0})
+
+    def test_teams_that_never_met_have_no_entry(self):
+        _, matrix = compute.build_rivalries([self.season1])
+        # team 1 only ever plays team 2 in full_season_weeks()'s fixed pairing.
+        self.assertNotIn("First3 Last3", matrix["First1 Last1"])
+
+    def test_single_season_matches_that_seasons_games(self):
+        owners, matrix = compute.build_rivalries([self.season1])
+        self.assertEqual(len(owners), 12)
+        a, b = "First1 Last1", "First2 Last2"
+        self.assertEqual(matrix[a][b]["losses"], 14)
+
+    def test_no_seasons_gives_empty_result(self):
+        owners, matrix = compute.build_rivalries([])
+        self.assertEqual(owners, [])
+        self.assertEqual(matrix, {})
+
+
 if __name__ == "__main__":
     unittest.main()

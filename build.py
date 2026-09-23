@@ -31,12 +31,15 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+import compute
+
 # (template, output file) — home is the site root: layout.html's navbar
 # links to index.html (de-Flasked in L3).
 PAGES = (
     ("home.html", "index.html"),
     ("playoffs.html", "playoffs.html"),
     ("graph.html", "graph.html"),
+    ("rivalries.html", "rivalries.html"),
 )
 
 
@@ -68,6 +71,13 @@ def main():
     root_season = all_seasons[0]
     current_season = datetime.now().year
 
+    # Rivalries are all-time, so they're computed once from every season on
+    # file (not just the season(s) being (re)built) and reused on every
+    # rendered page, regardless of --season.
+    all_standings = [json.loads((data_dir / f"standings-{s}.json").read_text(encoding="utf-8"))
+                      for s in all_seasons]
+    rivalry_owners, rivalry_matrix = compute.build_rivalries(all_standings)
+
     env = Environment(loader=FileSystemLoader("templates"),
                       autoescape=select_autoescape())
     docs = Path("docs")
@@ -87,6 +97,8 @@ def main():
             "seasons": all_seasons,
             "current_season": current_season,
             "base": "" if season == root_season else "../",
+            "rivalry_owners": rivalry_owners,
+            "rivalry_matrix": rivalry_matrix,
         }
         for template, out_name in PAGES:
             out = out_dir / out_name
