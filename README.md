@@ -115,6 +115,11 @@ compute.py   raw  → data/standings-<season>.json    the dual-point math
 build.py     standings + templates/ → docs/         static render, no server
 ```
 
+Head-to-head records on the Rivalries page count **the postseason as well as
+the regular season** — a record that calls itself all-time has to include
+playoff meetings. A dot marks pairings that have met in the playoffs; hover
+a cell for the split.
+
 `compute.py` and `build.py` never touch the network, so they re-run offline
 against a committed raw file. The JSON files are the source of truth — diff
 two commits to see exactly what moved.
