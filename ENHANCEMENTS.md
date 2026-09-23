@@ -19,7 +19,9 @@ Ideas to work through after the build (after L1–L8). Newest last. See `SPEC.md
   `raw-<season>.json` and `standings-<season>.json`.
 - **Related spec task:** L9 (Multi-season archive) — already in the spec as
   optional, and not to start before L1–L8 are done.
-- **Status:** tracked; deferred until L1–L8 are complete.
+- **Status:** done 2026-09-22 (L9). Seasons 2022–2025 fetched once and
+  rendered at /2025/, /2024/, /2023/, /2022/; newest season with data is
+  the site root.
 
 ### ENH-002 — Season picker (dropdown to select league year)
 
@@ -28,4 +30,5 @@ Ideas to work through after the build (after L1–L8). Newest last. See `SPEC.md
 - **Description:** A picklist / combobox / dropdown on the page to choose which
   league year to view. Depends on ENH-001 (multi-season data) existing first.
 - **Related spec task:** part of L9 ("a loop plus a season picker").
-- **Status:** tracked; deferred until ENH-001 / L9.
+- **Status:** done 2026-09-22 (L9). Dropdown of plain relative links at
+  the top of the sidebar on all three pages.
