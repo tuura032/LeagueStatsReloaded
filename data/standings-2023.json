@@ -1,7 +1,7 @@
 {
   "season": 2023,
   "league": "877873",
-  "updated": "2026-09-22T23:46:48Z",
+  "updated": "2026-09-23T00:35:29Z",
   "regularSeasonWeeks": 14,
   "throughWeek": 14,
   "weeks": [
@@ -1895,7 +1895,9 @@
       "pointsFor": 1676.2,
       "pointsAgainst": 1420.3,
       "averageScore": 119.7,
-      "avgLast3": 133.3
+      "avgLast3": 133.3,
+      "luckIndex": -3,
+      "streak": "L1"
     },
     {
       "rank": 2,
@@ -1909,7 +1911,9 @@
       "pointsFor": 1601.6,
       "pointsAgainst": 1479.0,
       "averageScore": 114.4,
-      "avgLast3": 124.7
+      "avgLast3": 124.7,
+      "luckIndex": 0,
+      "streak": "W4"
     },
     {
       "rank": 3,
@@ -1923,7 +1927,9 @@
       "pointsFor": 1542.7,
       "pointsAgainst": 1413.5,
       "averageScore": 110.2,
-      "avgLast3": 108.9
+      "avgLast3": 108.9,
+      "luckIndex": 0,
+      "streak": "L1"
     },
     {
       "rank": 4,
@@ -1937,7 +1943,9 @@
       "pointsFor": 1728.8,
       "pointsAgainst": 1542.9,
       "averageScore": 123.5,
-      "avgLast3": 133.0
+      "avgLast3": 133.0,
+      "luckIndex": -1,
+      "streak": "W3"
     },
     {
       "rank": 5,
@@ -1951,7 +1959,9 @@
       "pointsFor": 1551.6,
       "pointsAgainst": 1571.2,
       "averageScore": 110.8,
-      "avgLast3": 113.6
+      "avgLast3": 113.6,
+      "luckIndex": -1,
+      "streak": "L2"
     },
     {
       "rank": 6,
@@ -1965,7 +1975,9 @@
       "pointsFor": 1509.0,
       "pointsAgainst": 1488.2,
       "averageScore": 107.8,
-      "avgLast3": 111.4
+      "avgLast3": 111.4,
+      "luckIndex": -1,
+      "streak": "W1"
     },
     {
       "rank": 7,
@@ -1979,7 +1991,9 @@
       "pointsFor": 1590.7,
       "pointsAgainst": 1431.7,
       "averageScore": 113.6,
-      "avgLast3": 116.3
+      "avgLast3": 116.3,
+      "luckIndex": -2,
+      "streak": "W1"
     },
     {
       "rank": 8,
@@ -1993,7 +2007,9 @@
       "pointsFor": 1427.2,
       "pointsAgainst": 1414.2,
       "averageScore": 101.9,
-      "avgLast3": 87.5
+      "avgLast3": 87.5,
+      "luckIndex": 4,
+      "streak": "W1"
     },
     {
       "rank": 9,
@@ -2007,7 +2023,9 @@
       "pointsFor": 1302.5,
       "pointsAgainst": 1540.9,
       "averageScore": 93.0,
-      "avgLast3": 100.8
+      "avgLast3": 100.8,
+      "luckIndex": 0,
+      "streak": "W1"
     },
     {
       "rank": 10,
@@ -2021,7 +2039,9 @@
       "pointsFor": 1312.2,
       "pointsAgainst": 1507.5,
       "averageScore": 93.7,
-      "avgLast3": 98.6
+      "avgLast3": 98.6,
+      "luckIndex": 1,
+      "streak": "L3"
     },
     {
       "rank": 11,
@@ -2035,7 +2055,9 @@
       "pointsFor": 1364.3,
       "pointsAgainst": 1606.0,
       "averageScore": 97.5,
-      "avgLast3": 95.0
+      "avgLast3": 95.0,
+      "luckIndex": 1,
+      "streak": "L1"
     },
     {
       "rank": 12,
@@ -2049,7 +2071,9 @@
       "pointsFor": 1280.8,
       "pointsAgainst": 1472.2,
       "averageScore": 91.5,
-      "avgLast3": 85.9
+      "avgLast3": 85.9,
+      "luckIndex": 2,
+      "streak": "L1"
     }
   ]
 }

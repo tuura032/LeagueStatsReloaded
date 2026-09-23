@@ -26,6 +26,21 @@ from pathlib import Path
 LEAGUE_ID = "877873"
 
 
+def current_streak(h2h_seq):
+    """Current H2H streak from a chronological list of 1 (won) / 0 (lost or
+    tied) results, most recent last. "W3", "L2", or "-" if no games played.
+    """
+    if not h2h_seq:
+        return "-"
+    last = h2h_seq[-1]
+    n = 0
+    for r in reversed(h2h_seq):
+        if r != last:
+            break
+        n += 1
+    return f"{'W' if last else 'L'}{n}"
+
+
 def score_to_beat(scores):
     """The week's score to beat: the 6th-lowest of the 12 scores.
 
@@ -137,7 +152,7 @@ def build_standings(raw, updated):
 
     stats = {tid: {"h2hPoints": 0, "topHalfPoints": 0, "wins": 0, "losses": 0,
                    "ties": 0, "pointsFor": 0.0, "pointsAgainst": 0.0,
-                   "scores": []}
+                   "scores": [], "h2h_seq": []}
              for tid in team_info}
     for w in weeks_out:
         for g in w["games"]:
@@ -160,6 +175,7 @@ def build_standings(raw, updated):
             s["h2hPoints"] += t["h2h"]
             s["topHalfPoints"] += t["topHalf"]
             s["scores"].append(t["score"])
+            s["h2h_seq"].append(t["h2h"])
 
     standings = []
     for tid, s in stats.items():
@@ -179,6 +195,12 @@ def build_standings(raw, updated):
             "pointsAgainst": round(s["pointsAgainst"], 1),
             "averageScore": round(points_for / through_week, 1) if through_week else 0.0,
             "avgLast3": round(sum(last3) / len(last3), 1) if last3 else 0.0,
+            # Luck index: H2H points earned minus top-half points earned.
+            # Positive means winning matchups more often than raw scoring
+            # alone would justify (a favorable schedule); negative means
+            # scoring top-half more often than winning (a tough schedule).
+            "luckIndex": s["h2hPoints"] - s["topHalfPoints"],
+            "streak": current_streak(s["h2h_seq"]),
         })
     standings.sort(key=lambda r: (-r["points"], -r["pointsFor"]))
     ranked = [{"rank": i, **row} for i, row in enumerate(standings, 1)]

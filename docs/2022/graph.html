@@ -250,7 +250,49 @@
           </nav>
   
           <main role="main" class="ml-sm-auto col-lg-10 px-4">
-  
+
+            <!-- Mobile-only nav: below 768px dashboard.css hides the top
+                 navbar and the sidebar is d-none, so on a phone this is
+                 the only way to move between pages. Previously only
+                 home.html had this block, so playoffs.html and graph.html
+                 had NO navigation at all on mobile (mobile QoL fix,
+                 2026-09-22). Shared here in layout.html so every page
+                 gets it once, matching the desktop sidebar's active-page
+                 highlight and season picker via the same context vars. -->
+            <div class="d-md-none pt-3 pb-2 mb-3 border-bottom">
+              <div id="secretnav">
+                <select class="form-control form-control-sm mb-2" aria-label="Season"
+                        onchange="if (this.value) location.href = this.value">
+                  
+                  
+                  <option value="../">2026 (current)</option>
+                  
+                  
+                  
+                  <option value="../2025/">2025</option>
+                  
+                  
+                  
+                  <option value="../2024/">2024</option>
+                  
+                  
+                  
+                  <option value="../2023/">2023</option>
+                  
+                  
+                  
+                  <option selected disabled>2022</option>
+                  
+                  
+                </select>
+                <ul class="nav">
+                  <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                  <li class="nav-item"><a class="nav-link" href="playoffs.html">Playoffs and Prizes</a></li>
+                  <li class="nav-item"><a class="nav-link active" href="graph.html">Stats</a></li>
+                </ul>
+              </div>
+            </div>
+
             
     <div class="pt-3 pb-2 mb-3 border-bottom">
       <h1 class="h2 mb-0">All Points Scored Each Week</h1>

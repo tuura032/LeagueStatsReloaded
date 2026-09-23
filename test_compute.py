@@ -282,5 +282,64 @@ class TestStandingsShapeAndSort(unittest.TestCase):
         self.assertEqual(by_id[1]["record"], "0-1-1")
 
 
+class TestLuckIndexAndStreak(unittest.TestCase):
+    """Luck index (h2hPoints - topHalfPoints) and current H2H streak.
+
+    full_season_weeks() pairs teams (1,2) (3,4) ... (11,12) every week with
+    strictly increasing scores by team id, so the higher id in each pair
+    always wins H2H. Team 2 wins every week (h2h) while always scoring in
+    the bottom half (topHalf never earned) -- maximally lucky. Team 12 wins
+    every week AND always scores top-half -- deserved wins, no luck. Team 1
+    loses every week and is always bottom half -- unlucky in neither
+    direction, just bad.
+    """
+
+    def setUp(self):
+        self.out = compute.build_standings(make_raw(full_season_weeks()),
+                                           UPDATED)
+        self.by_id = {r["teamId"]: r for r in self.out["standings"]}
+
+    def test_lucky_team_wins_without_scoring(self):
+        team2 = self.by_id[2]
+        self.assertEqual(team2["h2hPoints"], 14)
+        self.assertEqual(team2["topHalfPoints"], 0)
+        self.assertEqual(team2["luckIndex"], 14)
+        self.assertEqual(team2["streak"], "W14")
+
+    def test_deserving_team_has_no_luck(self):
+        team12 = self.by_id[12]
+        self.assertEqual(team12["h2hPoints"], 14)
+        self.assertEqual(team12["topHalfPoints"], 14)
+        self.assertEqual(team12["luckIndex"], 0)
+        self.assertEqual(team12["streak"], "W14")
+
+    def test_losing_team_streak_and_zero_luck(self):
+        team1 = self.by_id[1]
+        self.assertEqual(team1["h2hPoints"], 0)
+        self.assertEqual(team1["topHalfPoints"], 0)
+        self.assertEqual(team1["luckIndex"], 0)
+        self.assertEqual(team1["streak"], "L14")
+
+    def test_streak_breaks_on_result_change(self):
+        weeks = {
+            1: week_games([150, 100, 140, 110, 130, 120,
+                           125, 105, 115, 135, 108, 118], week=1),
+            2: week_games([90, 120, 100, 130, 125, 105,
+                           140, 95, 135, 100, 150, 91], week=2),
+        }
+        # team 1: week 1 win (150 > 100), week 2 loss (90 < 120)
+        out = compute.build_standings(make_raw(weeks, week_count=2), UPDATED)
+        by_id = {r["teamId"]: r for r in out["standings"]}
+        self.assertEqual(by_id[1]["streak"], "L1")
+
+    def test_no_games_played_streak_is_dash(self):
+        weeks = {w: [(2 * i + 1, 2 * i + 2, 0.0, 0.0, False) for i in range(6)]
+                 for w in range(1, 15)}
+        out = compute.build_standings(make_raw(weeks), UPDATED)
+        for r in out["standings"]:
+            self.assertEqual(r["streak"], "-")
+            self.assertEqual(r["luckIndex"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

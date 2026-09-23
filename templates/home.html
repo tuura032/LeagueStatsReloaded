@@ -67,25 +67,43 @@
       .rank-badge-1 { background: #fde047; color: #713f12; } /* gold */
       .rank-badge-2 { background: #d1d5db; color: #1f2937; } /* silver */
       .rank-badge-3 { background: #fdba74; color: #7c2d12; } /* bronze */
+
+      /* Streak + Luck Index (derived from data already computed for the
+         dual-point system: luckIndex = h2hPoints - topHalfPoints — how
+         many more/fewer weeks a team won its matchup than its raw
+         scoring alone would justify). */
+      .streak-badge {
+        display: inline-block;
+        min-width: 2.4rem;
+        padding: .15rem .4rem;
+        border-radius: .25rem;
+        font-size: .78rem;
+        font-weight: 600;
+        text-align: center;
+      }
+      .streak-w { background: #dcfce7; color: #166534; }
+      .streak-l { background: #fee2e2; color: #991b1b; }
+      .streak-none { background: #f1f3f5; color: #868e96; }
+      .luck-value { font-weight: 600; }
+      .luck-positive { color: #166534; }
+      .luck-negative { color: #991b1b; }
+      .luck-zero { color: #868e96; }
+
+      /* Mobile QoL: the standings table has 10 columns, unreadable as a
+         sideways scroll on a phone. Below 576px, drop the columns that
+         are informative but not essential to a quick glance -- Avg Last
+         3 and Top Six Finishes stay implicit in Luck/Streak/Total Points
+         -- so the table fits (or nearly fits) without scrolling. Full
+         table remains one tap away via horizontal scroll if wanted. */
+      @media (max-width: 575.98px) {
+        #standings-table .col-avg,
+        #standings-table .col-avglast3,
+        #standings-table .col-h2h,
+        #standings-table .col-tophalf {
+          display: none;
+        }
+      }
     </style>
-
-    <div class="d-md-none justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <!-- Mobile-only nav: below 768px dashboard.css hides the top navbar
-           and the sidebar is d-none, so this is the only navigation on
-           phones. d-md-none on desktop — the wrapper used to render as
-           an empty bordered bar there. The v1 route links (/ ,
-           /playoffs, /stats) were dead on the static site; they now
-           point at the rendered pages. -->
-      <div id="secretnav">
-        <p class="text-muted small mb-1">Navigation</p>
-        <ul class="nav">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="playoffs.html">Playoffs and Prizes</a></li>
-          <li class="nav-item"><a class="nav-link" href="graph.html">Stats</a></li>
-        </ul>
-      </div>
-    </div>
-
 
             {% if season == current_season %}
             <h3>Current Rankings Through Week {{ throughWeek }}</h3>
@@ -100,10 +118,12 @@
                     <th>Owner</th>
                     <th class="sortable">Total Wins</th>
                     <th class="sortable">Total Points</th>
-                    <th class="sortable">Average Score</th>
-                    <th>Avg Last 3</th>
-                    <th class="sortable">H2H Wins</th>
-                    <th class="sortable">Top Six Finishes</th>
+                    <th class="sortable col-avg">Average Score</th>
+                    <th class="col-avglast3">Avg Last 3</th>
+                    <th class="sortable col-h2h">H2H Wins</th>
+                    <th class="sortable col-tophalf">Top Six Finishes</th>
+                    <th>Streak</th>
+                    <th class="sortable">Luck</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -113,10 +133,18 @@
                       <td>{{ info.owner }}</td>
                       <td>{{ info.points }}</td>
                       <td>{{ info.pointsFor }}</td>
-                      <td>{{ info.averageScore }}</td>
-                      <td>{{ info.avgLast3 | round | int }}</td>
-                      <td>{{ info.h2hPoints }}</td>
-                      <td>{{ info.topHalfPoints }}</td>
+                      <td class="col-avg">{{ info.averageScore }}</td>
+                      <td class="col-avglast3">{{ info.avgLast3 | round | int }}</td>
+                      <td class="col-h2h">{{ info.h2hPoints }}</td>
+                      <td class="col-tophalf">{{ info.topHalfPoints }}</td>
+                      <td>
+                        {% if info.streak == '-' %}
+                          <span class="streak-badge streak-none">&mdash;</span>
+                        {% else %}
+                          <span class="streak-badge {{ 'streak-w' if info.streak.startswith('W') else 'streak-l' }}">{{ info.streak }}</span>
+                        {% endif %}
+                      </td>
+                      <td class="luck-value {{ 'luck-positive' if info.luckIndex > 0 else ('luck-negative' if info.luckIndex < 0 else 'luck-zero') }}">{{ '{:+d}'.format(info.luckIndex) if info.luckIndex != 0 else '0' }}</td>
                     </tr>
                   {% endfor %}
                 </tbody>

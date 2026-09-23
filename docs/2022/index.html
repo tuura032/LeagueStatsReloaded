@@ -250,7 +250,49 @@
           </nav>
   
           <main role="main" class="ml-sm-auto col-lg-10 px-4">
-  
+
+            <!-- Mobile-only nav: below 768px dashboard.css hides the top
+                 navbar and the sidebar is d-none, so on a phone this is
+                 the only way to move between pages. Previously only
+                 home.html had this block, so playoffs.html and graph.html
+                 had NO navigation at all on mobile (mobile QoL fix,
+                 2026-09-22). Shared here in layout.html so every page
+                 gets it once, matching the desktop sidebar's active-page
+                 highlight and season picker via the same context vars. -->
+            <div class="d-md-none pt-3 pb-2 mb-3 border-bottom">
+              <div id="secretnav">
+                <select class="form-control form-control-sm mb-2" aria-label="Season"
+                        onchange="if (this.value) location.href = this.value">
+                  
+                  
+                  <option value="../">2026 (current)</option>
+                  
+                  
+                  
+                  <option value="../2025/">2025</option>
+                  
+                  
+                  
+                  <option value="../2024/">2024</option>
+                  
+                  
+                  
+                  <option value="../2023/">2023</option>
+                  
+                  
+                  
+                  <option selected disabled>2022</option>
+                  
+                  
+                </select>
+                <ul class="nav">
+                  <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+                  <li class="nav-item"><a class="nav-link" href="playoffs.html">Playoffs and Prizes</a></li>
+                  <li class="nav-item"><a class="nav-link" href="graph.html">Stats</a></li>
+                </ul>
+              </div>
+            </div>
+
             
 
     <style>
@@ -314,25 +356,43 @@
       .rank-badge-1 { background: #fde047; color: #713f12; } /* gold */
       .rank-badge-2 { background: #d1d5db; color: #1f2937; } /* silver */
       .rank-badge-3 { background: #fdba74; color: #7c2d12; } /* bronze */
+
+      /* Streak + Luck Index (derived from data already computed for the
+         dual-point system: luckIndex = h2hPoints - topHalfPoints — how
+         many more/fewer weeks a team won its matchup than its raw
+         scoring alone would justify). */
+      .streak-badge {
+        display: inline-block;
+        min-width: 2.4rem;
+        padding: .15rem .4rem;
+        border-radius: .25rem;
+        font-size: .78rem;
+        font-weight: 600;
+        text-align: center;
+      }
+      .streak-w { background: #dcfce7; color: #166534; }
+      .streak-l { background: #fee2e2; color: #991b1b; }
+      .streak-none { background: #f1f3f5; color: #868e96; }
+      .luck-value { font-weight: 600; }
+      .luck-positive { color: #166534; }
+      .luck-negative { color: #991b1b; }
+      .luck-zero { color: #868e96; }
+
+      /* Mobile QoL: the standings table has 10 columns, unreadable as a
+         sideways scroll on a phone. Below 576px, drop the columns that
+         are informative but not essential to a quick glance -- Avg Last
+         3 and Top Six Finishes stay implicit in Luck/Streak/Total Points
+         -- so the table fits (or nearly fits) without scrolling. Full
+         table remains one tap away via horizontal scroll if wanted. */
+      @media (max-width: 575.98px) {
+        #standings-table .col-avg,
+        #standings-table .col-avglast3,
+        #standings-table .col-h2h,
+        #standings-table .col-tophalf {
+          display: none;
+        }
+      }
     </style>
-
-    <div class="d-md-none justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <!-- Mobile-only nav: below 768px dashboard.css hides the top navbar
-           and the sidebar is d-none, so this is the only navigation on
-           phones. d-md-none on desktop — the wrapper used to render as
-           an empty bordered bar there. The v1 route links (/ ,
-           /playoffs, /stats) were dead on the static site; they now
-           point at the rendered pages. -->
-      <div id="secretnav">
-        <p class="text-muted small mb-1">Navigation</p>
-        <ul class="nav">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="playoffs.html">Playoffs and Prizes</a></li>
-          <li class="nav-item"><a class="nav-link" href="graph.html">Stats</a></li>
-        </ul>
-      </div>
-    </div>
-
 
             
             <h3>2022 Standings Through Week 14</h3>
@@ -345,10 +405,12 @@
                     <th>Owner</th>
                     <th class="sortable">Total Wins</th>
                     <th class="sortable">Total Points</th>
-                    <th class="sortable">Average Score</th>
-                    <th>Avg Last 3</th>
-                    <th class="sortable">H2H Wins</th>
-                    <th class="sortable">Top Six Finishes</th>
+                    <th class="sortable col-avg">Average Score</th>
+                    <th class="col-avglast3">Avg Last 3</th>
+                    <th class="sortable col-h2h">H2H Wins</th>
+                    <th class="sortable col-tophalf">Top Six Finishes</th>
+                    <th>Streak</th>
+                    <th class="sortable">Luck</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -358,10 +420,16 @@
                       <td>Eric Monson</td>
                       <td>23</td>
                       <td>1674.6</td>
-                      <td>119.6</td>
-                      <td>127</td>
-                      <td>12</td>
-                      <td>11</td>
+                      <td class="col-avg">119.6</td>
+                      <td class="col-avglast3">127</td>
+                      <td class="col-h2h">12</td>
+                      <td class="col-tophalf">11</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-w">W3</span>
+                        
+                      </td>
+                      <td class="luck-value luck-positive">+1</td>
                     </tr>
                   
                     <tr>
@@ -369,10 +437,16 @@
                       <td>Ethan Hildebrandt</td>
                       <td>20</td>
                       <td>1690.4</td>
-                      <td>120.7</td>
-                      <td>131</td>
-                      <td>9</td>
-                      <td>11</td>
+                      <td class="col-avg">120.7</td>
+                      <td class="col-avglast3">131</td>
+                      <td class="col-h2h">9</td>
+                      <td class="col-tophalf">11</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-w">W2</span>
+                        
+                      </td>
+                      <td class="luck-value luck-negative">-2</td>
                     </tr>
                   
                     <tr>
@@ -380,10 +454,16 @@
                       <td>Davíd Huisken</td>
                       <td>16</td>
                       <td>1588.8</td>
-                      <td>113.5</td>
-                      <td>124</td>
-                      <td>6</td>
-                      <td>10</td>
+                      <td class="col-avg">113.5</td>
+                      <td class="col-avglast3">124</td>
+                      <td class="col-h2h">6</td>
+                      <td class="col-tophalf">10</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-l">L1</span>
+                        
+                      </td>
+                      <td class="luck-value luck-negative">-4</td>
                     </tr>
                   
                     <tr>
@@ -391,10 +471,16 @@
                       <td>Daniel Sharp</td>
                       <td>14</td>
                       <td>1502.6</td>
-                      <td>107.3</td>
-                      <td>88</td>
-                      <td>6</td>
-                      <td>8</td>
+                      <td class="col-avg">107.3</td>
+                      <td class="col-avglast3">88</td>
+                      <td class="col-h2h">6</td>
+                      <td class="col-tophalf">8</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-l">L2</span>
+                        
+                      </td>
+                      <td class="luck-value luck-negative">-2</td>
                     </tr>
                   
                     <tr>
@@ -402,10 +488,16 @@
                       <td>Nicholas Polansky</td>
                       <td>14</td>
                       <td>1486.8</td>
-                      <td>106.2</td>
-                      <td>106</td>
-                      <td>7</td>
-                      <td>7</td>
+                      <td class="col-avg">106.2</td>
+                      <td class="col-avglast3">106</td>
+                      <td class="col-h2h">7</td>
+                      <td class="col-tophalf">7</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-w">W1</span>
+                        
+                      </td>
+                      <td class="luck-value luck-zero">0</td>
                     </tr>
                   
                     <tr>
@@ -413,10 +505,16 @@
                       <td>Casey Pirsig</td>
                       <td>14</td>
                       <td>1466.6</td>
-                      <td>104.8</td>
-                      <td>110</td>
-                      <td>7</td>
-                      <td>7</td>
+                      <td class="col-avg">104.8</td>
+                      <td class="col-avglast3">110</td>
+                      <td class="col-h2h">7</td>
+                      <td class="col-tophalf">7</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-w">W2</span>
+                        
+                      </td>
+                      <td class="luck-value luck-zero">0</td>
                     </tr>
                   
                     <tr>
@@ -424,10 +522,16 @@
                       <td>Daniel Senger</td>
                       <td>14</td>
                       <td>1459.5</td>
-                      <td>104.2</td>
-                      <td>104</td>
-                      <td>7</td>
-                      <td>7</td>
+                      <td class="col-avg">104.2</td>
+                      <td class="col-avglast3">104</td>
+                      <td class="col-h2h">7</td>
+                      <td class="col-tophalf">7</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-w">W1</span>
+                        
+                      </td>
+                      <td class="luck-value luck-zero">0</td>
                     </tr>
                   
                     <tr>
@@ -435,10 +539,16 @@
                       <td>Pat Benner</td>
                       <td>14</td>
                       <td>1458.2</td>
-                      <td>104.2</td>
-                      <td>92</td>
-                      <td>7</td>
-                      <td>7</td>
+                      <td class="col-avg">104.2</td>
+                      <td class="col-avglast3">92</td>
+                      <td class="col-h2h">7</td>
+                      <td class="col-tophalf">7</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-l">L2</span>
+                        
+                      </td>
+                      <td class="luck-value luck-zero">0</td>
                     </tr>
                   
                     <tr>
@@ -446,10 +556,16 @@
                       <td>Sam Engsberg</td>
                       <td>11</td>
                       <td>1443.7</td>
-                      <td>103.1</td>
-                      <td>99</td>
-                      <td>5</td>
-                      <td>6</td>
+                      <td class="col-avg">103.1</td>
+                      <td class="col-avglast3">99</td>
+                      <td class="col-h2h">5</td>
+                      <td class="col-tophalf">6</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-l">L1</span>
+                        
+                      </td>
+                      <td class="luck-value luck-negative">-1</td>
                     </tr>
                   
                     <tr>
@@ -457,10 +573,16 @@
                       <td>Paul Tuura</td>
                       <td>9</td>
                       <td>1295.9</td>
-                      <td>92.6</td>
-                      <td>85</td>
-                      <td>6</td>
-                      <td>3</td>
+                      <td class="col-avg">92.6</td>
+                      <td class="col-avglast3">85</td>
+                      <td class="col-h2h">6</td>
+                      <td class="col-tophalf">3</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-l">L1</span>
+                        
+                      </td>
+                      <td class="luck-value luck-positive">+3</td>
                     </tr>
                   
                     <tr>
@@ -468,10 +590,16 @@
                       <td>Jamie Sugar</td>
                       <td>9</td>
                       <td>1282.9</td>
-                      <td>91.6</td>
-                      <td>84</td>
-                      <td>7</td>
-                      <td>2</td>
+                      <td class="col-avg">91.6</td>
+                      <td class="col-avglast3">84</td>
+                      <td class="col-h2h">7</td>
+                      <td class="col-tophalf">2</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-l">L2</span>
+                        
+                      </td>
+                      <td class="luck-value luck-positive">+5</td>
                     </tr>
                   
                     <tr>
@@ -479,10 +607,16 @@
                       <td>Nick Kubit</td>
                       <td>8</td>
                       <td>1299.6</td>
-                      <td>92.8</td>
-                      <td>93</td>
-                      <td>5</td>
-                      <td>3</td>
+                      <td class="col-avg">92.8</td>
+                      <td class="col-avglast3">93</td>
+                      <td class="col-h2h">5</td>
+                      <td class="col-tophalf">3</td>
+                      <td>
+                        
+                          <span class="streak-badge streak-w">W1</span>
+                        
+                      </td>
+                      <td class="luck-value luck-positive">+2</td>
                     </tr>
                   
                 </tbody>

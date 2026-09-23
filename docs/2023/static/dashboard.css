@@ -140,13 +140,21 @@ main h3 {
 }
 
 /* Mobile: below 768px the fixed navbar is hidden and the sidebar is
-   d-none, so home.html's #secretnav is the only navigation on phones.
-   (The old "#sercretnav" rule was a typo that matched nothing.) */
+   d-none, so layout.html's #secretnav (shared across every page) is the
+   only navigation on phones. (The old "#sercretnav" rule was a typo that
+   matched nothing.) */
 @media only screen and (max-width: 768px) {
   #navbar {
     visibility: hidden;
   }
 }
 
-/* Desktop: the #secretnav wrapper in home.html is d-md-none, so the
-   block (and the empty bordered bar it used to leave) is gone there. */
+/* Desktop: the #secretnav wrapper in layout.html is inside a d-md-none
+   div, so it (and the empty bordered bar it used to leave) is gone there. */
+
+/* #secretnav sits outside .sidebar, so it needs its own active-link
+   color to match the desktop sidebar's .sidebar .nav-link.active rule. */
+#secretnav .nav-link.active {
+  color: #007bff;
+  font-weight: 700;
+}

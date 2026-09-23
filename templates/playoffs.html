@@ -5,6 +5,18 @@
 {% endblock %}
 
 {% block main %}
+<style>
+  /* Mobile QoL: 9 columns forces a lot of sideways scrolling on a phone.
+     Below 576px, hide the trend column and the two older week columns --
+     the current week and the clinch/games-back numbers are what matters
+     for a quick glance; the rest is still there via horizontal scroll. */
+  @media (max-width: 575.98px) {
+    #playoff-table .col-trend,
+    #playoff-table .col-week-old {
+      display: none;
+    }
+  }
+</style>
 {% macro weekScore(weeks, teamId, week) -%}
 {%- if weeks and week > 0 -%}
 {%- set w = weeks | selectattr('week', 'equalto', week) | first -%}
@@ -16,7 +28,7 @@
 {%- endmacro %}
 <h2>Playoffs</h2> 
 <div class="table-responsive">
-  <table class="table table-striped table-sm">
+  <table class="table table-striped table-sm" id="playoff-table">
     <thead>
       <tr>
         <th>Seed</th>
@@ -24,24 +36,24 @@
         <th>Total Wins</th>
         <th>Wins to Clinch / {{ ((regularSeasonWeeks - throughWeek)*2) }}</th>
         <th>Games Back</th>
-        <th>Heating Up! Last 3 Trend*</th>
-        <th>Week {{ throughWeek - 2 }}</th>
-        <th>Week {{ throughWeek - 1 }}</th>
+        <th class="col-trend">Heating Up! Last 3 Trend*</th>
+        <th class="col-week-old">Week {{ throughWeek - 2 }}</th>
+        <th class="col-week-old">Week {{ throughWeek - 1 }}</th>
         <th>Week {{ throughWeek }}</th>
 
       </tr>
     </thead>
     <tbody>
       {% for info in standings %}
-        <tr> 
+        <tr>
           <td>{{ loop.index }}</td>
           <td>{{ info.owner }}</td>
           <td>{{ info.points }}</td>
-          <td>{{ (((regularSeasonWeeks - throughWeek) *2) + standings[6].points - info.points) | round }}</td>
-          <td>{{ info.points - standings[0].points }}</td>
-          <td>{{ (info.avgLast3 - info.averageScore) | round }}</td>
-          <td>{{ weekScore(weeks, info.teamId, throughWeek - 2) | int }}</td>
-          <td>{{ weekScore(weeks, info.teamId, throughWeek - 1) | int }}</td>
+          <td>{{ (((regularSeasonWeeks - throughWeek) *2) + standings[(standings | length) // 2].points - info.points) | round }}</td>
+          <td>{{ standings[0].points - info.points }}</td>
+          <td class="col-trend">{{ (info.avgLast3 - info.averageScore) | round }}</td>
+          <td class="col-week-old">{{ weekScore(weeks, info.teamId, throughWeek - 2) | int }}</td>
+          <td class="col-week-old">{{ weekScore(weeks, info.teamId, throughWeek - 1) | int }}</td>
           <td>{{ weekScore(weeks, info.teamId, throughWeek) | int }}</td>
         </tr>
       {% endfor %}

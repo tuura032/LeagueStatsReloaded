@@ -250,12 +250,66 @@
           </nav>
   
           <main role="main" class="ml-sm-auto col-lg-10 px-4">
-  
+
+            <!-- Mobile-only nav: below 768px dashboard.css hides the top
+                 navbar and the sidebar is d-none, so on a phone this is
+                 the only way to move between pages. Previously only
+                 home.html had this block, so playoffs.html and graph.html
+                 had NO navigation at all on mobile (mobile QoL fix,
+                 2026-09-22). Shared here in layout.html so every page
+                 gets it once, matching the desktop sidebar's active-page
+                 highlight and season picker via the same context vars. -->
+            <div class="d-md-none pt-3 pb-2 mb-3 border-bottom">
+              <div id="secretnav">
+                <select class="form-control form-control-sm mb-2" aria-label="Season"
+                        onchange="if (this.value) location.href = this.value">
+                  
+                  
+                  <option selected disabled>2026 (current)</option>
+                  
+                  
+                  
+                  <option value="2025/">2025</option>
+                  
+                  
+                  
+                  <option value="2024/">2024</option>
+                  
+                  
+                  
+                  <option value="2023/">2023</option>
+                  
+                  
+                  
+                  <option value="2022/">2022</option>
+                  
+                  
+                </select>
+                <ul class="nav">
+                  <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                  <li class="nav-item"><a class="nav-link active" href="playoffs.html">Playoffs and Prizes</a></li>
+                  <li class="nav-item"><a class="nav-link" href="graph.html">Stats</a></li>
+                </ul>
+              </div>
+            </div>
+
             
+<style>
+  /* Mobile QoL: 9 columns forces a lot of sideways scrolling on a phone.
+     Below 576px, hide the trend column and the two older week columns --
+     the current week and the clinch/games-back numbers are what matters
+     for a quick glance; the rest is still there via horizontal scroll. */
+  @media (max-width: 575.98px) {
+    #playoff-table .col-trend,
+    #playoff-table .col-week-old {
+      display: none;
+    }
+  }
+</style>
 
 <h2>Playoffs</h2> 
 <div class="table-responsive">
-  <table class="table table-striped table-sm">
+  <table class="table table-striped table-sm" id="playoff-table">
     <thead>
       <tr>
         <th>Seed</th>
@@ -263,156 +317,156 @@
         <th>Total Wins</th>
         <th>Wins to Clinch / 24</th>
         <th>Games Back</th>
-        <th>Heating Up! Last 3 Trend*</th>
-        <th>Week 0</th>
-        <th>Week 1</th>
+        <th class="col-trend">Heating Up! Last 3 Trend*</th>
+        <th class="col-week-old">Week 0</th>
+        <th class="col-week-old">Week 1</th>
         <th>Week 2</th>
 
       </tr>
     </thead>
     <tbody>
       
-        <tr> 
+        <tr>
           <td>1</td>
           <td>Jamie Sugar</td>
           <td>4</td>
           <td>22</td>
           <td>0</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>154</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">154</td>
           <td>137</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>2</td>
           <td>Daniel Sharp</td>
           <td>4</td>
           <td>22</td>
           <td>0</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>120</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">120</td>
           <td>92</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>3</td>
           <td>Pat Benner</td>
           <td>3</td>
           <td>23</td>
-          <td>-1</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>149</td>
+          <td>1</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">149</td>
           <td>114</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>4</td>
           <td>Daniel Senger</td>
           <td>3</td>
           <td>23</td>
-          <td>-1</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>123</td>
+          <td>1</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">123</td>
           <td>130</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>5</td>
           <td>Paul Tuura</td>
           <td>2</td>
           <td>24</td>
-          <td>-2</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>91</td>
+          <td>2</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">91</td>
           <td>176</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>6</td>
           <td>Nick Kubit</td>
           <td>2</td>
           <td>24</td>
-          <td>-2</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>122</td>
+          <td>2</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">122</td>
           <td>91</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>7</td>
           <td>Casey Pirsig</td>
           <td>2</td>
           <td>24</td>
-          <td>-2</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>93</td>
+          <td>2</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">93</td>
           <td>115</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>8</td>
           <td>Davíd Huisken</td>
           <td>2</td>
           <td>24</td>
-          <td>-2</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>107</td>
+          <td>2</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">107</td>
           <td>82</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>9</td>
           <td>Ethan Hildebrandt</td>
           <td>1</td>
           <td>25</td>
-          <td>-3</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>95</td>
+          <td>3</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">95</td>
           <td>91</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>10</td>
           <td>Sam Engsberg</td>
           <td>1</td>
           <td>25</td>
-          <td>-3</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>104</td>
+          <td>3</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">104</td>
           <td>78</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>11</td>
           <td>Nicholas Polansky</td>
           <td>0</td>
           <td>26</td>
-          <td>-4</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>95</td>
+          <td>4</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">95</td>
           <td>78</td>
         </tr>
       
-        <tr> 
+        <tr>
           <td>12</td>
           <td>Eric Monson</td>
           <td>0</td>
           <td>26</td>
-          <td>-4</td>
-          <td>0.0</td>
-          <td>0</td>
-          <td>101</td>
+          <td>4</td>
+          <td class="col-trend">0.0</td>
+          <td class="col-week-old">0</td>
+          <td class="col-week-old">101</td>
           <td>67</td>
         </tr>
       
