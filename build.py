@@ -112,9 +112,15 @@ def main():
                            encoding="utf-8")
             print(f"Wrote {out}")
         # The templates reference static/ relatively, so every output
-        # directory needs its own copy.
-        shutil.copytree("static", out_dir / "static", dirs_exist_ok=True)
-        print(f"Copied static/ to {out_dir / 'static'}")
+        # directory needs its own copy. rmtree first: dirs_exist_ok=True
+        # merges instead of mirroring, so a file removed from static/
+        # (e.g. dashboard.css, retired for the Tailwind rewrite) would
+        # otherwise linger as a stale orphan in docs/ forever.
+        static_out = out_dir / "static"
+        if static_out.exists():
+            shutil.rmtree(static_out)
+        shutil.copytree("static", static_out)
+        print(f"Copied static/ to {static_out}")
 
 
 if __name__ == "__main__":

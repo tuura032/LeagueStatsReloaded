@@ -1,810 +1,785 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" href="static/dashboard.css">
+    <!-- Dark mode, no-flash: resolve the theme (stored override, else
+         system preference) and set it explicitly on <html> before first
+         paint. Tailwind's dark: variant here (src/tailwind.css) targets
+         [data-theme="dark"] directly rather than a prefers-color-scheme
+         media query, so this is the one place theme resolution happens —
+         CSS never has to guess. -->
     <script>
-      // Dark mode, no-flash: if the visitor has an explicit override saved
-      // (from the navbar toggle), apply it before first paint. With no
-      // override, dashboard.css's prefers-color-scheme media query handles
-      // it — nothing to do here.
       (function () {
+        var theme = 'light';
         try {
           var stored = localStorage.getItem('theme');
-          if (stored === 'dark' || stored === 'light') {
-            document.documentElement.setAttribute('data-theme', stored);
-          }
+          theme = (stored === 'dark' || stored === 'light') ? stored
+            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>
-    <style>
-      /* L5 — data-driven sidebar roster + chart page. Scoped to the new
-         components; static/dashboard.css is untouched. */
-      .sidebar-owner {
-        display: flex;
-        gap: .5rem;
-        padding: .3rem .75rem .3rem 1rem;
-        border-radius: .25rem;
-      }
-      .sidebar-owner:hover {
-        background-color: var(--table-hover);
-      }
-      .sidebar-owner-rank {
-        flex: 0 0 1.1rem;
-        padding-top: .15rem;
-        font-size: .7rem;
-        font-weight: 600;
-        color: var(--text-faint);
-        text-align: right;
-      }
-      .sidebar-owner-meta {
-        min-width: 0;
-      }
-      .sidebar-owner-name {
-        display: block;
-        font-size: .8rem;
-        font-weight: 500;
-        color: var(--link);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .sidebar-owner-team {
-        display: block;
-        font-size: .7rem;
-        color: var(--text-muted);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .chart-wrap {
-        position: relative;
-        height: 420px;
-        width: 100%;
-      }
-      @media (max-width: 768px) {
-        .chart-wrap {
-          height: 320px;
-        }
-      }
-      .stat-label {
-        font-size: .7rem;
-        font-weight: 600;
-        letter-spacing: .04em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-      }
-      .stat-value {
-        font-size: 1.35rem;
-        font-weight: 600;
-        color: var(--text);
-      }
-      .stat-sub {
-        font-size: .75rem;
-        color: var(--text-muted);
-      }
-    </style>
 
+    <link rel="stylesheet" href="static/css/app.css">
     <link rel="shortcut icon" type="image/png" href="static/fffIcon.png"/>
 
     <title>
     Fantasy Football Fantasy
 </title>
   </head>
-  <body>
-    <nav id="navbar" class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="index.html">Fantasy Football Fantasy</a>
-      <button class="theme-toggle-btn btn btn-sm btn-outline-light" type="button"
-              aria-label="Toggle dark mode" title="Toggle dark mode">
-        <span data-feather="moon" class="theme-toggle-icon"></span>
+  <body class="h-full bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+
+    <!-- Header: fixed, full-width, always visible at every breakpoint —
+         the old Bootstrap build hid this entirely below 768px and only
+         home.html had a fallback nav, so playoffs/graph had NO navigation
+         on phones until that was patched. Keeping one header visible
+         everywhere removes that whole class of bug instead of patching
+         around it again. -->
+    <header class="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between bg-slate-900 px-4 shadow-sm dark:bg-black">
+      <a href="index.html" class="text-sm font-semibold tracking-tight text-white sm:text-base">
+        Fantasy Football Fantasy
+      </a>
+      <button class="theme-toggle-btn inline-flex h-8 w-8 items-center justify-center rounded-md border border-white/25 text-white transition hover:border-white/60"
+              type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span data-feather="moon" class="theme-toggle-icon h-4 w-4"></span>
       </button>
-    </nav>
-  
-      <div class="container-fluid">
-        <div class="row">
-          <nav class="col-md-2 d-none d-md-block sidebar">
-            <div class="sidebar-sticky">
-              <ul class="nav flex-column">
-                <li class="nav-item">
-                  <!-- L9 — season picker. Plain links, relative to this
-                       page: "base" is "" at the root and "../" in a season
-                       subdirectory; the newest season's URL is the root. -->
-                  <select class="form-control form-control-sm mb-2" aria-label="Season"
-                          onchange="if (this.value) location.href = this.value">
-                    
-                    
-                    <option selected disabled>2026 (current)</option>
-                    
-                    
-                    
-                    <option value="2025/">2025</option>
-                    
-                    
-                    
-                    <option value="2024/">2024</option>
-                    
-                    
-                    
-                    <option value="2023/">2023</option>
-                    
-                    
-                    
-                    <option value="2022/">2022</option>
-                    
-                    
-                  </select>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="index.html">
-                    <span data-feather="home"></span>
-                    Home
-                  </a>
-                </li>
-                <li class="nav-item" >
-                  <a class="nav-link dropdown-toggle" href="#ownerSubmenu" data-toggle="collapse" aria-expanded="false">
-                    <span data-feather="users"></span>
-                    Owners
-                  </a>
-                  <ul class="collapse list-unstyled sidebar-owners" id="ownerSubmenu">
-                    
-                    <li class="sidebar-owner" title="Jamie Sugar — Team Sugar">
-                      <span class="sidebar-owner-rank">1</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Jamie Sugar</span>
-                        <span class="sidebar-owner-team">Team Sugar</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Daniel Sharp — Wyld Stallyns">
-                      <span class="sidebar-owner-rank">2</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Daniel Sharp</span>
-                        <span class="sidebar-owner-team">Wyld Stallyns</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Pat Benner — De&#39;Von to Break Free">
-                      <span class="sidebar-owner-rank">3</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Pat Benner</span>
-                        <span class="sidebar-owner-team">De&#39;Von to Break Free</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Daniel Senger — Daniel&#39;s Driven Team">
-                      <span class="sidebar-owner-rank">4</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Daniel Senger</span>
-                        <span class="sidebar-owner-team">Daniel&#39;s Driven Team</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Paul Tuura — Walker, Kenneth Ranger">
-                      <span class="sidebar-owner-rank">5</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Paul Tuura</span>
-                        <span class="sidebar-owner-team">Walker, Kenneth Ranger</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Nick Kubit — Saquon Deez Nuts">
-                      <span class="sidebar-owner-rank">6</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Nick Kubit</span>
-                        <span class="sidebar-owner-team">Saquon Deez Nuts</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Casey Pirsig — Taylor Sailors">
-                      <span class="sidebar-owner-rank">7</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Casey Pirsig</span>
-                        <span class="sidebar-owner-team">Taylor Sailors</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Davíd Huisken — Praise JA">
-                      <span class="sidebar-owner-rank">8</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Davíd Huisken</span>
-                        <span class="sidebar-owner-team">Praise JA</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Ethan Hildebrandt — Team Hildebrandt">
-                      <span class="sidebar-owner-rank">9</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Ethan Hildebrandt</span>
-                        <span class="sidebar-owner-team">Team Hildebrandt</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Sam Engsberg — Chat, Draft My Team">
-                      <span class="sidebar-owner-rank">10</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Sam Engsberg</span>
-                        <span class="sidebar-owner-team">Chat, Draft My Team</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Nicholas Polansky — Ultimate Fulfillment">
-                      <span class="sidebar-owner-rank">11</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Nicholas Polansky</span>
-                        <span class="sidebar-owner-team">Ultimate Fulfillment</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Eric Monson — C0KER COLA">
-                      <span class="sidebar-owner-rank">12</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Eric Monson</span>
-                        <span class="sidebar-owner-team">C0KER COLA</span>
-                      </span>
-                    </li>
-                    
-                  </ul>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link active" href="playoffs.html">
-                    <span data-feather="bar-chart-2"></span>
-                    Playoffs and Prizes <span class="sr-only">(current)</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="graph.html">
-                    <span data-feather="layers"></span>
-                    Stats
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="rivalries.html">
-                    <span data-feather="target"></span>
-                    Rivalries
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="careers.html">
-                    <span data-feather="award"></span>
-                    Career Stats
-                  </a>
-                </li>
-              </ul>
-  
-            </div>
-          </nav>
-  
-          <main role="main" class="ml-sm-auto col-lg-10 px-4">
+    </header>
 
-            <!-- Mobile-only nav: below 768px dashboard.css hides the top
-                 navbar and the sidebar is d-none, so on a phone this is
-                 the only way to move between pages. Previously only
-                 home.html had this block, so playoffs.html and graph.html
-                 had NO navigation at all on mobile (mobile QoL fix,
-                 2026-09-22). Shared here in layout.html so every page
-                 gets it once, matching the desktop sidebar's active-page
-                 highlight and season picker via the same context vars. -->
-            <div class="d-md-none pt-3 pb-2 mb-3 border-bottom">
-              <div id="secretnav">
-                <div class="d-flex align-items-center" style="gap: .5rem;">
-                  <select class="form-control form-control-sm mb-2 flex-grow-1" aria-label="Season"
-                          onchange="if (this.value) location.href = this.value">
-                    
-                    
-                    <option selected disabled>2026 (current)</option>
-                    
-                    
-                    
-                    <option value="2025/">2025</option>
-                    
-                    
-                    
-                    <option value="2024/">2024</option>
-                    
-                    
-                    
-                    <option value="2023/">2023</option>
-                    
-                    
-                    
-                    <option value="2022/">2022</option>
-                    
-                    
-                  </select>
-                  <!-- The navbar (and its dark-mode toggle) is
-                       visibility:hidden below 768px, so this is the only
-                       way to reach the toggle on a phone. -->
-                  <button class="theme-toggle-btn btn btn-sm btn-outline-secondary mb-2" type="button"
-                          aria-label="Toggle dark mode" title="Toggle dark mode">
-                    <span data-feather="moon" class="theme-toggle-icon"></span>
-                  </button>
+    <!-- Season picker + page nav: rendered once and shown as a sidebar on
+         desktop, a bar under the header on mobile. Same markup, laid out
+         differently by breakpoint utilities, so there's exactly one nav
+         to keep in sync with active_page instead of two. -->
+    
+
+    
+
+    <!-- Desktop sidebar -->
+    <aside class="fixed inset-y-0 left-0 z-20 hidden w-56 flex-col border-r border-slate-200 bg-white pt-14 md:flex dark:border-slate-800 dark:bg-slate-900">
+      <div class="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+        <select class="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            aria-label="Season" onchange="if (this.value) location.href = this.value">
+      
+      
+      <option selected disabled>2026 (current)</option>
+      
+      
+      
+      <option value="2025/">2025</option>
+      
+      
+      
+      <option value="2024/">2024</option>
+      
+      
+      
+      <option value="2023/">2023</option>
+      
+      
+      
+      <option value="2022/">2022</option>
+      
+      
+    </select>
+        <nav class="space-y-1">
+          <a href="index.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="home" class="h-4 w-4 shrink-0"></span>
+      Home
+    </a>
+
+          <div>
+            <button id="owners-toggle"
+                    class="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                    type="button" aria-expanded="false" aria-controls="owners-panel">
+              <span class="flex items-center gap-2"><span data-feather="users" class="h-4 w-4"></span> Owners</span>
+              <span data-feather="chevron-down" id="owners-chevron" class="h-4 w-4 transition-transform"></span>
+            </button>
+            <ul id="owners-panel" class="mt-1 hidden max-h-64 space-y-0.5 overflow-y-auto pl-2">
+              
+              <li title="Jamie Sugar — Team Sugar">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">1</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Jamie Sugar</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Sugar</span>
+                  </span>
                 </div>
-                <ul class="nav">
-                  <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                  <li class="nav-item"><a class="nav-link active" href="playoffs.html">Playoffs and Prizes</a></li>
-                  <li class="nav-item"><a class="nav-link" href="graph.html">Stats</a></li>
-                  <li class="nav-item"><a class="nav-link" href="rivalries.html">Rivalries</a></li>
-                  <li class="nav-item"><a class="nav-link" href="careers.html">Career Stats</a></li>
-                </ul>
-              </div>
-            </div>
+              </li>
+              
+              <li title="Daniel Sharp — Wyld Stallyns">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">2</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Daniel Sharp</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Wyld Stallyns</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Pat Benner — De&#39;Von to Break Free">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">3</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Pat Benner</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">De&#39;Von to Break Free</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Daniel Senger — Daniel&#39;s Driven Team">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">4</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Daniel Senger</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Daniel&#39;s Driven Team</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Paul Tuura — Walker, Kenneth Ranger">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">5</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Paul Tuura</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Walker, Kenneth Ranger</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Nick Kubit — Saquon Deez Nuts">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">6</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Nick Kubit</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Saquon Deez Nuts</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Casey Pirsig — Taylor Sailors">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">7</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Casey Pirsig</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Taylor Sailors</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Davíd Huisken — Praise JA">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">8</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Davíd Huisken</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Praise JA</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Ethan Hildebrandt — Team Hildebrandt">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">9</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Ethan Hildebrandt</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Hildebrandt</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Sam Engsberg — Chat, Draft My Team">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">10</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Sam Engsberg</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Chat, Draft My Team</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Nicholas Polansky — Ultimate Fulfillment">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">11</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Nicholas Polansky</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Ultimate Fulfillment</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Eric Monson — C0KER COLA">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">12</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Eric Monson</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">C0KER COLA</span>
+                  </span>
+                </div>
+              </li>
+              
+            </ul>
+          </div>
 
-            
-<style>
-  /* Mobile QoL: 9 columns forces a lot of sideways scrolling on a phone.
-     Below 576px, hide the trend column and the two older week columns --
-     the current week and the clinch/games-back numbers are what matters
-     for a quick glance; the rest is still there via horizontal scroll. */
-  @media (max-width: 575.98px) {
-    #playoff-table .col-trend,
-    #playoff-table .col-week-old {
-      display: none;
-    }
-  }
-</style>
+          <a href="playoffs.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+      <span data-feather="bar-chart-2" class="h-4 w-4 shrink-0"></span>
+      Playoffs and Prizes<span class="sr-only"> (current)</span>
+    </a>
+          <a href="graph.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="layers" class="h-4 w-4 shrink-0"></span>
+      Stats
+    </a>
+          <a href="rivalries.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="target" class="h-4 w-4 shrink-0"></span>
+      Rivalries
+    </a>
+          <a href="careers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="award" class="h-4 w-4 shrink-0"></span>
+      Career Stats
+    </a>
+        </nav>
+      </div>
+    </aside>
 
-<h2>Playoffs</h2> 
-<div class="table-responsive">
-  <table class="table table-striped table-sm" id="playoff-table">
-    <thead>
+    <!-- Mobile nav: season picker + horizontally-scrollable page links,
+         directly under the (always-visible) header. -->
+    <div class="border-b border-slate-200 bg-white pt-14 md:hidden dark:border-slate-800 dark:bg-slate-900">
+      <div class="px-4 py-2">
+        <select class="w-full max-w-[12rem] rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            aria-label="Season" onchange="if (this.value) location.href = this.value">
+      
+      
+      <option selected disabled>2026 (current)</option>
+      
+      
+      
+      <option value="2025/">2025</option>
+      
+      
+      
+      <option value="2024/">2024</option>
+      
+      
+      
+      <option value="2023/">2023</option>
+      
+      
+      
+      <option value="2022/">2022</option>
+      
+      
+    </select>
+      </div>
+      <nav class="flex gap-1 overflow-x-auto px-2 pb-2 text-sm">
+        <a href="index.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="home" class="h-4 w-4 shrink-0"></span>
+      Home
+    </a>
+        <a href="playoffs.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+      <span data-feather="bar-chart-2" class="h-4 w-4 shrink-0"></span>
+      Playoffs<span class="sr-only"> (current)</span>
+    </a>
+        <a href="graph.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="layers" class="h-4 w-4 shrink-0"></span>
+      Stats
+    </a>
+        <a href="rivalries.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="target" class="h-4 w-4 shrink-0"></span>
+      Rivalries
+    </a>
+        <a href="careers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="award" class="h-4 w-4 shrink-0"></span>
+      Careers
+    </a>
+      </nav>
+    </div>
+
+    <main class="px-4 pt-6 pb-16 md:pt-20 md:pl-60 md:pr-8">
+      
+
+
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Playoffs</h1>
+
+<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800" id="playoff-table">
+    <thead class="bg-slate-50 dark:bg-slate-900/60">
       <tr>
-        <th>Seed</th>
-        <th>Owner</th>
-        <th>Total Wins</th>
-        <th>Wins to Clinch / 24</th>
-        <th>Games Back</th>
-        <th class="col-trend">Heating Up! Last 3 Trend*</th>
-        <th class="col-week-old">Week 0</th>
-        <th class="col-week-old">Week 1</th>
-        <th>Week 2</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seed</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Wins to Clinch / 24</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Games Back</th>
+        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Heating Up! Last 3 Trend*</th>
+        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 0</th>
+        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 1</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Week 2</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">1</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Jamie Sugar</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">4</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">22</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">154</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">137</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">2</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Daniel Sharp</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">4</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">22</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">120</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">92</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">3</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Pat Benner</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">3</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">23</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">149</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">114</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">4</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Daniel Senger</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">3</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">23</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">123</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">130</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">5</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Paul Tuura</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">2</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">24</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">2</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">91</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">176</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">6</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Nick Kubit</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">2</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">24</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">2</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">122</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">91</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">7</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Casey Pirsig</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">2</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">24</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">2</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">93</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">115</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">8</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Davíd Huisken</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">2</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">24</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">2</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">107</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">82</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">9</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Ethan Hildebrandt</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">25</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">3</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">95</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">91</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">10</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Sam Engsberg</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">25</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">3</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">104</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">78</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">11</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Nicholas Polansky</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">0</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">26</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">4</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">95</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">78</td>
+        </tr>
+      
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 text-slate-600 dark:text-slate-300">12</td>
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">Eric Monson</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">0</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">26</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">4</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0.0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">0</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">101</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">67</td>
+        </tr>
+      
+    </tbody>
+  </table>
+</div>
 
+<p class="mt-3 text-sm text-slate-500 dark:text-slate-400">
+  *Heating up! represents the difference between your average scoring and your average the last 3 weeks.
+</p>
+
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Projected Prize Distribution</h2>
+
+<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+    <thead class="bg-slate-50 dark:bg-slate-900/60">
+      <tr>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">1st Place ($25) -BYE-</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">2nd Place ($20) -BYE-</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Third Place ($15)</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Reg Season Most PF ($30)</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">1st Overall ($90)</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">2nd Overall ($60)</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">3rd Overall ($30)</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Playoffs Most PF ($30)</th>
       </tr>
     </thead>
     <tbody>
-      
-        <tr>
-          <td>1</td>
-          <td>Jamie Sugar</td>
-          <td>4</td>
-          <td>22</td>
-          <td>0</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">154</td>
-          <td>137</td>
-        </tr>
-      
-        <tr>
-          <td>2</td>
-          <td>Daniel Sharp</td>
-          <td>4</td>
-          <td>22</td>
-          <td>0</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">120</td>
-          <td>92</td>
-        </tr>
-      
-        <tr>
-          <td>3</td>
-          <td>Pat Benner</td>
-          <td>3</td>
-          <td>23</td>
-          <td>1</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">149</td>
-          <td>114</td>
-        </tr>
-      
-        <tr>
-          <td>4</td>
-          <td>Daniel Senger</td>
-          <td>3</td>
-          <td>23</td>
-          <td>1</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">123</td>
-          <td>130</td>
-        </tr>
-      
-        <tr>
-          <td>5</td>
-          <td>Paul Tuura</td>
-          <td>2</td>
-          <td>24</td>
-          <td>2</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">91</td>
-          <td>176</td>
-        </tr>
-      
-        <tr>
-          <td>6</td>
-          <td>Nick Kubit</td>
-          <td>2</td>
-          <td>24</td>
-          <td>2</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">122</td>
-          <td>91</td>
-        </tr>
-      
-        <tr>
-          <td>7</td>
-          <td>Casey Pirsig</td>
-          <td>2</td>
-          <td>24</td>
-          <td>2</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">93</td>
-          <td>115</td>
-        </tr>
-      
-        <tr>
-          <td>8</td>
-          <td>Davíd Huisken</td>
-          <td>2</td>
-          <td>24</td>
-          <td>2</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">107</td>
-          <td>82</td>
-        </tr>
-      
-        <tr>
-          <td>9</td>
-          <td>Ethan Hildebrandt</td>
-          <td>1</td>
-          <td>25</td>
-          <td>3</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">95</td>
-          <td>91</td>
-        </tr>
-      
-        <tr>
-          <td>10</td>
-          <td>Sam Engsberg</td>
-          <td>1</td>
-          <td>25</td>
-          <td>3</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">104</td>
-          <td>78</td>
-        </tr>
-      
-        <tr>
-          <td>11</td>
-          <td>Nicholas Polansky</td>
-          <td>0</td>
-          <td>26</td>
-          <td>4</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">95</td>
-          <td>78</td>
-        </tr>
-      
-        <tr>
-          <td>12</td>
-          <td>Eric Monson</td>
-          <td>0</td>
-          <td>26</td>
-          <td>4</td>
-          <td class="col-trend">0.0</td>
-          <td class="col-week-old">0</td>
-          <td class="col-week-old">101</td>
-          <td>67</td>
-        </tr>
-      
-        </tbody>
+      <tr class="bg-white dark:bg-slate-900">
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Jamie Sugar</td>
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Daniel Sharp</td>
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Pat Benner</td>
+        <td class="px-3 py-2 text-slate-700 dark:text-slate-300">Jamie Sugar</td>
+        <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
+        <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
+        <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
+        <td class="px-3 py-2 text-slate-400 dark:text-slate-500">TBD</td>
+      </tr>
+    </tbody>
   </table>
-<p><span>*Heating up! represents
-    difference between 
-   your average scoring
-   vs your average
-   the last 3 weeks.</span></p>
-   <br>
-
-  <h2>Projected Prize Distribution</h2>
-  <div class="table-responsive">
-      <table class="table table-striped table-sm">
-        <thead>
-          <tr>
-            <th>1st Place ($25) -BYE-</th>
-            <th>2nd Place ($20) -BYE-</th>
-            <th>Third Place ($15)</th>
-            <th>Reg Season Most PF ($30)</th>
-            <th>1st Overall ($90)</th>
-            <th>2nd Overall ($60)</th>
-            <th>3rd Overall ($30)</th>
-            <th>Playoffs Most PF ($30)</th>
-          </tr>
-        </thead>
-        <tbody>
-            <tr> 
-              <td>Jamie Sugar</td>
-              <td>Daniel Sharp</td>
-              <td>Pat Benner</td>
-              <td>Jamie Sugar</td>
-              <td>TBD</td>
-              <td>TBD</td>
-              <td>TBD</td>
-              <td>TBD</td>
-            </tr>
-        </tbody>
-      </table>
-    </div>
 </div>
 
 
-            
-            
-          </main>
-        </div>
-      </div>
-  
-      <!-- Icons -->
-      <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
-      <script>
-        // Two toggle buttons exist (navbar for desktop, mobile nav for
-        // phones -- the navbar itself is visibility:hidden below 768px)
-        // and both need to reflect and drive the same theme, so this
-        // works off classes/querySelectorAll rather than a single id.
-        (function () {
-          function currentTheme() {
-            var attr = document.documentElement.getAttribute('data-theme');
-            if (attr === 'dark' || attr === 'light') return attr;
-            return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-              ? 'dark' : 'light';
-          }
-          function setIcons(theme) {
-            document.querySelectorAll('.theme-toggle-icon').forEach(function (icon) {
-              icon.setAttribute('data-feather', theme === 'dark' ? 'sun' : 'moon');
-            });
-          }
+    </main>
 
-          setIcons(currentTheme());
-          feather.replace();
+    <!-- Hidden color swatches: Chart.js paints its own canvas, so it can't
+         pick up Tailwind's dark: variant from CSS the way the rest of the
+         page does. These exist only so JS can read a theme-correct
+         getComputedStyle() color instead of hardcoding hex per theme. -->
+    <div class="hidden" aria-hidden="true">
+      <span id="swatch-tick" class="text-slate-500 dark:text-slate-400"></span>
+      <span id="swatch-legend" class="text-slate-600 dark:text-slate-300"></span>
+      <span id="swatch-grid" class="border-slate-200 dark:border-slate-800" style="border-style: solid; border-width: 1px;"></span>
+    </div>
 
-          document.querySelectorAll('.theme-toggle-btn').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-              var next = currentTheme() === 'dark' ? 'light' : 'dark';
-              document.documentElement.setAttribute('data-theme', next);
-              try { localStorage.setItem('theme', next); } catch (e) {}
-              setIcons(next);
-              feather.replace();
-              window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
-            });
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+      (function () {
+        function currentTheme() {
+          return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        }
+        function setIcons(theme) {
+          document.querySelectorAll('.theme-toggle-icon').forEach(function (icon) {
+            icon.setAttribute('data-feather', theme === 'dark' ? 'sun' : 'moon');
           });
-        })();
-      </script>
+        }
 
-      <!-- Graphs (L5: dataset rendered from data/standings-<season>.json) -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-      <script>
+        setIcons(currentTheme());
+        feather.replace();
+
+        document.querySelectorAll('.theme-toggle-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var next = currentTheme() === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+            setIcons(next);
+            feather.replace();
+            window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
+          });
+        });
+
+        // Owners collapse -- replaces Bootstrap's data-toggle="collapse"
+        // (which needed jQuery + Popper); this is the only interactive
+        // widget on the site that isn't a plain link, click-to-sort, or
+        // the theme toggle, so it doesn't need a library.
+        var ownersToggle = document.getElementById('owners-toggle');
+        var ownersPanel = document.getElementById('owners-panel');
+        var ownersChevron = document.getElementById('owners-chevron');
+        if (ownersToggle && ownersPanel) {
+          ownersToggle.addEventListener('click', function () {
+            var open = ownersPanel.classList.toggle('hidden') === false;
+            ownersToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (ownersChevron) ownersChevron.style.transform = open ? 'rotate(180deg)' : '';
+          });
+        }
+      })();
+    </script>
+
+    <!-- Graphs (dataset rendered from data/standings-<season>.json) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script>
+      
+      
+      
+        
+      
+        
+      
+      
         
         
-        
-          
-        
-          
-        
-        
-          
-          
-            
-            
-          
-            
-            
-          
-          
-          
-        
-          
-          
-            
-            
-          
-            
-            
-          
-          
-          
-        
-          
-          
-            
-            
-          
-            
-            
-          
-          
-          
-        
-          
-          
-            
-            
-          
-            
-            
-          
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
-        var chartData = {"datasets": [{"backgroundColor": "#0072B2", "borderColor": "#0072B2", "data": [154.3, 137.7], "hidden": false, "label": "Jamie Sugar", "pointBackgroundColor": "#0072B2", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#D55E00", "borderColor": "#D55E00", "data": [120.8, 92.8], "hidden": false, "label": "Daniel Sharp", "pointBackgroundColor": "#D55E00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#009E73", "borderColor": "#009E73", "data": [149.9, 114.5], "hidden": false, "label": "Pat Benner", "pointBackgroundColor": "#009E73", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#E69F00", "borderColor": "#E69F00", "data": [123.3, 130.2], "hidden": true, "label": "Daniel Senger", "pointBackgroundColor": "#E69F00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#CC79A7", "borderColor": "#CC79A7", "data": [91.3, 176.7], "hidden": true, "label": "Paul Tuura", "pointBackgroundColor": "#CC79A7", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#56B4E9", "borderColor": "#56B4E9", "data": [122.9, 91.3], "hidden": true, "label": "Nick Kubit", "pointBackgroundColor": "#56B4E9", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#F0E442", "borderColor": "#F0E442", "data": [93.4, 115.3], "hidden": true, "label": "Casey Pirsig", "pointBackgroundColor": "#F0E442", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#999999", "borderColor": "#999999", "data": [107.9, 82.9], "hidden": true, "label": "Dav\u00edd Huisken", "pointBackgroundColor": "#999999", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#882255", "borderColor": "#882255", "data": [95.0, 91.4], "hidden": true, "label": "Ethan Hildebrandt", "pointBackgroundColor": "#882255", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#44AA99", "borderColor": "#44AA99", "data": [104.2, 78.0], "hidden": true, "label": "Sam Engsberg", "pointBackgroundColor": "#44AA99", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#994499", "borderColor": "#994499", "data": [95.9, 78.1], "hidden": true, "label": "Nicholas Polansky", "pointBackgroundColor": "#994499", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#332288", "borderColor": "#332288", "data": [101.8, 67.2], "hidden": true, "label": "Eric Monson", "pointBackgroundColor": "#332288", "pointBorderColor": "#fff", "pointBorderWidth": 1}], "labels": ["Wk 1", "Wk 2"]};
-        var ctx = document.getElementById("myChart");
-        if (ctx) {
-          // Chart.js draws its own canvas pixels, so grid/tick/legend
-          // colors don't get dark mode for free from CSS -- read the same
-          // variables dashboard.css defines and re-apply on toggle.
-          function themeColor(name) {
-            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-          }
-          var fffChart = new Chart(ctx, {
-            type: 'line',
-            data: chartData,
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              hover: { mode: 'nearest', intersect: false },
-              elements: {
-                line: { borderWidth: 2, tension: 0 },
-                point: { radius: 2.5, hoverRadius: 6, hitRadius: 10 }
-              },
-              scales: {
-                xAxes: [{
-                  gridLines: { display: false },
-                  ticks: { fontColor: themeColor('--chart-tick') }
-                }],
-                yAxes: [{
-                  gridLines: { color: themeColor('--chart-grid') },
-                  ticks: { fontColor: themeColor('--chart-tick'), beginAtZero: false }
-                }]
-              },
-              legend: {
-                position: 'bottom',
-                labels: {
-                  usePointStyle: true,
-                  pointStyle: 'circle',
-                  boxWidth: 8,
-                  fontColor: themeColor('--chart-legend'),
-                  padding: 12
-                }
-              },
-              tooltips: {
-                mode: 'nearest',
-                intersect: false,
-                backgroundColor: 'rgba(33, 37, 41, .92)',
-                titleFontStyle: 'normal',
-                bodySpacing: 2,
-                callbacks: {
-                  label: function (item) {
-                    return ' ' + item.dataset.label + ': ' + item.yLabel;
-                  }
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+      var chartData = {"datasets": [{"backgroundColor": "#0072B2", "borderColor": "#0072B2", "data": [154.3, 137.7], "hidden": false, "label": "Jamie Sugar", "pointBackgroundColor": "#0072B2", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#D55E00", "borderColor": "#D55E00", "data": [120.8, 92.8], "hidden": false, "label": "Daniel Sharp", "pointBackgroundColor": "#D55E00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#009E73", "borderColor": "#009E73", "data": [149.9, 114.5], "hidden": false, "label": "Pat Benner", "pointBackgroundColor": "#009E73", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#E69F00", "borderColor": "#E69F00", "data": [123.3, 130.2], "hidden": true, "label": "Daniel Senger", "pointBackgroundColor": "#E69F00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#CC79A7", "borderColor": "#CC79A7", "data": [91.3, 176.7], "hidden": true, "label": "Paul Tuura", "pointBackgroundColor": "#CC79A7", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#56B4E9", "borderColor": "#56B4E9", "data": [122.9, 91.3], "hidden": true, "label": "Nick Kubit", "pointBackgroundColor": "#56B4E9", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#F0E442", "borderColor": "#F0E442", "data": [93.4, 115.3], "hidden": true, "label": "Casey Pirsig", "pointBackgroundColor": "#F0E442", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#999999", "borderColor": "#999999", "data": [107.9, 82.9], "hidden": true, "label": "Dav\u00edd Huisken", "pointBackgroundColor": "#999999", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#882255", "borderColor": "#882255", "data": [95.0, 91.4], "hidden": true, "label": "Ethan Hildebrandt", "pointBackgroundColor": "#882255", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#44AA99", "borderColor": "#44AA99", "data": [104.2, 78.0], "hidden": true, "label": "Sam Engsberg", "pointBackgroundColor": "#44AA99", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#994499", "borderColor": "#994499", "data": [95.9, 78.1], "hidden": true, "label": "Nicholas Polansky", "pointBackgroundColor": "#994499", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#332288", "borderColor": "#332288", "data": [101.8, 67.2], "hidden": true, "label": "Eric Monson", "pointBackgroundColor": "#332288", "pointBorderColor": "#fff", "pointBorderWidth": 1}], "labels": ["Wk 1", "Wk 2"]};
+      var ctx = document.getElementById("myChart");
+      if (ctx) {
+        function swatchColor(id) {
+          var el = document.getElementById(id);
+          return el ? getComputedStyle(el).color : '#868e96';
+        }
+        var fffChart = new Chart(ctx, {
+          type: 'line',
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            hover: { mode: 'nearest', intersect: false },
+            elements: {
+              line: { borderWidth: 2, tension: 0 },
+              point: { radius: 2.5, hoverRadius: 6, hitRadius: 10 }
+            },
+            scales: {
+              xAxes: [{
+                gridLines: { display: false },
+                ticks: { fontColor: swatchColor('swatch-tick') }
+              }],
+              yAxes: [{
+                gridLines: { color: getComputedStyle(document.getElementById('swatch-grid')).borderColor },
+                ticks: { fontColor: swatchColor('swatch-tick'), beginAtZero: false }
+              }]
+            },
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                boxWidth: 8,
+                fontColor: swatchColor('swatch-legend'),
+                padding: 12
+              }
+            },
+            tooltips: {
+              mode: 'nearest',
+              intersect: false,
+              backgroundColor: 'rgba(15, 23, 42, .92)',
+              titleFontStyle: 'normal',
+              bodySpacing: 2,
+              callbacks: {
+                label: function (item) {
+                  return ' ' + item.dataset.label + ': ' + item.yLabel;
                 }
               }
             }
-          });
-          window.addEventListener('themechange', function () {
-            var o = fffChart.options;
-            o.scales.xAxes[0].ticks.fontColor = themeColor('--chart-tick');
-            o.scales.yAxes[0].ticks.fontColor = themeColor('--chart-tick');
-            o.scales.yAxes[0].gridLines.color = themeColor('--chart-grid');
-            o.legend.labels.fontColor = themeColor('--chart-legend');
-            fffChart.update();
-          });
-        }
-      </script>
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+          }
+        });
+        window.addEventListener('themechange', function () {
+          var o = fffChart.options;
+          o.scales.xAxes[0].ticks.fontColor = swatchColor('swatch-tick');
+          o.scales.yAxes[0].ticks.fontColor = swatchColor('swatch-tick');
+          o.scales.yAxes[0].gridLines.color = getComputedStyle(document.getElementById('swatch-grid')).borderColor;
+          o.legend.labels.fontColor = swatchColor('swatch-legend');
+          fffChart.update();
+        });
+      }
+    </script>
   </body>
 </html>

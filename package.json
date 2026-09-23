@@ -1,0 +1,14 @@
+{
+  "name": "leaguestats-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Tailwind CSS build for the FFF static site (templates/ -> static/css/app.css).",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/tailwind.css -o ./static/css/app.css --minify",
+    "watch:css": "tailwindcss -i ./src/tailwind.css -o ./static/css/app.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}

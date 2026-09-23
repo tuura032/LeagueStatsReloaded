@@ -1,1467 +1,1535 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" href="static/dashboard.css">
+    <!-- Dark mode, no-flash: resolve the theme (stored override, else
+         system preference) and set it explicitly on <html> before first
+         paint. Tailwind's dark: variant here (src/tailwind.css) targets
+         [data-theme="dark"] directly rather than a prefers-color-scheme
+         media query, so this is the one place theme resolution happens —
+         CSS never has to guess. -->
     <script>
-      // Dark mode, no-flash: if the visitor has an explicit override saved
-      // (from the navbar toggle), apply it before first paint. With no
-      // override, dashboard.css's prefers-color-scheme media query handles
-      // it — nothing to do here.
       (function () {
+        var theme = 'light';
         try {
           var stored = localStorage.getItem('theme');
-          if (stored === 'dark' || stored === 'light') {
-            document.documentElement.setAttribute('data-theme', stored);
-          }
+          theme = (stored === 'dark' || stored === 'light') ? stored
+            : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         } catch (e) {}
+        document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>
-    <style>
-      /* L5 — data-driven sidebar roster + chart page. Scoped to the new
-         components; static/dashboard.css is untouched. */
-      .sidebar-owner {
-        display: flex;
-        gap: .5rem;
-        padding: .3rem .75rem .3rem 1rem;
-        border-radius: .25rem;
-      }
-      .sidebar-owner:hover {
-        background-color: var(--table-hover);
-      }
-      .sidebar-owner-rank {
-        flex: 0 0 1.1rem;
-        padding-top: .15rem;
-        font-size: .7rem;
-        font-weight: 600;
-        color: var(--text-faint);
-        text-align: right;
-      }
-      .sidebar-owner-meta {
-        min-width: 0;
-      }
-      .sidebar-owner-name {
-        display: block;
-        font-size: .8rem;
-        font-weight: 500;
-        color: var(--link);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .sidebar-owner-team {
-        display: block;
-        font-size: .7rem;
-        color: var(--text-muted);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .chart-wrap {
-        position: relative;
-        height: 420px;
-        width: 100%;
-      }
-      @media (max-width: 768px) {
-        .chart-wrap {
-          height: 320px;
-        }
-      }
-      .stat-label {
-        font-size: .7rem;
-        font-weight: 600;
-        letter-spacing: .04em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-      }
-      .stat-value {
-        font-size: 1.35rem;
-        font-weight: 600;
-        color: var(--text);
-      }
-      .stat-sub {
-        font-size: .75rem;
-        color: var(--text-muted);
-      }
-    </style>
 
+    <link rel="stylesheet" href="static/css/app.css">
     <link rel="shortcut icon" type="image/png" href="static/fffIcon.png"/>
 
     <title>
     Fantasy Football Fantasy
 </title>
   </head>
-  <body>
-    <nav id="navbar" class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="index.html">Fantasy Football Fantasy</a>
-      <button class="theme-toggle-btn btn btn-sm btn-outline-light" type="button"
-              aria-label="Toggle dark mode" title="Toggle dark mode">
-        <span data-feather="moon" class="theme-toggle-icon"></span>
+  <body class="h-full bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+
+    <!-- Header: fixed, full-width, always visible at every breakpoint —
+         the old Bootstrap build hid this entirely below 768px and only
+         home.html had a fallback nav, so playoffs/graph had NO navigation
+         on phones until that was patched. Keeping one header visible
+         everywhere removes that whole class of bug instead of patching
+         around it again. -->
+    <header class="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between bg-slate-900 px-4 shadow-sm dark:bg-black">
+      <a href="index.html" class="text-sm font-semibold tracking-tight text-white sm:text-base">
+        Fantasy Football Fantasy
+      </a>
+      <button class="theme-toggle-btn inline-flex h-8 w-8 items-center justify-center rounded-md border border-white/25 text-white transition hover:border-white/60"
+              type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <span data-feather="moon" class="theme-toggle-icon h-4 w-4"></span>
       </button>
-    </nav>
-  
-      <div class="container-fluid">
-        <div class="row">
-          <nav class="col-md-2 d-none d-md-block sidebar">
-            <div class="sidebar-sticky">
-              <ul class="nav flex-column">
-                <li class="nav-item">
-                  <!-- L9 — season picker. Plain links, relative to this
-                       page: "base" is "" at the root and "../" in a season
-                       subdirectory; the newest season's URL is the root. -->
-                  <select class="form-control form-control-sm mb-2" aria-label="Season"
-                          onchange="if (this.value) location.href = this.value">
-                    
-                    
-                    <option selected disabled>2026 (current)</option>
-                    
-                    
-                    
-                    <option value="2025/">2025</option>
-                    
-                    
-                    
-                    <option value="2024/">2024</option>
-                    
-                    
-                    
-                    <option value="2023/">2023</option>
-                    
-                    
-                    
-                    <option value="2022/">2022</option>
-                    
-                    
-                  </select>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="index.html">
-                    <span data-feather="home"></span>
-                    Home
-                  </a>
-                </li>
-                <li class="nav-item" >
-                  <a class="nav-link dropdown-toggle" href="#ownerSubmenu" data-toggle="collapse" aria-expanded="false">
-                    <span data-feather="users"></span>
-                    Owners
-                  </a>
-                  <ul class="collapse list-unstyled sidebar-owners" id="ownerSubmenu">
-                    
-                    <li class="sidebar-owner" title="Jamie Sugar — Team Sugar">
-                      <span class="sidebar-owner-rank">1</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Jamie Sugar</span>
-                        <span class="sidebar-owner-team">Team Sugar</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Daniel Sharp — Wyld Stallyns">
-                      <span class="sidebar-owner-rank">2</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Daniel Sharp</span>
-                        <span class="sidebar-owner-team">Wyld Stallyns</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Pat Benner — De&#39;Von to Break Free">
-                      <span class="sidebar-owner-rank">3</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Pat Benner</span>
-                        <span class="sidebar-owner-team">De&#39;Von to Break Free</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Daniel Senger — Daniel&#39;s Driven Team">
-                      <span class="sidebar-owner-rank">4</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Daniel Senger</span>
-                        <span class="sidebar-owner-team">Daniel&#39;s Driven Team</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Paul Tuura — Walker, Kenneth Ranger">
-                      <span class="sidebar-owner-rank">5</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Paul Tuura</span>
-                        <span class="sidebar-owner-team">Walker, Kenneth Ranger</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Nick Kubit — Saquon Deez Nuts">
-                      <span class="sidebar-owner-rank">6</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Nick Kubit</span>
-                        <span class="sidebar-owner-team">Saquon Deez Nuts</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Casey Pirsig — Taylor Sailors">
-                      <span class="sidebar-owner-rank">7</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Casey Pirsig</span>
-                        <span class="sidebar-owner-team">Taylor Sailors</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Davíd Huisken — Praise JA">
-                      <span class="sidebar-owner-rank">8</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Davíd Huisken</span>
-                        <span class="sidebar-owner-team">Praise JA</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Ethan Hildebrandt — Team Hildebrandt">
-                      <span class="sidebar-owner-rank">9</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Ethan Hildebrandt</span>
-                        <span class="sidebar-owner-team">Team Hildebrandt</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Sam Engsberg — Chat, Draft My Team">
-                      <span class="sidebar-owner-rank">10</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Sam Engsberg</span>
-                        <span class="sidebar-owner-team">Chat, Draft My Team</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Nicholas Polansky — Ultimate Fulfillment">
-                      <span class="sidebar-owner-rank">11</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Nicholas Polansky</span>
-                        <span class="sidebar-owner-team">Ultimate Fulfillment</span>
-                      </span>
-                    </li>
-                    
-                    <li class="sidebar-owner" title="Eric Monson — C0KER COLA">
-                      <span class="sidebar-owner-rank">12</span>
-                      <span class="sidebar-owner-meta">
-                        <span class="sidebar-owner-name">Eric Monson</span>
-                        <span class="sidebar-owner-team">C0KER COLA</span>
-                      </span>
-                    </li>
-                    
-                  </ul>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="playoffs.html">
-                    <span data-feather="bar-chart-2"></span>
-                    Playoffs and Prizes
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="graph.html">
-                    <span data-feather="layers"></span>
-                    Stats
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link active" href="rivalries.html">
-                    <span data-feather="target"></span>
-                    Rivalries <span class="sr-only">(current)</span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="careers.html">
-                    <span data-feather="award"></span>
-                    Career Stats
-                  </a>
-                </li>
-              </ul>
-  
-            </div>
-          </nav>
-  
-          <main role="main" class="ml-sm-auto col-lg-10 px-4">
+    </header>
 
-            <!-- Mobile-only nav: below 768px dashboard.css hides the top
-                 navbar and the sidebar is d-none, so on a phone this is
-                 the only way to move between pages. Previously only
-                 home.html had this block, so playoffs.html and graph.html
-                 had NO navigation at all on mobile (mobile QoL fix,
-                 2026-09-22). Shared here in layout.html so every page
-                 gets it once, matching the desktop sidebar's active-page
-                 highlight and season picker via the same context vars. -->
-            <div class="d-md-none pt-3 pb-2 mb-3 border-bottom">
-              <div id="secretnav">
-                <div class="d-flex align-items-center" style="gap: .5rem;">
-                  <select class="form-control form-control-sm mb-2 flex-grow-1" aria-label="Season"
-                          onchange="if (this.value) location.href = this.value">
-                    
-                    
-                    <option selected disabled>2026 (current)</option>
-                    
-                    
-                    
-                    <option value="2025/">2025</option>
-                    
-                    
-                    
-                    <option value="2024/">2024</option>
-                    
-                    
-                    
-                    <option value="2023/">2023</option>
-                    
-                    
-                    
-                    <option value="2022/">2022</option>
-                    
-                    
-                  </select>
-                  <!-- The navbar (and its dark-mode toggle) is
-                       visibility:hidden below 768px, so this is the only
-                       way to reach the toggle on a phone. -->
-                  <button class="theme-toggle-btn btn btn-sm btn-outline-secondary mb-2" type="button"
-                          aria-label="Toggle dark mode" title="Toggle dark mode">
-                    <span data-feather="moon" class="theme-toggle-icon"></span>
-                  </button>
+    <!-- Season picker + page nav: rendered once and shown as a sidebar on
+         desktop, a bar under the header on mobile. Same markup, laid out
+         differently by breakpoint utilities, so there's exactly one nav
+         to keep in sync with active_page instead of two. -->
+    
+
+    
+
+    <!-- Desktop sidebar -->
+    <aside class="fixed inset-y-0 left-0 z-20 hidden w-56 flex-col border-r border-slate-200 bg-white pt-14 md:flex dark:border-slate-800 dark:bg-slate-900">
+      <div class="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+        <select class="w-full rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            aria-label="Season" onchange="if (this.value) location.href = this.value">
+      
+      
+      <option selected disabled>2026 (current)</option>
+      
+      
+      
+      <option value="2025/">2025</option>
+      
+      
+      
+      <option value="2024/">2024</option>
+      
+      
+      
+      <option value="2023/">2023</option>
+      
+      
+      
+      <option value="2022/">2022</option>
+      
+      
+    </select>
+        <nav class="space-y-1">
+          <a href="index.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="home" class="h-4 w-4 shrink-0"></span>
+      Home
+    </a>
+
+          <div>
+            <button id="owners-toggle"
+                    class="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+                    type="button" aria-expanded="false" aria-controls="owners-panel">
+              <span class="flex items-center gap-2"><span data-feather="users" class="h-4 w-4"></span> Owners</span>
+              <span data-feather="chevron-down" id="owners-chevron" class="h-4 w-4 transition-transform"></span>
+            </button>
+            <ul id="owners-panel" class="mt-1 hidden max-h-64 space-y-0.5 overflow-y-auto pl-2">
+              
+              <li title="Jamie Sugar — Team Sugar">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">1</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Jamie Sugar</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Sugar</span>
+                  </span>
                 </div>
-                <ul class="nav">
-                  <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                  <li class="nav-item"><a class="nav-link" href="playoffs.html">Playoffs and Prizes</a></li>
-                  <li class="nav-item"><a class="nav-link" href="graph.html">Stats</a></li>
-                  <li class="nav-item"><a class="nav-link active" href="rivalries.html">Rivalries</a></li>
-                  <li class="nav-item"><a class="nav-link" href="careers.html">Career Stats</a></li>
-                </ul>
-              </div>
-            </div>
+              </li>
+              
+              <li title="Daniel Sharp — Wyld Stallyns">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">2</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Daniel Sharp</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Wyld Stallyns</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Pat Benner — De&#39;Von to Break Free">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">3</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Pat Benner</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">De&#39;Von to Break Free</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Daniel Senger — Daniel&#39;s Driven Team">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">4</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Daniel Senger</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Daniel&#39;s Driven Team</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Paul Tuura — Walker, Kenneth Ranger">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">5</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Paul Tuura</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Walker, Kenneth Ranger</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Nick Kubit — Saquon Deez Nuts">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">6</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Nick Kubit</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Saquon Deez Nuts</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Casey Pirsig — Taylor Sailors">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">7</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Casey Pirsig</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Taylor Sailors</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Davíd Huisken — Praise JA">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">8</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Davíd Huisken</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Praise JA</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Ethan Hildebrandt — Team Hildebrandt">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">9</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Ethan Hildebrandt</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Team Hildebrandt</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Sam Engsberg — Chat, Draft My Team">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">10</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Sam Engsberg</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Chat, Draft My Team</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Nicholas Polansky — Ultimate Fulfillment">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">11</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Nicholas Polansky</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">Ultimate Fulfillment</span>
+                  </span>
+                </div>
+              </li>
+              
+              <li title="Eric Monson — C0KER COLA">
+                <div class="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <span class="w-5 shrink-0 text-right text-xs font-semibold text-slate-400 dark:text-slate-500">12</span>
+                  <span class="min-w-0">
+                    <span class="block truncate text-xs font-medium text-slate-700 dark:text-slate-200">Eric Monson</span>
+                    <span class="block truncate text-[.68rem] text-slate-400 dark:text-slate-500">C0KER COLA</span>
+                  </span>
+                </div>
+              </li>
+              
+            </ul>
+          </div>
 
-            
-<style>
-  /* Rivalry matrix: read a cell as the ROW owner's record against the
-     COLUMN owner. Diagonal (self vs self) is blank. Cell tint follows
-     the row owner's win rate against that opponent -- green they lead,
-     red they trail, gray even or never played -- so the grid reads at a
-     glance instead of forcing you to parse every "W-L". */
-  #rivalry-table {
-    font-size: .8rem;
-  }
-  #rivalry-table th, #rivalry-table td {
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-  }
-  #rivalry-table th.row-owner {
-    text-align: right;
-    font-weight: 600;
-    white-space: normal;
-    max-width: 9rem;
-  }
-  #rivalry-table thead th {
-    font-size: .68rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .03em;
-    color: var(--text-muted);
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    padding: .5rem .25rem;
-  }
-  #rivalry-table td.self {
-    background: var(--neutral-bg);
-  }
-  #rivalry-table td.never {
-    color: var(--text-faint);
-  }
-  #rivalry-table td.leads { background: var(--success-bg); color: var(--success-fg); }
-  #rivalry-table td.trails { background: var(--danger-bg); color: var(--danger-fg); }
-  #rivalry-table td.even { background: var(--bg-alt); color: var(--neutral-fg); }
+          <a href="playoffs.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="bar-chart-2" class="h-4 w-4 shrink-0"></span>
+      Playoffs and Prizes
+    </a>
+          <a href="graph.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="layers" class="h-4 w-4 shrink-0"></span>
+      Stats
+    </a>
+          <a href="rivalries.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+      <span data-feather="target" class="h-4 w-4 shrink-0"></span>
+      Rivalries<span class="sr-only"> (current)</span>
+    </a>
+          <a href="careers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="award" class="h-4 w-4 shrink-0"></span>
+      Career Stats
+    </a>
+        </nav>
+      </div>
+    </aside>
 
-  /* Mobile: the full NxN grid can't be tamed by hiding columns, so keep
-     it in a horizontally-scrollable strip with the owner names pinned
-     on the left, rather than dropping data. */
-  #rivalry-scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  #rivalry-table th.row-owner {
-    position: sticky;
-    left: 0;
-    background: var(--sticky-bg);
-    box-shadow: 1px 0 0 var(--sidebar-shadow);
-  }
-</style>
+    <!-- Mobile nav: season picker + horizontally-scrollable page links,
+         directly under the (always-visible) header. -->
+    <div class="border-b border-slate-200 bg-white pt-14 md:hidden dark:border-slate-800 dark:bg-slate-900">
+      <div class="px-4 py-2">
+        <select class="w-full max-w-[12rem] rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            aria-label="Season" onchange="if (this.value) location.href = this.value">
+      
+      
+      <option selected disabled>2026 (current)</option>
+      
+      
+      
+      <option value="2025/">2025</option>
+      
+      
+      
+      <option value="2024/">2024</option>
+      
+      
+      
+      <option value="2023/">2023</option>
+      
+      
+      
+      <option value="2022/">2022</option>
+      
+      
+    </select>
+      </div>
+      <nav class="flex gap-1 overflow-x-auto px-2 pb-2 text-sm">
+        <a href="index.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="home" class="h-4 w-4 shrink-0"></span>
+      Home
+    </a>
+        <a href="playoffs.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="bar-chart-2" class="h-4 w-4 shrink-0"></span>
+      Playoffs
+    </a>
+        <a href="graph.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="layers" class="h-4 w-4 shrink-0"></span>
+      Stats
+    </a>
+        <a href="rivalries.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+      <span data-feather="target" class="h-4 w-4 shrink-0"></span>
+      Rivalries<span class="sr-only"> (current)</span>
+    </a>
+        <a href="careers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="award" class="h-4 w-4 shrink-0"></span>
+      Careers
+    </a>
+      </nav>
+    </div>
 
-<div class="pt-3 pb-2 mb-3 border-bottom">
-  <h1 class="h2 mb-0">Rivalries</h1>
-</div>
-<p class="text-muted">
+    <main class="px-4 pt-6 pb-16 md:pt-20 md:pl-60 md:pr-8">
+      
+
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Rivalries</h1>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
   Every owner's all-time head-to-head record, 12 owners
   across every season on file. Read a cell as the row owner's record
   (W-L-T) against the column owner.
 </p>
 
 
-<div class="table-responsive" id="rivalry-scroll">
-  <table class="table table-sm table-bordered" id="rivalry-table">
+<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="border-separate border-spacing-0 text-xs">
     <thead>
       <tr>
-        <th></th>
+        <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900"></th>
         
-          <th>Casey Pirsig</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Casey Pirsig</th>
         
-          <th>Daniel Senger</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Daniel Senger</th>
         
-          <th>Daniel Sharp</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Daniel Sharp</th>
         
-          <th>Davíd Huisken</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Davíd Huisken</th>
         
-          <th>Eric Monson</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Eric Monson</th>
         
-          <th>Ethan Hildebrandt</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Ethan Hildebrandt</th>
         
-          <th>Jamie Sugar</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Jamie Sugar</th>
         
-          <th>Nicholas Polansky</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Nicholas Polansky</th>
         
-          <th>Nick Kubit</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Nick Kubit</th>
         
-          <th>Pat Benner</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Pat Benner</th>
         
-          <th>Paul Tuura</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Paul Tuura</th>
         
-          <th>Sam Engsberg</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">Sam Engsberg</th>
         
       </tr>
     </thead>
     <tbody>
       
         <tr>
-          <th class="row-owner">Casey Pirsig</th>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Casey Pirsig</th>
           
             
-              <td class="self">&mdash;</td>
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="trails">2-7</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="trails">0-4</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">2-7</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">0-4</td>
             
           
             
               
               
-                <td class="leads">4-0</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
             
               
               
-                <td class="leads">5-4</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">4-0</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">5-4</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="leads">4-0</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
             
               
               
-                <td class="leads">8-0</td>
+                
               
-            
-          
-        </tr>
-      
-        <tr>
-          <th class="row-owner">Daniel Senger</th>
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              <td class="self">&mdash;</td>
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">4-0</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">4-5</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">3-6</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">1-3</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">3-5</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">8-0</td>
             
           
         </tr>
       
         <tr>
-          <th class="row-owner">Daniel Sharp</th>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Daniel Senger</th>
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              <td class="self">&mdash;</td>
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="trails">0-4</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="leads">3-1</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">4-5</td>
             
           
             
               
               
-                <td class="leads">7-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">3-6</td>
             
           
             
               
               
-                <td class="even">4-4</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
             
               
               
-                <td class="leads">6-3</td>
+                
               
-            
-          
-        </tr>
-      
-        <tr>
-          <th class="row-owner">Davíd Huisken</th>
-          
-            
-              
-              
-                <td class="leads">7-2</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">3-5</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
-            
-          
-            
-              
-              
-                <td class="leads">3-1</td>
-              
-            
-          
-            
-              <td class="self">&mdash;</td>
-            
-          
-            
-              
-              
-                <td class="leads">3-1</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">3-5</td>
-              
-            
-          
-            
-              
-              
-                <td class="leads">6-3</td>
-              
-            
-          
-            
-              
-              
-                <td class="leads">3-1</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">1-3</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
         </tr>
       
         <tr>
-          <th class="row-owner">Eric Monson</th>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Daniel Sharp</th>
           
             
               
               
-                <td class="leads">4-0</td>
+                
               
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="leads">4-0</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
-            
-          
-            
-              <td class="self">&mdash;</td>
-            
-          
-            
-              
-              
-                <td class="leads">3-1</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">0-4</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
             
               
               
-                <td class="leads">5-4</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
             
               
               
-                <td class="leads">5-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">7-2</td>
             
           
             
               
               
-                <td class="leads">3-1</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">4-4</td>
             
           
             
               
               
-                <td class="leads">6-3</td>
+                
               
-            
-          
-        </tr>
-      
-        <tr>
-          <th class="row-owner">Ethan Hildebrandt</th>
-          
-            
-              
-              
-                <td class="leads">3-1</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
             
               
               
-                <td class="leads">5-4</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="leads">3-1</td>
+                
               
-            
-          
-            
-              
-              
-                <td class="leads">5-3</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">1-3</td>
-              
-            
-          
-            
-              <td class="self">&mdash;</td>
-            
-          
-            
-              
-              
-                <td class="leads">3-1</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">1-3</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">1-3</td>
-              
-            
-          
-            
-              
-              
-                <td class="leads">5-4</td>
-              
-            
-          
-            
-              
-              
-                <td class="leads">3-1</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">6-3</td>
             
           
         </tr>
       
         <tr>
-          <th class="row-owner">Jamie Sugar</th>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Davíd Huisken</th>
           
             
               
               
-                <td class="trails">0-4</td>
+                
               
-            
-          
-            
-              
-              
-                <td class="leads">6-3</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">7-2</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="trails">3-6</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
-            
-          
-            
-              <td class="self">&mdash;</td>
-            
-          
-            
-              
-              
-                <td class="trails">3-5</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">3-5</td>
             
           
             
               
               
-                <td class="leads">3-1</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">6-3</td>
             
           
             
               
               
-                <td class="trails">0-4</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
             
               
               
-                <td class="leads">3-1</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="leads">4-0</td>
+                
               
-            
-          
-        </tr>
-      
-        <tr>
-          <th class="row-owner">Nicholas Polansky</th>
-          
-            
-              
-              
-                <td class="trails">4-5</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="trails">2-7</td>
+                
               
-            
-          
-            
-              
-              
-                <td class="trails">1-3</td>
-              
-            
-          
-            
-              
-              
-                <td class="leads">3-1</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="leads">5-3</td>
-              
-            
-          
-            
-              <td class="self">&mdash;</td>
-            
-          
-            
-              
-              
-                <td class="trails">0-4</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">0-4</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
         </tr>
       
         <tr>
-          <th class="row-owner">Nick Kubit</th>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Eric Monson</th>
           
             
               
               
-                <td class="even">2-2</td>
+                
               
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">4-0</td>
             
           
             
               
               
-                <td class="even">4-4</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">4-0</td>
             
           
             
               
               
-                <td class="trails">4-5</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
             
           
             
               
               
-                <td class="leads">3-1</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="leads">4-0</td>
+                
               
-            
-          
-            
-              <td class="self">&mdash;</td>
-            
-          
-            
-              
-              
-                <td class="trails">4-5</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">5-4</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
-            
-          
-        </tr>
-      
-        <tr>
-          <th class="row-owner">Pat Benner</th>
-          
-            
-              
-              
-                <td class="leads">3-1</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">5-3</td>
             
           
             
               
               
-                <td class="leads">3-1</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
             
               
               
-                <td class="leads">3-1</td>
+                
               
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="trails">3-5</td>
-              
-            
-          
-            
-              
-              
-                <td class="leads">3-1</td>
-              
-            
-          
-            
-              
-              
-                <td class="leads">4-0</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="leads">5-4</td>
-              
-            
-          
-            
-              <td class="self">&mdash;</td>
-            
-          
-            
-              
-              
-                <td class="leads">7-2</td>
-              
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">6-3</td>
             
           
         </tr>
       
         <tr>
-          <th class="row-owner">Paul Tuura</th>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Ethan Hildebrandt</th>
           
             
               
               
-                <td class="trails">0-4</td>
+                
               
-            
-          
-            
-              
-              
-                <td class="leads">5-3</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">5-4</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">5-3</td>
             
           
             
               
               
-                <td class="trails">4-5</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
             
               
               
-                <td class="leads">4-0</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="leads">3-1</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
             
               
               
-                <td class="trails">2-7</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
             
-              <td class="self">&mdash;</td>
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">5-4</td>
             
           
             
               
               
-                <td class="leads">4-0</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
         </tr>
       
         <tr>
-          <th class="row-owner">Sam Engsberg</th>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Jamie Sugar</th>
           
             
               
               
-                <td class="trails">0-8</td>
+                
               
-            
-          
-            
-              
-              
-                <td class="even">2-2</td>
-              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">0-4</td>
             
           
             
               
               
-                <td class="trails">3-6</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">6-3</td>
             
           
             
               
               
-                <td class="leads">3-1</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
             
           
             
               
               
-                <td class="trails">3-6</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">3-6</td>
             
           
             
               
               
-                <td class="trails">1-3</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
             
           
             
               
               
-                <td class="trails">0-4</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">3-5</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
             
               
               
-                <td class="even">2-2</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">0-4</td>
             
           
             
               
               
-                <td class="trails">0-4</td>
+                
               
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
             
           
             
-              <td class="self">&mdash;</td>
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">4-0</td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Nicholas Polansky</th>
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">4-5</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">2-7</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">5-3</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">0-4</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">0-4</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Nick Kubit</th>
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">4-4</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">4-5</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">4-0</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">4-5</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Pat Benner</th>
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">3-5</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">4-0</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">5-4</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">7-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Paul Tuura</th>
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">0-4</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">5-3</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">4-5</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">4-0</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">2-7</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">4-0</td>
+            
+          
+        </tr>
+      
+        <tr>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">Sam Engsberg</th>
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">0-8</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">3-6</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">3-1</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">3-6</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">1-3</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">0-4</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">2-2</td>
+            
+          
+            
+              
+              
+                
+              
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300">0-4</td>
+            
+          
+            
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
             
           
         </tr>
@@ -1472,259 +1540,266 @@
 
 
 
-            
-            
-          </main>
-        </div>
-      </div>
-  
-      <!-- Icons -->
-      <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
-      <script>
-        // Two toggle buttons exist (navbar for desktop, mobile nav for
-        // phones -- the navbar itself is visibility:hidden below 768px)
-        // and both need to reflect and drive the same theme, so this
-        // works off classes/querySelectorAll rather than a single id.
-        (function () {
-          function currentTheme() {
-            var attr = document.documentElement.getAttribute('data-theme');
-            if (attr === 'dark' || attr === 'light') return attr;
-            return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-              ? 'dark' : 'light';
-          }
-          function setIcons(theme) {
-            document.querySelectorAll('.theme-toggle-icon').forEach(function (icon) {
-              icon.setAttribute('data-feather', theme === 'dark' ? 'sun' : 'moon');
-            });
-          }
+    </main>
 
-          setIcons(currentTheme());
-          feather.replace();
+    <!-- Hidden color swatches: Chart.js paints its own canvas, so it can't
+         pick up Tailwind's dark: variant from CSS the way the rest of the
+         page does. These exist only so JS can read a theme-correct
+         getComputedStyle() color instead of hardcoding hex per theme. -->
+    <div class="hidden" aria-hidden="true">
+      <span id="swatch-tick" class="text-slate-500 dark:text-slate-400"></span>
+      <span id="swatch-legend" class="text-slate-600 dark:text-slate-300"></span>
+      <span id="swatch-grid" class="border-slate-200 dark:border-slate-800" style="border-style: solid; border-width: 1px;"></span>
+    </div>
 
-          document.querySelectorAll('.theme-toggle-btn').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-              var next = currentTheme() === 'dark' ? 'light' : 'dark';
-              document.documentElement.setAttribute('data-theme', next);
-              try { localStorage.setItem('theme', next); } catch (e) {}
-              setIcons(next);
-              feather.replace();
-              window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
-            });
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+      (function () {
+        function currentTheme() {
+          return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        }
+        function setIcons(theme) {
+          document.querySelectorAll('.theme-toggle-icon').forEach(function (icon) {
+            icon.setAttribute('data-feather', theme === 'dark' ? 'sun' : 'moon');
           });
-        })();
-      </script>
+        }
 
-      <!-- Graphs (L5: dataset rendered from data/standings-<season>.json) -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
-      <script>
+        setIcons(currentTheme());
+        feather.replace();
+
+        document.querySelectorAll('.theme-toggle-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var next = currentTheme() === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+            setIcons(next);
+            feather.replace();
+            window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
+          });
+        });
+
+        // Owners collapse -- replaces Bootstrap's data-toggle="collapse"
+        // (which needed jQuery + Popper); this is the only interactive
+        // widget on the site that isn't a plain link, click-to-sort, or
+        // the theme toggle, so it doesn't need a library.
+        var ownersToggle = document.getElementById('owners-toggle');
+        var ownersPanel = document.getElementById('owners-panel');
+        var ownersChevron = document.getElementById('owners-chevron');
+        if (ownersToggle && ownersPanel) {
+          ownersToggle.addEventListener('click', function () {
+            var open = ownersPanel.classList.toggle('hidden') === false;
+            ownersToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (ownersChevron) ownersChevron.style.transform = open ? 'rotate(180deg)' : '';
+          });
+        }
+      })();
+    </script>
+
+    <!-- Graphs (dataset rendered from data/standings-<season>.json) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+    <script>
+      
+      
+      
+        
+      
+        
+      
+      
         
         
-        
-          
-        
-          
-        
-        
-          
-          
-            
-            
-          
-            
-            
-          
-          
-          
-        
-          
-          
-            
-            
-          
-            
-            
-          
-          
-          
-        
-          
-          
-            
-            
-          
-            
-            
-          
-          
-          
-        
-          
-          
-            
-            
-          
-            
-            
-          
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
           
           
-            
-            
-          
-            
-            
-          
+        
+        
+        
+      
+        
+        
           
           
         
-        var chartData = {"datasets": [{"backgroundColor": "#0072B2", "borderColor": "#0072B2", "data": [154.3, 137.7], "hidden": false, "label": "Jamie Sugar", "pointBackgroundColor": "#0072B2", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#D55E00", "borderColor": "#D55E00", "data": [120.8, 92.8], "hidden": false, "label": "Daniel Sharp", "pointBackgroundColor": "#D55E00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#009E73", "borderColor": "#009E73", "data": [149.9, 114.5], "hidden": false, "label": "Pat Benner", "pointBackgroundColor": "#009E73", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#E69F00", "borderColor": "#E69F00", "data": [123.3, 130.2], "hidden": true, "label": "Daniel Senger", "pointBackgroundColor": "#E69F00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#CC79A7", "borderColor": "#CC79A7", "data": [91.3, 176.7], "hidden": true, "label": "Paul Tuura", "pointBackgroundColor": "#CC79A7", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#56B4E9", "borderColor": "#56B4E9", "data": [122.9, 91.3], "hidden": true, "label": "Nick Kubit", "pointBackgroundColor": "#56B4E9", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#F0E442", "borderColor": "#F0E442", "data": [93.4, 115.3], "hidden": true, "label": "Casey Pirsig", "pointBackgroundColor": "#F0E442", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#999999", "borderColor": "#999999", "data": [107.9, 82.9], "hidden": true, "label": "Dav\u00edd Huisken", "pointBackgroundColor": "#999999", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#882255", "borderColor": "#882255", "data": [95.0, 91.4], "hidden": true, "label": "Ethan Hildebrandt", "pointBackgroundColor": "#882255", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#44AA99", "borderColor": "#44AA99", "data": [104.2, 78.0], "hidden": true, "label": "Sam Engsberg", "pointBackgroundColor": "#44AA99", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#994499", "borderColor": "#994499", "data": [95.9, 78.1], "hidden": true, "label": "Nicholas Polansky", "pointBackgroundColor": "#994499", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#332288", "borderColor": "#332288", "data": [101.8, 67.2], "hidden": true, "label": "Eric Monson", "pointBackgroundColor": "#332288", "pointBorderColor": "#fff", "pointBorderWidth": 1}], "labels": ["Wk 1", "Wk 2"]};
-        var ctx = document.getElementById("myChart");
-        if (ctx) {
-          // Chart.js draws its own canvas pixels, so grid/tick/legend
-          // colors don't get dark mode for free from CSS -- read the same
-          // variables dashboard.css defines and re-apply on toggle.
-          function themeColor(name) {
-            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-          }
-          var fffChart = new Chart(ctx, {
-            type: 'line',
-            data: chartData,
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              hover: { mode: 'nearest', intersect: false },
-              elements: {
-                line: { borderWidth: 2, tension: 0 },
-                point: { radius: 2.5, hoverRadius: 6, hitRadius: 10 }
-              },
-              scales: {
-                xAxes: [{
-                  gridLines: { display: false },
-                  ticks: { fontColor: themeColor('--chart-tick') }
-                }],
-                yAxes: [{
-                  gridLines: { color: themeColor('--chart-grid') },
-                  ticks: { fontColor: themeColor('--chart-tick'), beginAtZero: false }
-                }]
-              },
-              legend: {
-                position: 'bottom',
-                labels: {
-                  usePointStyle: true,
-                  pointStyle: 'circle',
-                  boxWidth: 8,
-                  fontColor: themeColor('--chart-legend'),
-                  padding: 12
-                }
-              },
-              tooltips: {
-                mode: 'nearest',
-                intersect: false,
-                backgroundColor: 'rgba(33, 37, 41, .92)',
-                titleFontStyle: 'normal',
-                bodySpacing: 2,
-                callbacks: {
-                  label: function (item) {
-                    return ' ' + item.dataset.label + ': ' + item.yLabel;
-                  }
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+        
+        
+          
+          
+        
+          
+          
+        
+        
+        
+      
+      var chartData = {"datasets": [{"backgroundColor": "#0072B2", "borderColor": "#0072B2", "data": [154.3, 137.7], "hidden": false, "label": "Jamie Sugar", "pointBackgroundColor": "#0072B2", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#D55E00", "borderColor": "#D55E00", "data": [120.8, 92.8], "hidden": false, "label": "Daniel Sharp", "pointBackgroundColor": "#D55E00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#009E73", "borderColor": "#009E73", "data": [149.9, 114.5], "hidden": false, "label": "Pat Benner", "pointBackgroundColor": "#009E73", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#E69F00", "borderColor": "#E69F00", "data": [123.3, 130.2], "hidden": true, "label": "Daniel Senger", "pointBackgroundColor": "#E69F00", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#CC79A7", "borderColor": "#CC79A7", "data": [91.3, 176.7], "hidden": true, "label": "Paul Tuura", "pointBackgroundColor": "#CC79A7", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#56B4E9", "borderColor": "#56B4E9", "data": [122.9, 91.3], "hidden": true, "label": "Nick Kubit", "pointBackgroundColor": "#56B4E9", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#F0E442", "borderColor": "#F0E442", "data": [93.4, 115.3], "hidden": true, "label": "Casey Pirsig", "pointBackgroundColor": "#F0E442", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#999999", "borderColor": "#999999", "data": [107.9, 82.9], "hidden": true, "label": "Dav\u00edd Huisken", "pointBackgroundColor": "#999999", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#882255", "borderColor": "#882255", "data": [95.0, 91.4], "hidden": true, "label": "Ethan Hildebrandt", "pointBackgroundColor": "#882255", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#44AA99", "borderColor": "#44AA99", "data": [104.2, 78.0], "hidden": true, "label": "Sam Engsberg", "pointBackgroundColor": "#44AA99", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#994499", "borderColor": "#994499", "data": [95.9, 78.1], "hidden": true, "label": "Nicholas Polansky", "pointBackgroundColor": "#994499", "pointBorderColor": "#fff", "pointBorderWidth": 1}, {"backgroundColor": "#332288", "borderColor": "#332288", "data": [101.8, 67.2], "hidden": true, "label": "Eric Monson", "pointBackgroundColor": "#332288", "pointBorderColor": "#fff", "pointBorderWidth": 1}], "labels": ["Wk 1", "Wk 2"]};
+      var ctx = document.getElementById("myChart");
+      if (ctx) {
+        function swatchColor(id) {
+          var el = document.getElementById(id);
+          return el ? getComputedStyle(el).color : '#868e96';
+        }
+        var fffChart = new Chart(ctx, {
+          type: 'line',
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            hover: { mode: 'nearest', intersect: false },
+            elements: {
+              line: { borderWidth: 2, tension: 0 },
+              point: { radius: 2.5, hoverRadius: 6, hitRadius: 10 }
+            },
+            scales: {
+              xAxes: [{
+                gridLines: { display: false },
+                ticks: { fontColor: swatchColor('swatch-tick') }
+              }],
+              yAxes: [{
+                gridLines: { color: getComputedStyle(document.getElementById('swatch-grid')).borderColor },
+                ticks: { fontColor: swatchColor('swatch-tick'), beginAtZero: false }
+              }]
+            },
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                boxWidth: 8,
+                fontColor: swatchColor('swatch-legend'),
+                padding: 12
+              }
+            },
+            tooltips: {
+              mode: 'nearest',
+              intersect: false,
+              backgroundColor: 'rgba(15, 23, 42, .92)',
+              titleFontStyle: 'normal',
+              bodySpacing: 2,
+              callbacks: {
+                label: function (item) {
+                  return ' ' + item.dataset.label + ': ' + item.yLabel;
                 }
               }
             }
-          });
-          window.addEventListener('themechange', function () {
-            var o = fffChart.options;
-            o.scales.xAxes[0].ticks.fontColor = themeColor('--chart-tick');
-            o.scales.yAxes[0].ticks.fontColor = themeColor('--chart-tick');
-            o.scales.yAxes[0].gridLines.color = themeColor('--chart-grid');
-            o.legend.labels.fontColor = themeColor('--chart-legend');
-            fffChart.update();
-          });
-        }
-      </script>
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+          }
+        });
+        window.addEventListener('themechange', function () {
+          var o = fffChart.options;
+          o.scales.xAxes[0].ticks.fontColor = swatchColor('swatch-tick');
+          o.scales.yAxes[0].ticks.fontColor = swatchColor('swatch-tick');
+          o.scales.yAxes[0].gridLines.color = getComputedStyle(document.getElementById('swatch-grid')).borderColor;
+          o.legend.labels.fontColor = swatchColor('swatch-legend');
+          fffChart.update();
+        });
+      }
+    </script>
   </body>
 </html>

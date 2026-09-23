@@ -5,54 +5,9 @@
 {% endblock %}
 
 {% block main %}
-<style>
-  #careers-table thead th {
-    font-size: .72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-    color: var(--text-muted);
-    white-space: nowrap;
-    border-bottom: 2px solid var(--border);
-  }
-  #careers-table th:not(:nth-child(2)),
-  #careers-table td:not(:nth-child(2)) {
-    text-align: right;
-  }
-  .title-badge {
-    display: inline-block;
-    min-width: 1.4rem;
-    padding: .1rem .3rem;
-    border-radius: .25rem;
-    background: #fde047;
-    color: #713f12;
-    font-weight: 600;
-    font-size: .75rem;
-  }
-  .best-week, .worst-week {
-    font-size: .78rem;
-    white-space: nowrap;
-  }
-  .best-week { color: var(--success-fg); }
-  .worst-week { color: var(--danger-fg); }
-  .week-sub { color: var(--text-muted); }
 
-  /* Mobile: keep only the columns that answer "who's good all-time" at a
-     glance; the rest is a horizontal scroll away. */
-  @media (max-width: 575.98px) {
-    #careers-table .col-avg,
-    #careers-table .col-best,
-    #careers-table .col-worst,
-    #careers-table .col-topsix {
-      display: none;
-    }
-  }
-</style>
-
-<div class="pt-3 pb-2 mb-3 border-bottom">
-  <h1 class="h2 mb-0">Career Stats</h1>
-</div>
-<p class="text-muted">
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Career Stats</h1>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
   Every owner's all-time totals, {{ careers | length }} owners across every
   season on file. "Titles" counts regular-season #1 finishes (playoffs
   aren't tracked here); "Career Average" is points-for divided by games
@@ -60,41 +15,47 @@
 </p>
 
 {% if careers %}
-<div class="table-responsive">
-  <table class="table table-striped table-hover" id="careers-table">
-    <thead>
+<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800" id="careers-table">
+    <thead class="bg-slate-50 dark:bg-slate-900/60">
       <tr>
-        <th>Owner</th>
-        <th>Seasons</th>
-        <th>Record</th>
-        <th class="col-avg">Career Average</th>
-        <th>Points For</th>
-        <th>Titles</th>
-        <th class="col-topsix">Top-Half Pts</th>
-        <th class="col-best">Best Week</th>
-        <th class="col-worst">Worst Week</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seasons</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Record</th>
+        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Career Average</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Points For</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Titles</th>
+        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Top-Half Pts</th>
+        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Best Week</th>
+        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Worst Week</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
       {% for c in careers %}
-        <tr>
-          <td style="text-align: left;">{{ c.owner }}</td>
-          <td>{{ c.seasons }}</td>
-          <td>{{ c.wins }}-{{ c.losses }}{% if c.ties %}-{{ c.ties }}{% endif %}</td>
-          <td class="col-avg">{{ c.careerAverage }}</td>
-          <td>{{ c.pointsFor }}</td>
-          <td>{% if c.titles %}<span class="title-badge">{{ c.titles }}&#9733;</span>{% else %}0{% endif %}</td>
-          <td class="col-topsix">{{ c.topHalfPoints }}</td>
-          <td class="col-best">
-            {% if c.bestWeek %}
-              <span class="best-week">{{ c.bestWeek.score }}</span>
-              <span class="week-sub">'{{ c.bestWeek.season % 100 }} Wk{{ c.bestWeek.week }}</span>
+        <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+          <td class="px-3 py-2 font-medium text-slate-900 dark:text-slate-100">{{ c.owner }}</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ c.seasons }}</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ c.wins }}-{{ c.losses }}{% if c.ties %}-{{ c.ties }}{% endif %}</td>
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ c.careerAverage }}</td>
+          <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ c.pointsFor }}</td>
+          <td class="px-3 py-2 text-right">
+            {% if c.titles %}
+              <span class="inline-block min-w-[1.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-amber-300 text-amber-900 dark:bg-amber-400 dark:text-amber-950">{{ c.titles }}&#9733;</span>
+            {% else %}
+              <span class="text-slate-400 dark:text-slate-500">0</span>
             {% endif %}
           </td>
-          <td class="col-worst">
+          <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ c.topHalfPoints }}</td>
+          <td class="hidden px-3 py-2 text-right whitespace-nowrap sm:table-cell">
+            {% if c.bestWeek %}
+              <span class="font-medium text-emerald-600 dark:text-emerald-400">{{ c.bestWeek.score }}</span>
+              <span class="text-xs text-slate-400 dark:text-slate-500">'{{ c.bestWeek.season % 100 }} Wk{{ c.bestWeek.week }}</span>
+            {% endif %}
+          </td>
+          <td class="hidden px-3 py-2 text-right whitespace-nowrap sm:table-cell">
             {% if c.worstWeek %}
-              <span class="worst-week">{{ c.worstWeek.score }}</span>
-              <span class="week-sub">'{{ c.worstWeek.season % 100 }} Wk{{ c.worstWeek.week }}</span>
+              <span class="font-medium text-rose-600 dark:text-rose-400">{{ c.worstWeek.score }}</span>
+              <span class="text-xs text-slate-400 dark:text-slate-500">'{{ c.worstWeek.season % 100 }} Wk{{ c.worstWeek.week }}</span>
             {% endif %}
           </td>
         </tr>
@@ -103,7 +64,7 @@
   </table>
 </div>
 {% else %}
-  <p>No career data yet.</p>
+  <p class="mt-4 text-slate-500 dark:text-slate-400">No career data yet.</p>
 {% endif %}
 
 {% endblock %}

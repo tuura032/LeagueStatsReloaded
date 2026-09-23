@@ -1,5 +1,11 @@
 __pycache__/
 *.pyc
 
+# Node deps for the Tailwind build (src/tailwind.css -> static/css/app.css).
+# The compiled output IS committed -- static/ is copied verbatim into docs/
+# and GitHub Pages has no build step, so app.css has to be a real file in
+# the repo, same as static/js/hello.js or static/fffIcon.png.
+node_modules/
+
 # local-only: per-session worklog (AI session notes stay out of the public repo)
 WORKLOG.md

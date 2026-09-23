@@ -110,6 +110,13 @@ against a committed raw file.
 **Dependencies — this list is complete:** `requests`, `jinja2`. That is it.
 Flask, flask-session, SQLAlchemy and psycopg2 all go.
 
+**Frontend build (added 2026-09-22):** Bootstrap 4 + jQuery, replaced with
+Tailwind CSS, compiled dev-time from `src/tailwind.css` to the *committed*
+`static/css/app.css` (no CI build step — GitHub Pages serves `static/` as
+real files, same as `static/js/hello.js`). This is a Node dev dependency
+only; the runtime pipeline above stays Python-only. See `README.md`
+§"Frontend (Tailwind CSS)".
+
 **Why Python and not a rewrite in something else:** the templates are Jinja and
 they are worth keeping (§4). Rendering them needs Jinja. Anything else means
 rewriting the frontend, which is the one part that still works.
@@ -155,6 +162,13 @@ https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/<season>/segment
 ---
 
 ## 4. The frontend — kept, not replaced
+
+**Superseded 2026-09-22** for the visual layer specifically: `static/dashboard.css`
+and Bootstrap 4/jQuery are gone, replaced with Tailwind CSS (owner-requested
+full redesign, not an incremental fix — see §2). The section below is kept
+for history; `templates/*.html` structure/Jinja logic is still the v2
+rewrite's work and still the thing being built on, just with Tailwind
+classes instead of Bootstrap ones.
 
 `templates/` and `static/dashboard.css` are v1's work and they stay. The
 standings table in `home.html` **already has the right columns**:

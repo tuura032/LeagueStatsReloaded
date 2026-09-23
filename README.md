@@ -55,7 +55,8 @@ two commits to see exactly what moved.
 
 ## Local development
 
-Python 3.11+. Dependencies: `requests`, `jinja2` — that's it.
+Python 3.11+. Dependencies: `requests`, `jinja2` — that's it for the data
+pipeline.
 
 ```
 pip install -r requirements.txt
@@ -66,6 +67,23 @@ python build.py --season 2026
 ```
 
 Open `docs/index.html` in a browser.
+
+### Frontend (Tailwind CSS)
+
+The site is styled with Tailwind CSS, compiled at dev time from
+`src/tailwind.css` to `static/css/app.css`. That compiled file **is
+committed** — GitHub Pages has no build step, so `static/` has to be
+served as real files, same as `static/js/hello.js`. Only needed after
+editing a template's class names or `src/tailwind.css`:
+
+```
+npm install
+npm run build:css      # one-shot
+npm run watch:css       # rebuilds on save, for template work
+```
+
+Rebuild it and re-run `python build.py` before committing a template
+change, or the deployed CSS won't match the markup.
 
 Tests (the dual-point math — the only file with real logic):
 

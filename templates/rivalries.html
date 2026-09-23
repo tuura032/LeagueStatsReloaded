@@ -5,99 +5,45 @@
 {% endblock %}
 
 {% block main %}
-<style>
-  /* Rivalry matrix: read a cell as the ROW owner's record against the
-     COLUMN owner. Diagonal (self vs self) is blank. Cell tint follows
-     the row owner's win rate against that opponent -- green they lead,
-     red they trail, gray even or never played -- so the grid reads at a
-     glance instead of forcing you to parse every "W-L". */
-  #rivalry-table {
-    font-size: .8rem;
-  }
-  #rivalry-table th, #rivalry-table td {
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle;
-  }
-  #rivalry-table th.row-owner {
-    text-align: right;
-    font-weight: 600;
-    white-space: normal;
-    max-width: 9rem;
-  }
-  #rivalry-table thead th {
-    font-size: .68rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .03em;
-    color: var(--text-muted);
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    padding: .5rem .25rem;
-  }
-  #rivalry-table td.self {
-    background: var(--neutral-bg);
-  }
-  #rivalry-table td.never {
-    color: var(--text-faint);
-  }
-  #rivalry-table td.leads { background: var(--success-bg); color: var(--success-fg); }
-  #rivalry-table td.trails { background: var(--danger-bg); color: var(--danger-fg); }
-  #rivalry-table td.even { background: var(--bg-alt); color: var(--neutral-fg); }
 
-  /* Mobile: the full NxN grid can't be tamed by hiding columns, so keep
-     it in a horizontally-scrollable strip with the owner names pinned
-     on the left, rather than dropping data. */
-  #rivalry-scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  #rivalry-table th.row-owner {
-    position: sticky;
-    left: 0;
-    background: var(--sticky-bg);
-    box-shadow: 1px 0 0 var(--sidebar-shadow);
-  }
-</style>
-
-<div class="pt-3 pb-2 mb-3 border-bottom">
-  <h1 class="h2 mb-0">Rivalries</h1>
-</div>
-<p class="text-muted">
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Rivalries</h1>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
   Every owner's all-time head-to-head record, {{ rivalry_owners | length }} owners
   across every season on file. Read a cell as the row owner's record
   (W-L-T) against the column owner.
 </p>
 
 {% if rivalry_owners %}
-<div class="table-responsive" id="rivalry-scroll">
-  <table class="table table-sm table-bordered" id="rivalry-table">
+<div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="border-separate border-spacing-0 text-xs">
     <thead>
       <tr>
-        <th></th>
+        <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900"></th>
         {% for opp in rivalry_owners %}
-          <th>{{ opp }}</th>
+          <th class="min-w-[3.2rem] border-b border-slate-200 bg-slate-50 px-1 py-2 text-center align-bottom text-[.65rem] font-semibold tracking-wide text-slate-500 uppercase dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+              style="writing-mode: vertical-rl; transform: rotate(180deg);">{{ opp }}</th>
         {% endfor %}
       </tr>
     </thead>
     <tbody>
       {% for owner in rivalry_owners %}
         <tr>
-          <th class="row-owner">{{ owner }}</th>
+          <th class="sticky left-0 z-10 border-r border-b border-slate-200 bg-white px-3 py-1.5 text-right text-xs font-semibold whitespace-nowrap text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">{{ owner }}</th>
           {% for opp in rivalry_owners %}
             {% if opp == owner %}
-              <td class="self">&mdash;</td>
+              <td class="border-b border-slate-100 bg-slate-50 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-700">&mdash;</td>
             {% elif rivalry_matrix[owner][opp] is defined %}
               {% set rec = rivalry_matrix[owner][opp] %}
               {% if rec.wins > rec.losses %}
-                <td class="leads">{{ rec.wins }}-{{ rec.losses }}{% if rec.ties %}-{{ rec.ties }}{% endif %}</td>
+                {% set cell_class = "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300" %}
               {% elif rec.wins < rec.losses %}
-                <td class="trails">{{ rec.wins }}-{{ rec.losses }}{% if rec.ties %}-{{ rec.ties }}{% endif %}</td>
+                {% set cell_class = "bg-rose-100 text-rose-800 dark:bg-rose-500/20 dark:text-rose-300" %}
               {% else %}
-                <td class="even">{{ rec.wins }}-{{ rec.losses }}{% if rec.ties %}-{{ rec.ties }}{% endif %}</td>
+                {% set cell_class = "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300" %}
               {% endif %}
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center font-medium whitespace-nowrap dark:border-slate-800 {{ cell_class }}">{{ rec.wins }}-{{ rec.losses }}{% if rec.ties %}-{{ rec.ties }}{% endif %}</td>
             {% else %}
-              <td class="never">&ndash;</td>
+              <td class="border-b border-slate-100 px-2 py-1.5 text-center text-slate-300 dark:border-slate-800 dark:text-slate-600">&ndash;</td>
             {% endif %}
           {% endfor %}
         </tr>
@@ -106,7 +52,7 @@
   </table>
 </div>
 {% else %}
-  <p>No head-to-head data yet.</p>
+  <p class="mt-4 text-slate-500 dark:text-slate-400">No head-to-head data yet.</p>
 {% endif %}
 
 {% endblock %}

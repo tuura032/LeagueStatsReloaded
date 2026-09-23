@@ -5,87 +5,67 @@
 {% endblock %}
 
 {% block main %}
-    <div class="pt-3 pb-2 mb-3 border-bottom">
-      <h1 class="h2 mb-0">All Points Scored Each Week</h1>
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">All Points Scored Each Week</h1>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Every team's raw score for each week, {{ season }} season — weeks 1–{{ throughWeek }} of {{ regularSeasonWeeks }}.
+  The top three teams are shown by default; click a name in the legend to show or hide any team.
+</p>
+
+<div class="mt-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+  <div class="relative h-[320px] w-full md:h-[420px]">
+    <canvas id="myChart" role="img" aria-label="Line chart of each team's weekly score, {{ season }} season"></canvas>
+  </div>
+</div>
+
+{% if weeks %}
+  {% set all_scores = [] %}
+  {% for w in weeks %}
+    {% for t in w.teams %}
+      {% set _ = all_scores.append(t.score) %}
+    {% endfor %}
+  {% endfor %}
+  {% set league_avg = (all_scores | sum / all_scores | length) | round(1) %}
+
+  {% set week_avgs = [] %}
+  {% for w in weeks %}
+    {% set s = w.teams | map(attribute='score') | list %}
+    {% set _ = week_avgs.append((s | sum / s | length, w.week)) %}
+  {% endfor %}
+  {% set best_week = week_avgs | max %}
+  {% set low_week = week_avgs | min %}
+
+  {% set big = [] %}
+  {% for w in weeks %}
+    {% for t in w.teams %}
+      {% set o = standings | selectattr('teamId', 'equalto', t.teamId) | first %}
+      {% set _ = big.append((t.score, o.owner, w.week)) %}
+    {% endfor %}
+  {% endfor %}
+  {% set top_score, top_owner, top_week = big | max %}
+
+  <div class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">League average / week</div>
+      <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{{ league_avg }}</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">per team, {{ throughWeek }} week{{ 's' if throughWeek != 1 else '' }}</div>
     </div>
-    <p class="text-muted">
-      Every team's raw score for each week, {{ season }} season — weeks 1–{{ throughWeek }} of {{ regularSeasonWeeks }}.
-      The top three teams are shown by default; click a name in the legend to show or hide any team.
-    </p>
-
-    <div class="card">
-      <div class="card-body">
-        <div class="chart-wrap">
-          <canvas id="myChart" role="img" aria-label="Line chart of each team's weekly score, {{ season }} season"></canvas>
-        </div>
-      </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Highest-scoring week</div>
+      <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">Wk {{ best_week[1] }}</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ best_week[0] | round(1) }} avg per team</div>
     </div>
-
-    {% if weeks %}
-      {% set all_scores = [] %}
-      {% for w in weeks %}
-        {% for t in w.teams %}
-          {% set _ = all_scores.append(t.score) %}
-        {% endfor %}
-      {% endfor %}
-      {% set league_avg = (all_scores | sum / all_scores | length) | round(1) %}
-
-      {% set week_avgs = [] %}
-      {% for w in weeks %}
-        {% set s = w.teams | map(attribute='score') | list %}
-        {% set _ = week_avgs.append((s | sum / s | length, w.week)) %}
-      {% endfor %}
-      {% set best_week = week_avgs | max %}
-      {% set low_week = week_avgs | min %}
-
-      {% set big = [] %}
-      {% for w in weeks %}
-        {% for t in w.teams %}
-          {% set o = standings | selectattr('teamId', 'equalto', t.teamId) | first %}
-          {% set _ = big.append((t.score, o.owner, w.week)) %}
-        {% endfor %}
-      {% endfor %}
-      {% set top_score, top_owner, top_week = big | max %}
-
-      <div class="row mt-1">
-        <div class="col-6 col-md-3 mb-3">
-          <div class="card h-100">
-            <div class="card-body py-3">
-              <div class="stat-label">League average / week</div>
-              <div class="stat-value">{{ league_avg }}</div>
-              <div class="stat-sub">per team, {{ throughWeek }} week{{ 's' if throughWeek != 1 else '' }}</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3 mb-3">
-          <div class="card h-100">
-            <div class="card-body py-3">
-              <div class="stat-label">Highest-scoring week</div>
-              <div class="stat-value">Wk {{ best_week[1] }}</div>
-              <div class="stat-sub">{{ best_week[0] | round(1) }} avg per team</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3 mb-3">
-          <div class="card h-100">
-            <div class="card-body py-3">
-              <div class="stat-label">Lowest-scoring week</div>
-              <div class="stat-value">Wk {{ low_week[1] }}</div>
-              <div class="stat-sub">{{ low_week[0] | round(1) }} avg per team</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-6 col-md-3 mb-3">
-          <div class="card h-100">
-            <div class="card-body py-3">
-              <div class="stat-label">Biggest single week</div>
-              <div class="stat-value">{{ top_score }}</div>
-              <div class="stat-sub">{{ top_owner }}, Wk {{ top_week }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% else %}
-      <p>No weeks of data yet.</p>
-    {% endif %}
+    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Lowest-scoring week</div>
+      <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">Wk {{ low_week[1] }}</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ low_week[0] | round(1) }} avg per team</div>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Biggest single week</div>
+      <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{{ top_score }}</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ top_owner }}, Wk {{ top_week }}</div>
+    </div>
+  </div>
+{% else %}
+  <p class="mt-4 text-slate-500 dark:text-slate-400">No weeks of data yet.</p>
+{% endif %}
 {% endblock %}

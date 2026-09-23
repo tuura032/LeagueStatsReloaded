@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+/* Explicitly scan templates/ and static/js/ for class names -- the CLI's
+   auto-detection heuristic walks from the current directory, but being
+   explicit means it survives someone running the build from elsewhere. */
+@source "../templates";
+@source "../static/js";
+
+/* Dark mode: JS (layout.html) always resolves and sets data-theme="light"
+   or "dark" explicitly on <html> before first paint (localStorage
+   override, else system preference) -- so dark: here targets that
+   attribute directly rather than a prefers-color-scheme media query.
+   One resolution point (the JS), one thing for CSS to key off. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
