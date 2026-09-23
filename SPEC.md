@@ -16,12 +16,22 @@ from and how the page is served.
 
 **One task per session. Stop when it is done.**
 
-1. **Get context.** Read this spec's §9 task list and `WORKLOG.md`. Identify
+1. **Get on the right branch.** `main` is production — GitHub Pages deploys
+   from `main`/`docs`, and a daily GitHub Actions workflow auto-commits fresh
+   data straight to `main` every morning. **Never commit directly to `main`.**
+   `git checkout dev` (create it from `main` if it doesn't exist yet) before
+   making any change. Merge `dev` → `main` only when the work is ready to
+   publish, and if `main` has moved since (the daily bot), merge
+   `origin/main` into `dev` first — never rebase (it re-hits the same
+   auto-generated-data conflict at every commit). Resolve any
+   `data/*.json` conflict by rerunning `compute.py`/`build.py`, never by
+   hand-editing the JSON.
+2. **Get context.** Read this spec's §9 task list and `WORKLOG.md`. Identify
    the first task not marked done.
-2. **Do exactly that one task.** Nothing else.
-3. **Document it.** Append an entry to `WORKLOG.md`: what you changed, which
+3. **Do exactly that one task.** Nothing else.
+4. **Document it.** Append an entry to `WORKLOG.md`: what you changed, which
    files, what you verified, anything you deferred or found surprising.
-4. **Stop.** Say which task is next and end the session. **Do not begin it.**
+5. **Stop.** Say which task is next and end the session. **Do not begin it.**
 
 ### Rules that override any instinct to be helpful
 
