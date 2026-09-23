@@ -19,6 +19,7 @@ Tie rules (SPEC.md §1 — assumptions, pending league confirmation):
 """
 import argparse
 import json
+import statistics
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -457,6 +458,297 @@ def build_career_stats(all_standings):
 
     return sorted(careers.values(),
                   key=lambda c: (-c["wins"], -c["pointsFor"]))
+
+
+
+# --------------------------------------------------------------------------
+# Per-season advanced stats, records and awards.
+#
+# All derived from the §5 week data already on disk -- no extra ESPN call.
+# Computed at render time (like build_rivalries/build_career_stats) rather
+# than stored in standings-<season>.json, so the committed artifact stays
+# the raw scoring record and these stay free to change shape.
+# --------------------------------------------------------------------------
+
+def all_play_records(season):
+    """Each team's record as if it played every other team every week.
+
+    The truest measure of strength in fantasy: it removes the schedule
+    entirely. 12 teams x 14 weeks = 154 notional games. It is also the
+    natural extension of this league's own top-half point -- top-half is
+    the binary version of the same idea -- so a team whose all-play rate is
+    far above its actual win rate has been unlucky rather than bad.
+
+    Returns {teamId: {wins, losses, ties, pct}}; pct counts a tie as half.
+    """
+    out = {}
+    for w in season["weeks"]:
+        scores = [(t["teamId"], t["score"]) for t in w["teams"]]
+        for team_id, score in scores:
+            rec = out.setdefault(team_id, {"wins": 0, "losses": 0, "ties": 0})
+            for other_id, other in scores:
+                if other_id == team_id:
+                    continue
+                if score > other:
+                    rec["wins"] += 1
+                elif score < other:
+                    rec["losses"] += 1
+                else:
+                    rec["ties"] += 1
+    for rec in out.values():
+        total = rec["wins"] + rec["losses"] + rec["ties"]
+        rec["pct"] = round((rec["wins"] + 0.5 * rec["ties"]) / total, 3) if total else 0.0
+    return out
+
+
+def scoring_profile(season):
+    """Volatility and weekly extremes per team.
+
+    - stdev: population standard deviation of weekly scores. Low means a
+      team you can predict; high means one that wins big and loses big.
+    - high/low: that team's best and worst week.
+    - weeklyFirsts/weeklyLasts: how often it was the whole league's top or
+      bottom scorer in a week.
+    - luckyWins: won the matchup while scoring in the bottom half.
+    - unluckyLosses: scored in the top half and lost anyway.
+
+    The last two are expressed in the league's own dual-point terms (the
+    per-week h2h/topHalf flags), which is what makes them worth showing
+    here rather than a generic "close losses" stat.
+    """
+    out = {}
+    for w in season["weeks"]:
+        scores = [t["score"] for t in w["teams"]]
+        best = max(scores) if scores else None
+        worst = min(scores) if scores else None
+        for t in w["teams"]:
+            p = out.setdefault(t["teamId"], {
+                "scores": [], "weeklyFirsts": 0, "weeklyLasts": 0,
+                "luckyWins": 0, "unluckyLosses": 0})
+            p["scores"].append(t["score"])
+            if t["score"] == best:
+                p["weeklyFirsts"] += 1
+            if t["score"] == worst:
+                p["weeklyLasts"] += 1
+            if t["h2h"] and not t["topHalf"]:
+                p["luckyWins"] += 1
+            if t["topHalf"] and not t["h2h"]:
+                p["unluckyLosses"] += 1
+
+    for p in out.values():
+        scores = p.pop("scores")
+        p["stdev"] = round(statistics.pstdev(scores), 1) if len(scores) > 1 else 0.0
+        p["high"] = max(scores) if scores else 0.0
+        p["low"] = min(scores) if scores else 0.0
+    return out
+
+
+def season_records(season):
+    """Single-game and single-week superlatives for one season.
+
+    Ties resolve to the earliest week (records are only replaced on a
+    strict improvement), so a rebuild is deterministic.
+    """
+    if not season["weeks"]:
+        return {}
+    owner = {s["teamId"]: s["owner"] for s in season["standings"]}
+
+    blowout = closest = high = low = None
+    tough_loss = cheap_win = shootout = snoozer = None
+
+    for w in season["weeks"]:
+        for g in w["games"]:
+            if g["winner"] is None:
+                continue
+            win_id = g["winner"]
+            home_won = win_id == g["home"]
+            lose_id = g["away"] if home_won else g["home"]
+            win_score = g["homeScore"] if home_won else g["awayScore"]
+            lose_score = g["awayScore"] if home_won else g["homeScore"]
+
+            margin = round(win_score - lose_score, 1)
+            entry = {"margin": margin, "week": w["week"],
+                     "winner": owner.get(win_id), "loser": owner.get(lose_id),
+                     "winnerScore": win_score, "loserScore": lose_score,
+                     "combined": round(win_score + lose_score, 1)}
+            if blowout is None or margin > blowout["margin"]:
+                blowout = entry
+            if closest is None or margin < closest["margin"]:
+                closest = entry
+            if shootout is None or entry["combined"] > shootout["combined"]:
+                shootout = entry
+            if snoozer is None or entry["combined"] < snoozer["combined"]:
+                snoozer = entry
+
+            # Highest score that still lost / lowest score that still won.
+            if tough_loss is None or lose_score > tough_loss["score"]:
+                tough_loss = {"score": lose_score, "week": w["week"],
+                              "owner": owner.get(lose_id),
+                              "opponent": owner.get(win_id),
+                              "opponentScore": win_score}
+            if cheap_win is None or win_score < cheap_win["score"]:
+                cheap_win = {"score": win_score, "week": w["week"],
+                             "owner": owner.get(win_id),
+                             "opponent": owner.get(lose_id),
+                             "opponentScore": lose_score}
+
+        for t in w["teams"]:
+            e = {"score": t["score"], "week": w["week"],
+                 "owner": owner.get(t["teamId"])}
+            if high is None or t["score"] > high["score"]:
+                high = e
+            if low is None or t["score"] < low["score"]:
+                low = e
+
+    return {"blowout": blowout, "closest": closest, "high": high, "low": low,
+            "toughLoss": tough_loss, "cheapWin": cheap_win,
+            "shootout": shootout, "snoozer": snoozer}
+
+
+def _leaders(rows, key, reverse=True):
+    """Every row tied for the max (or min) `key`, ordered by teamId.
+
+    Returns a list because ties are real and a league notices them: in 2025
+    two owners both stole six games while scoring in the bottom half, and
+    quietly handing the award to one of them invites an argument the data
+    does not actually support. Empty list if no row has that stat.
+    """
+    rows = [r for r in rows if r.get(key) is not None]
+    if not rows:
+        return []
+    best = (max if reverse else min)(r[key] for r in rows)
+    return sorted((r for r in rows if r[key] == best),
+                  key=lambda r: r["teamId"])
+
+
+def _names(rows):
+    """'A', 'A & B', or 'A, B & C' for a list of co-winners."""
+    names = [r["owner"] for r in rows]
+    if len(names) == 1:
+        return names[0]
+    return ", ".join(names[:-1]) + " & " + names[-1]
+
+
+def season_awards(season, all_play, profile):
+    """Named end-of-season superlatives.
+
+    Deliberately NOT random. build.py's output has to be deterministic:
+    the daily workflow commits only when docs/ changes, so an award that
+    rerolled every run would manufacture a commit each morning and make the
+    git history useless as a record of what actually moved. These are fixed
+    rules that happen to be fun.
+
+    Each award is {key, emoji, name, blurb, owner, detail}. Awards whose
+    stat does not exist yet are omitted rather than rendered empty.
+    """
+    rows = []
+    for s in season["standings"]:
+        ap = all_play.get(s["teamId"], {})
+        pr = profile.get(s["teamId"], {})
+        rows.append({**s, "allPlayPct": ap.get("pct"), "stdev": pr.get("stdev"),
+                     "high": pr.get("high"), "low": pr.get("low"),
+                     "weeklyFirsts": pr.get("weeklyFirsts"),
+                     "weeklyLasts": pr.get("weeklyLasts"),
+                     "luckyWins": pr.get("luckyWins"),
+                     "unluckyLosses": pr.get("unluckyLosses")})
+
+    weeks = len(season["weeks"])
+    awards = []
+
+    def add(key, emoji, name, blurb, winners, detail):
+        if winners:
+            awards.append({"key": key, "emoji": emoji, "name": name,
+                           "blurb": blurb, "owner": _names(winners),
+                           "shared": len(winners) > 1,
+                           "detail": detail(winners[0])})
+
+    add("wall", "\U0001F9F1", "The Wall",
+        "Best record if everyone played everyone every week — schedule removed.",
+        _leaders(rows, "allPlayPct"),
+        lambda r: "{:.1f}% all-play".format(r["allPlayPct"] * 100))
+
+    add("metronome", "\U0001F3AF", "The Metronome",
+        "Smallest week-to-week swing. You always knew what was coming.",
+        _leaders(rows, "stdev", reverse=False),
+        lambda r: "±{} pts per week".format(r["stdev"]))
+
+    add("rollercoaster", "\U0001F3A2", "The Rollercoaster",
+        "Biggest week-to-week swing. Boom or bust, never in between.",
+        _leaders(rows, "stdev"),
+        lambda r: "±{} pts per week".format(r["stdev"]))
+
+    if any(r["unluckyLosses"] for r in rows):
+        add("robbed", "\U0001F494", "Robbed",
+            "Most weeks scoring top half and losing the matchup anyway.",
+            _leaders(rows, "unluckyLosses"),
+            lambda r: "{} of {} weeks".format(r["unluckyLosses"], weeks))
+
+    if any(r["luckyWins"] for r in rows):
+        add("horseshoe", "\U0001F340", "Horseshoe",
+            "Most wins while scoring in the bottom half. Found a way.",
+            _leaders(rows, "luckyWins"),
+            lambda r: "{} of {} weeks".format(r["luckyWins"], weeks))
+
+    add("punchingbag", "\U0001F94A", "Punching Bag",
+        "Faced the most points all season. Nobody had a harder draw.",
+        _leaders(rows, "pointsAgainst"),
+        lambda r: "{} points against".format(r["pointsAgainst"]))
+
+    add("ceiling", "\U0001F525", "Highest Ceiling",
+        "The single biggest week anyone put up.",
+        _leaders(rows, "high"),
+        lambda r: "{} in one week".format(r["high"]))
+
+    add("floor", "\U0001F9CA", "Coldest Night",
+        "The single worst week anyone put up.",
+        _leaders(rows, "low", reverse=False),
+        lambda r: "{} in one week".format(r["low"]))
+
+    if any(r["weeklyFirsts"] for r in rows):
+        add("topdog", "\U0001F451", "Week Winner",
+            "Led the entire league in scoring the most times.",
+            _leaders(rows, "weeklyFirsts"),
+            lambda r: "{} weekly high{}".format(
+                r["weeklyFirsts"], "s" if r["weeklyFirsts"] != 1 else ""))
+
+    # Paper Tiger only means anything once there is a cut to miss.
+    cut = season.get("playoffTeamCount") or (len(season["standings"]) // 2)
+    missed = [r for r in rows if r["rank"] > cut]
+    if missed:
+        add("papertiger", "\U0001F42F", "Paper Tiger",
+            "Most points scored by a team that missed the top {}.".format(cut),
+            _leaders(missed, "pointsFor"),
+            lambda r: "{} PF, finished {}th".format(r["pointsFor"], r["rank"]))
+
+    return awards
+
+
+def build_season_stats(season):
+    """Everything the Stats page needs for one season, in one call."""
+    all_play = all_play_records(season)
+    profile = scoring_profile(season)
+    table = []
+    for s in season["standings"]:
+        ap = all_play.get(s["teamId"], {})
+        pr = profile.get(s["teamId"], {})
+        table.append({
+            "owner": s["owner"], "teamId": s["teamId"], "rank": s["rank"],
+            "record": s["record"], "pointsFor": s["pointsFor"],
+            "pointsAgainst": s["pointsAgainst"],
+            "allPlayWins": ap.get("wins", 0),
+            "allPlayLosses": ap.get("losses", 0),
+            "allPlayTies": ap.get("ties", 0),
+            "allPlayPct": ap.get("pct", 0.0),
+            "stdev": pr.get("stdev", 0.0),
+            "high": pr.get("high", 0.0), "low": pr.get("low", 0.0),
+            "weeklyFirsts": pr.get("weeklyFirsts", 0),
+            "weeklyLasts": pr.get("weeklyLasts", 0),
+            "luckyWins": pr.get("luckyWins", 0),
+            "unluckyLosses": pr.get("unluckyLosses", 0),
+        })
+    return {"table": table,
+            "records": season_records(season),
+            "awards": season_awards(season, all_play, profile)}
 
 
 def main():

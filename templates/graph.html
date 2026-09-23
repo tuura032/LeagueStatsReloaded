@@ -5,67 +5,238 @@
 {% endblock %}
 
 {% block main %}
-<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">All Points Scored Each Week</h1>
+
+<style>
+  /* Sort arrows -- same pattern as home.html/careers.html. */
+  #advanced-table th.sortable { cursor: pointer; user-select: none; }
+  #advanced-table th.sortable::after {
+    content: "\2195"; margin-left: .3em; font-size: .8em; color: #94a3b8;
+  }
+  #advanced-table th.sortable:hover::after,
+  #advanced-table th.sortable.asc::after,
+  #advanced-table th.sortable.desc::after { color: #334155; }
+  #advanced-table th.sortable.asc::after { content: "\25B2"; }
+  #advanced-table th.sortable.desc::after { content: "\25BC"; }
+  [data-theme="dark"] #advanced-table th.sortable::after { color: #64748b; }
+  [data-theme="dark"] #advanced-table th.sortable:hover::after,
+  [data-theme="dark"] #advanced-table th.sortable.asc::after,
+  [data-theme="dark"] #advanced-table th.sortable.desc::after { color: #e2e8f0; }
+</style>
+
+{# Reusable bits, so the record cards and award cards stay consistent. #}
+{% macro stat_card(label, value, sub) -%}
+<div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+  <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">{{ label }}</div>
+  <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{{ value }}</div>
+  <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ sub }}</div>
+</div>
+{%- endmacro %}
+
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{{ season }} Stats</h1>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-  Every team's raw score for each week, {{ season }} season — weeks 1–{{ throughWeek }} of {{ regularSeasonWeeks }}.
-  The top three teams are shown by default; click a name in the legend to show or hide any team.
+  Weeks 1&ndash;{{ throughWeek }} of {{ regularSeasonWeeks }}. Everything here is derived from the
+  weekly scores already on file &mdash; no projections, no guesswork.
 </p>
 
-<div class="mt-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+{% if not weeks %}
+  <p class="mt-4 text-slate-500 dark:text-slate-400">No weeks of data yet for {{ season }}.</p>
+{% else %}
+
+{# ---------------------------------------------------------------- #}
+<h2 class="mt-8 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Weekly scoring</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Every team's raw score each week. The top three are shown by default; click a name in the legend to show or hide any team.
+</p>
+<div class="mt-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
   <div class="relative h-[320px] w-full md:h-[420px]">
     <canvas id="myChart" role="img" aria-label="Line chart of each team's weekly score, {{ season }} season"></canvas>
   </div>
 </div>
 
-{% if weeks %}
-  {% set all_scores = [] %}
-  {% for w in weeks %}
-    {% for t in w.teams %}
-      {% set _ = all_scores.append(t.score) %}
-    {% endfor %}
-  {% endfor %}
-  {% set league_avg = (all_scores | sum / all_scores | length) | round(1) %}
+{% set all_scores = [] %}
+{% for w in weeks %}{% for t in w.teams %}{% set _ = all_scores.append(t.score) %}{% endfor %}{% endfor %}
+{% set league_avg = (all_scores | sum / all_scores | length) | round(1) %}
+{% set week_avgs = [] %}
+{% for w in weeks %}
+  {% set s = w.teams | map(attribute='score') | list %}
+  {% set _ = week_avgs.append((s | sum / s | length, w.week)) %}
+{% endfor %}
+{% set best_week = week_avgs | max %}
+{% set low_week = week_avgs | min %}
+{% set avg_stb = (weeks | map(attribute='scoreToBeat') | sum / weeks | length) | round(1) %}
 
-  {% set week_avgs = [] %}
-  {% for w in weeks %}
-    {% set s = w.teams | map(attribute='score') | list %}
-    {% set _ = week_avgs.append((s | sum / s | length, w.week)) %}
-  {% endfor %}
-  {% set best_week = week_avgs | max %}
-  {% set low_week = week_avgs | min %}
+<div class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+  {{ stat_card("League average / week", league_avg, "per team, " ~ throughWeek ~ " week" ~ ('s' if throughWeek != 1 else '')) }}
+  {{ stat_card("Average score to beat", avg_stb, "the top-half line") }}
+  {{ stat_card("Highest-scoring week", "Wk " ~ best_week[1], (best_week[0] | round(1)) ~ " avg per team") }}
+  {{ stat_card("Lowest-scoring week", "Wk " ~ low_week[1], (low_week[0] | round(1)) ~ " avg per team") }}
+</div>
 
-  {% set big = [] %}
-  {% for w in weeks %}
-    {% for t in w.teams %}
-      {% set o = standings | selectattr('teamId', 'equalto', t.teamId) | first %}
-      {% set _ = big.append((t.score, o.owner, w.week)) %}
-    {% endfor %}
-  {% endfor %}
-  {% set top_score, top_owner, top_week = big | max %}
-
-  <div class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">League average / week</div>
-      <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{{ league_avg }}</div>
-      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">per team, {{ throughWeek }} week{{ 's' if throughWeek != 1 else '' }}</div>
-    </div>
-    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Highest-scoring week</div>
-      <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">Wk {{ best_week[1] }}</div>
-      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ best_week[0] | round(1) }} avg per team</div>
-    </div>
-    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Lowest-scoring week</div>
-      <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">Wk {{ low_week[1] }}</div>
-      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ low_week[0] | round(1) }} avg per team</div>
-    </div>
-    <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Biggest single week</div>
-      <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{{ top_score }}</div>
-      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ top_owner }}, Wk {{ top_week }}</div>
+{# ---------------------------------------------------------------- #}
+{% if season_stats.awards %}
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">
+  Season awards
+  {% if throughWeek < regularSeasonWeeks %}
+  <span class="ml-2 rounded bg-slate-200 px-2 py-0.5 align-middle text-[.65rem] font-semibold tracking-wide text-slate-600 uppercase dark:bg-slate-700 dark:text-slate-300">Through week {{ throughWeek }}</span>
+  {% endif %}
+</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Handed out by fixed rules, not at random &mdash; so they only move when the football does.
+</p>
+<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+  {% for a in season_stats.awards %}
+  <div class="flex gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <span class="text-2xl leading-none" aria-hidden="true">{{ a.emoji }}</span>
+    <div class="min-w-0">
+      <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+        {{ a.name }}{% if a.shared %}<span class="ml-1 rounded bg-slate-200 px-1 py-0.5 text-[.6rem] normal-case dark:bg-slate-700 dark:text-slate-300" title="Tied">shared</span>{% endif %}
+      </div>
+      <div class="text-base font-semibold text-slate-900 dark:text-white">{{ a.owner }}</div>
+      <div class="text-xs font-medium text-blue-600 dark:text-blue-400">{{ a.detail }}</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ a.blurb }}</div>
     </div>
   </div>
-{% else %}
-  <p class="mt-4 text-slate-500 dark:text-slate-400">No weeks of data yet.</p>
+  {% endfor %}
+</div>
 {% endif %}
+
+{# ---------------------------------------------------------------- #}
+{% set r = season_stats.records %}
+{% if r.blowout %}
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Season records</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  The single games worth remembering.
+</p>
+<div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Biggest blowout</div>
+    <div class="mt-1 text-2xl font-semibold text-rose-600 dark:text-rose-400">+{{ r.blowout.margin }}</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      <strong>{{ r.blowout.winner }}</strong> {{ r.blowout.winnerScore }} &ndash; {{ r.blowout.loserScore }} {{ r.blowout.loser }}
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.blowout.week }}</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Closest game</div>
+    <div class="mt-1 text-2xl font-semibold text-amber-600 dark:text-amber-400">+{{ r.closest.margin }}</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      <strong>{{ r.closest.winner }}</strong> {{ r.closest.winnerScore }} &ndash; {{ r.closest.loserScore }} {{ r.closest.loser }}
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.closest.week }}</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Highest score</div>
+    <div class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">{{ r.high.score }}</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300"><strong>{{ r.high.owner }}</strong></div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.high.week }}</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Lowest score</div>
+    <div class="mt-1 text-2xl font-semibold text-slate-500 dark:text-slate-400">{{ r.low.score }}</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300"><strong>{{ r.low.owner }}</strong></div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.low.week }}</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Best score in a loss</div>
+    <div class="mt-1 text-2xl font-semibold text-rose-600 dark:text-rose-400">{{ r.toughLoss.score }}</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      <strong>{{ r.toughLoss.owner }}</strong> ran into {{ r.toughLoss.opponent }} ({{ r.toughLoss.opponentScore }})
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.toughLoss.week }}</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Worst score in a win</div>
+    <div class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">{{ r.cheapWin.score }}</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      <strong>{{ r.cheapWin.owner }}</strong> got away with it vs {{ r.cheapWin.opponent }} ({{ r.cheapWin.opponentScore }})
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.cheapWin.week }}</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Shootout</div>
+    <div class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{{ r.shootout.combined }}</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      {{ r.shootout.winner }} {{ r.shootout.winnerScore }} &ndash; {{ r.shootout.loserScore }} {{ r.shootout.loser }}
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.shootout.week }}, combined</div>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Snoozer</div>
+    <div class="mt-1 text-2xl font-semibold text-slate-500 dark:text-slate-400">{{ r.snoozer.combined }}</div>
+    <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">
+      {{ r.snoozer.winner }} {{ r.snoozer.winnerScore }} &ndash; {{ r.snoozer.loserScore }} {{ r.snoozer.loser }}
+    </div>
+    <div class="text-xs text-slate-400 dark:text-slate-500">Week {{ r.snoozer.week }}, combined</div>
+  </div>
+
+</div>
+{% endif %}
+
+{# ---------------------------------------------------------------- #}
+<h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Advanced stats</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  <strong>All-play</strong> is your record if you'd played every other team every week &mdash;
+  the schedule removed entirely. Compare it to your real record to see who got carried by
+  the draw. <strong>Swing</strong> is the week-to-week standard deviation: low is predictable,
+  high is boom-or-bust. Click a column header to sort.
+</p>
+
+{% set best_ap = season_stats.table | map(attribute='allPlayPct') | max %}
+<div class="mt-3 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
+  <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="advanced-table">
+    <thead class="bg-slate-50 dark:bg-slate-900/60">
+      <tr>
+        <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Record</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400" title="Record against every team, every week">All-Play</th>
+        <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">All-Play %</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Standard deviation of weekly scores">Swing</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Points Against</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Weeks as the league's top scorer">Wk Highs</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Scored top half and lost anyway">Robbed</th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400" title="Won while scoring in the bottom half">Stole It</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+      {% for t in season_stats.table %}
+      <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
+        <td class="px-3 py-2 font-medium whitespace-nowrap text-slate-900 dark:text-slate-100">{{ t.owner }}</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-500 dark:text-slate-400">{{ t.record }}</td>
+        <td class="px-3 py-2 text-right whitespace-nowrap text-slate-700 dark:text-slate-300" data-sort="{{ t.allPlayPct }}">
+          {{ t.allPlayWins }}-{{ t.allPlayLosses }}{% if t.allPlayTies %}-{{ t.allPlayTies }}{% endif %}
+        </td>
+        {# Bar scaled to the league leader, so the column reads as a ranking at a glance. #}
+        <td class="px-3 py-2" data-sort="{{ t.allPlayPct }}">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-16 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+              <div class="h-full rounded-full {{ 'bg-emerald-500' if t.allPlayPct >= 0.5 else 'bg-rose-400' }}"
+                   style="width: {{ ((t.allPlayPct / best_ap * 100) if best_ap else 0) | round(1) }}%"></div>
+            </div>
+            <span class="text-xs tabular-nums {{ 'font-semibold text-emerald-700 dark:text-emerald-400' if t.allPlayPct >= 0.5 else 'text-slate-500 dark:text-slate-400' }}">{{ (t.allPlayPct * 100) | round(1) }}%</span>
+          </div>
+        </td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell {{ 'text-amber-600 dark:text-amber-400' if t.stdev >= 25 else 'text-slate-700 dark:text-slate-300' }}">
+          &plusmn;{{ t.stdev }}
+        </td>
+        <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ t.pointsAgainst }}</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell {{ 'font-semibold text-slate-900 dark:text-white' if t.weeklyFirsts else 'text-slate-400 dark:text-slate-500' }}">{{ t.weeklyFirsts }}</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell {{ 'font-semibold text-rose-600 dark:text-rose-400' if t.unluckyLosses else 'text-slate-400 dark:text-slate-500' }}">{{ t.unluckyLosses }}</td>
+        <td class="hidden px-3 py-2 text-right sm:table-cell {{ 'font-semibold text-emerald-600 dark:text-emerald-400' if t.luckyWins else 'text-slate-400 dark:text-slate-500' }}">{{ t.luckyWins }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endif %}
+
+<script src="static/js/hello.js"></script>
 {% endblock %}

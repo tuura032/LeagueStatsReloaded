@@ -713,3 +713,232 @@ class TestOrdinalFilter(unittest.TestCase):
 
     def test_none_renders_empty(self):
         self.assertEqual(build.ordinal(None), "")
+
+
+class TestAllPlayRecords(unittest.TestCase):
+    """all_play_records: record against the whole field, schedule removed."""
+
+    def setUp(self):
+        self.season = compute.build_standings(
+            make_raw(full_season_weeks()), UPDATED)
+        self.ap = compute.all_play_records(self.season)
+
+    def test_every_team_plays_every_other_team_each_week(self):
+        # 12 teams -> 11 notional games each, 14 weeks -> 154.
+        for tid, rec in self.ap.items():
+            total = rec["wins"] + rec["losses"] + rec["ties"]
+            self.assertEqual(total, 11 * 14, f"team {tid}")
+
+    def test_top_scorer_beats_the_whole_field_every_week(self):
+        # full_season_weeks() gives team 12 the highest score every week.
+        self.assertEqual(self.ap[12]["wins"], 11 * 14)
+        self.assertEqual(self.ap[12]["losses"], 0)
+        self.assertEqual(self.ap[12]["pct"], 1.0)
+
+    def test_bottom_scorer_loses_to_the_whole_field(self):
+        self.assertEqual(self.ap[1]["wins"], 0)
+        self.assertEqual(self.ap[1]["losses"], 11 * 14)
+        self.assertEqual(self.ap[1]["pct"], 0.0)
+
+    def test_wins_and_losses_are_symmetric_across_the_league(self):
+        total_w = sum(r["wins"] for r in self.ap.values())
+        total_l = sum(r["losses"] for r in self.ap.values())
+        self.assertEqual(total_w, total_l)
+
+    def test_ties_count_as_half_a_win(self):
+        # One week, six matchups, every team scoring exactly the same.
+        season = compute.build_standings(
+            make_raw({1: week_games([100.0] * 12)}), UPDATED)
+        ap = compute.all_play_records(season)
+        self.assertEqual(ap[1]["ties"], 11)
+        self.assertEqual(ap[1]["wins"], 0)
+        self.assertEqual(ap[1]["pct"], 0.5)
+
+
+class TestScoringProfile(unittest.TestCase):
+    """scoring_profile: volatility, weekly extremes, lucky/unlucky weeks."""
+
+    def test_identical_scores_every_week_have_no_deviation(self):
+        weeks = {w: week_games([100 + i for i in range(12)], week=w)
+                 for w in range(1, 5)}
+        season = compute.build_standings(make_raw(weeks), UPDATED)
+        prof = compute.scoring_profile(season)
+        self.assertEqual(prof[1]["stdev"], 0.0)
+
+    def test_stdev_rises_with_swing(self):
+        steady = {w: week_games([100 + i for i in range(12)], week=w)
+                  for w in (1, 2)}
+        swingy = {1: week_games([100 + i for i in range(12)], week=1),
+                  2: week_games([200 + i for i in range(12)], week=2)}
+        a = compute.scoring_profile(
+            compute.build_standings(make_raw(steady), UPDATED))
+        b = compute.scoring_profile(
+            compute.build_standings(make_raw(swingy), UPDATED))
+        self.assertLess(a[1]["stdev"], b[1]["stdev"])
+
+    def test_weekly_firsts_and_lasts(self):
+        season = compute.build_standings(
+            make_raw(full_season_weeks()), UPDATED)
+        prof = compute.scoring_profile(season)
+        self.assertEqual(prof[12]["weeklyFirsts"], 14)
+        self.assertEqual(prof[12]["weeklyLasts"], 0)
+        self.assertEqual(prof[1]["weeklyLasts"], 14)
+
+    def test_lucky_win_is_a_bottom_half_score_that_won(self):
+        # Team 1 scores 10 (lowest by far) but its opponent scores 5.
+        scores = [10.0, 5.0] + [100 + i for i in range(10)]
+        season = compute.build_standings(
+            make_raw({1: week_games(scores)}), UPDATED)
+        prof = compute.scoring_profile(season)
+        team1 = next(t for t in season["weeks"][0]["teams"] if t["teamId"] == 1)
+        self.assertEqual(team1["h2h"], 1)
+        self.assertEqual(team1["topHalf"], 0)
+        self.assertEqual(prof[1]["luckyWins"], 1)
+        self.assertEqual(prof[1]["unluckyLosses"], 0)
+
+    def test_unlucky_loss_is_a_top_half_score_that_lost(self):
+        # Teams 1 and 2 are the top two scores, but they play each other,
+        # so the loser scored top-half and still lost.
+        scores = [150.0, 149.0] + [100 + i for i in range(10)]
+        season = compute.build_standings(
+            make_raw({1: week_games(scores)}), UPDATED)
+        prof = compute.scoring_profile(season)
+        team2 = next(t for t in season["weeks"][0]["teams"] if t["teamId"] == 2)
+        self.assertEqual(team2["h2h"], 0)
+        self.assertEqual(team2["topHalf"], 1)
+        self.assertEqual(prof[2]["unluckyLosses"], 1)
+
+
+class TestSeasonRecords(unittest.TestCase):
+    """season_records: single-game and single-week superlatives."""
+
+    def setUp(self):
+        # wk1 has a 60-point blowout (1 v 2) and a 1-point squeaker (3 v 4).
+        wk1 = [(1, 2, 160.0, 100.0), (3, 4, 121.0, 120.0),
+               (5, 6, 130.0, 110.0), (7, 8, 125.0, 105.0),
+               (9, 10, 115.0, 112.0), (11, 12, 118.0, 108.0)]
+        self.season = compute.build_standings(make_raw({1: wk1}), UPDATED)
+        self.rec = compute.season_records(self.season)
+
+    def test_biggest_blowout(self):
+        self.assertEqual(self.rec["blowout"]["margin"], 60.0)
+        self.assertEqual(self.rec["blowout"]["winner"], "First1 Last1")
+        self.assertEqual(self.rec["blowout"]["loser"], "First2 Last2")
+
+    def test_closest_game(self):
+        self.assertEqual(self.rec["closest"]["margin"], 1.0)
+        self.assertEqual(self.rec["closest"]["winner"], "First3 Last3")
+
+    def test_high_and_low_weeks(self):
+        self.assertEqual(self.rec["high"]["score"], 160.0)
+        self.assertEqual(self.rec["high"]["owner"], "First1 Last1")
+        self.assertEqual(self.rec["low"]["score"], 100.0)
+
+    def test_tough_loss_is_the_best_losing_score(self):
+        # 120.0 (team 4) is the highest score among the six losers.
+        self.assertEqual(self.rec["toughLoss"]["score"], 120.0)
+        self.assertEqual(self.rec["toughLoss"]["owner"], "First4 Last4")
+
+    def test_cheap_win_is_the_worst_winning_score(self):
+        # 115.0 (team 9) is the lowest score among the six winners.
+        self.assertEqual(self.rec["cheapWin"]["score"], 115.0)
+        self.assertEqual(self.rec["cheapWin"]["owner"], "First9 Last9")
+
+    def test_shootout_and_snoozer_use_combined_points(self):
+        # Combined totals: 260, 241, 240, 230, 227, 226.
+        self.assertEqual(self.rec["shootout"]["combined"], 260.0)
+        self.assertEqual(self.rec["snoozer"]["combined"], 226.0)
+        self.assertEqual(self.rec["snoozer"]["winner"], "First11 Last11")
+
+    def test_no_weeks_gives_no_records(self):
+        empty = compute.build_standings(make_raw({}), UPDATED)
+        self.assertEqual(compute.season_records(empty), {})
+
+
+class TestSeasonAwards(unittest.TestCase):
+    """season_awards: named superlatives, and deterministic."""
+
+    def setUp(self):
+        self.season = compute.build_standings(
+            make_raw(full_season_weeks()), UPDATED)
+        self.stats = compute.build_season_stats(self.season)
+        self.by_key = {a["key"]: a for a in self.stats["awards"]}
+
+    def test_the_wall_goes_to_the_best_all_play_record(self):
+        self.assertEqual(self.by_key["wall"]["owner"], "First12 Last12")
+
+    def test_ceiling_and_floor_go_to_the_right_teams(self):
+        self.assertEqual(self.by_key["ceiling"]["owner"], "First12 Last12")
+        self.assertEqual(self.by_key["floor"]["owner"], "First1 Last1")
+
+    def test_every_award_is_fully_populated(self):
+        for a in self.stats["awards"]:
+            for field in ("key", "emoji", "name", "blurb", "owner", "detail"):
+                self.assertTrue(a.get(field), f"{a.get('key')}.{field}")
+
+    def test_awards_are_deterministic_across_runs(self):
+        # The daily workflow commits only when docs/ changes, so an award
+        # that rerolled per run would manufacture a commit every morning.
+        again = compute.build_season_stats(self.season)["awards"]
+        self.assertEqual(self.stats["awards"], again)
+
+    def test_ties_break_on_team_id_not_iteration_order(self):
+        # Every team scores identically every week, so every stat ties.
+        weeks = {w: week_games([100.0] * 12, week=w) for w in range(1, 4)}
+        season = compute.build_standings(make_raw(weeks), UPDATED)
+        a = compute.build_season_stats(season)["awards"]
+        b = compute.build_season_stats(season)["awards"]
+        self.assertEqual(a, b)
+
+    def test_empty_season_produces_no_crash(self):
+        empty = compute.build_standings(make_raw({}), UPDATED)
+        stats = compute.build_season_stats(empty)
+        self.assertEqual(stats["records"], {})
+        self.assertIsInstance(stats["awards"], list)
+
+    def test_stats_table_covers_every_owner(self):
+        self.assertEqual(len(self.stats["table"]), 12)
+        row = next(r for r in self.stats["table"] if r["teamId"] == 12)
+        self.assertEqual(row["allPlayPct"], 1.0)
+        self.assertEqual(row["weeklyFirsts"], 14)
+
+
+class TestAwardTies(unittest.TestCase):
+    """Ties are shown as co-winners, not silently handed to one owner."""
+
+    def test_names_formats_one_two_and_three_winners(self):
+        rows = [{"owner": "A"}, {"owner": "B"}, {"owner": "C"}]
+        self.assertEqual(compute._names(rows[:1]), "A")
+        self.assertEqual(compute._names(rows[:2]), "A & B")
+        self.assertEqual(compute._names(rows), "A, B & C")
+
+    def test_leaders_returns_every_tied_row_ordered_by_team_id(self):
+        rows = [{"teamId": 7, "v": 5}, {"teamId": 2, "v": 5},
+                {"teamId": 9, "v": 1}]
+        self.assertEqual([r["teamId"] for r in compute._leaders(rows, "v")],
+                         [2, 7])
+        self.assertEqual([r["teamId"]
+                          for r in compute._leaders(rows, "v", reverse=False)],
+                         [9])
+
+    def test_leaders_ignores_rows_missing_the_stat(self):
+        rows = [{"teamId": 1, "v": None}, {"teamId": 2, "v": 3}]
+        self.assertEqual(compute._leaders(rows, "v"), [{"teamId": 2, "v": 3}])
+        self.assertEqual(compute._leaders([{"teamId": 1, "v": None}], "v"), [])
+
+    def test_a_shared_award_names_both_owners_and_is_flagged(self):
+        # Every team identical every week -> every award is a 12-way tie.
+        weeks = {w: week_games([100.0] * 12, week=w) for w in range(1, 4)}
+        season = compute.build_standings(make_raw(weeks), UPDATED)
+        awards = compute.build_season_stats(season)["awards"]
+        self.assertTrue(awards)
+        for a in awards:
+            self.assertTrue(a["shared"], a["key"])
+            self.assertIn("&", a["owner"])
+
+    def test_a_clear_winner_is_not_flagged_as_shared(self):
+        season = compute.build_standings(
+            make_raw(full_season_weeks()), UPDATED)
+        by_key = {a["key"]: a for a in compute.build_season_stats(season)["awards"]}
+        self.assertFalse(by_key["wall"]["shared"])
+        self.assertEqual(by_key["wall"]["owner"], "First12 Last12")

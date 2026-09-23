@@ -152,6 +152,10 @@ def main():
             # Final placement order, best first -- the answer to "how did
             # this season actually end", which for a past season matters at
             # least as much as the regular-season table.
+            # Advanced stats, records and awards for the Stats page.
+            # Derived at render time from the week data already on disk --
+            # no extra ESPN call, nothing new stored in the JSON artifact.
+            "season_stats": compute.build_season_stats(data),
             "final_standings": sorted(
                 (s for s in data["standings"] if s.get("finalRank")),
                 key=lambda s: s["finalRank"]),

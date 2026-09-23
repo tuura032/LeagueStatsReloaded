@@ -56,6 +56,26 @@ the wrong owner for four of the five seasons on file. **Titles** 🏆 and
 
 Standings sort by total points, then points-for.
 
+## Stats, records and awards
+
+The Stats page is built entirely from the weekly scores already on file —
+no extra ESPN call, nothing stored beyond `standings-<season>.json`.
+
+- **All-play record** — your record if you had played every other team
+  every week, i.e. the schedule removed. The gap between it and your real
+  record is the cleanest measure of schedule luck, and it is the continuous
+  version of the league's own top-half point.
+- **Swing** — standard deviation of weekly scores.
+- **Robbed / Stole It** — weeks scoring top-half and losing, and weeks
+  winning from the bottom half.
+- **Season records** — biggest blowout, closest game, high and low scores,
+  best score in a loss, worst score in a win, highest and lowest combined.
+- **Season awards** — ten named superlatives, ties shown as co-winners.
+
+Awards are computed by fixed rules and are **not randomised**: `build.py`
+must stay deterministic so the daily workflow commits only when the data
+actually changed.
+
 ## How it works
 
 ```
@@ -136,7 +156,7 @@ manual re-enable each August.
 | Path | What |
 | --- | --- |
 | `fetch.py` | ESPN API → `data/raw-<season>.json` (verbatim, no transform) |
-| `compute.py` | raw → `data/standings-<season>.json` (the dual-point math + playoff bracket) |
+| `compute.py` | raw → `data/standings-<season>.json` (the dual-point math + playoff bracket), plus the render-time rivalry/career/season-stats derivations |
 | `build.py` | renders `templates/` to `docs/`, copies `static/` |
 | `test_compute.py` | unit tests for the scoring rule |
 | `data/` | committed raw + computed JSON per season |

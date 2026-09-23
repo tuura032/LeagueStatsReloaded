@@ -88,7 +88,7 @@ chat.
 | F1 | **Luck Index** | H2H record vs. points-scored-relative-to-field. | S | 🔥 | **DONE** — standings page |
 | F2 | **Head-to-head matrix / rivalry record** | All-time record between every owner pair. | M | 🔥 | **DONE** — new Rivalries page |
 | F3 | **Matchup visualizer** | Per-week matchup cards: two teams, scores, a bar comparing them, W/L + top-half badges. Basically a "box score" page per week instead of just the aggregate table. Pairs well with F6. | M | High | Open |
-| F4 | **Closest games & biggest blowouts** | Sort all-time (or season) matchups by margin — "closest game ever," "biggest blowout." Trivial once `games[]` is flattened across seasons; no new fetch needed. | S | High | Open |
+| F4 | **Closest games & biggest blowouts** | Season records on the Stats page. | S | High | **DONE** 2026-09-22 — 8 records: blowout, closest, high, low, best-score-in-a-loss, worst-score-in-a-win, shootout, snoozer. Per-season; an all-time version is still open |
 | F5 | **Streaks** | Win/loss streak per owner, badge on standings. | S | High | **DONE** |
 | F6 | **Weekly recap / "power rankings" blurb** | Auto-generated one-paragraph recap per week: top scorer, biggest upset, score-to-beat, week MVP. A templated (non-AI) fill-in-the-blank recap reads as "content" instead of "a spreadsheet." | M | High | Open |
 | F7 | **Championship simulator** | Monte Carlo over remaining games for live playoff-odds %. Needs `compute.py` work, not just template work. | L | 🔥 | Open |
@@ -96,10 +96,30 @@ chat.
 | F9 | **All-time / dynasty leaderboard** | Aggregate totals across all seasons. | S | High | **DONE** — Career Stats page, now sortable |
 | F10 | **"On the bubble" indicator** | Flag the teams at the playoff line. | XS | Med | **DONE** — playoff-line divider row |
 
-Remaining open: F3, F4, F6, F7, F8. F4 (closest games/blowouts) is still the
-cheapest "look what I found" content left on the list — pure derived data,
-no new fetch, no `compute.py` changes needed if done as a template-side sort
-over the existing `weeks[].games`.
+Remaining open: F3, F6, F7, F8.
+
+**Stats page rebuilt 2026-09-22.** It was a chart plus four tiles; it is now a
+four-section page — Weekly scoring, Season awards, Season records, Advanced
+stats — all derived from `weeks[]` with no new ESPN call:
+
+- **All-play record** (`compute.all_play_records`) — your record if you had
+  played every team every week, schedule removed. 154 notional games a season.
+  It is the continuous version of this league's own top-half point, and the
+  gap between it and your real record is the cleanest "was I unlucky or bad"
+  answer available. Rendered with a bar scaled to the league leader.
+- **Swing** — population standard deviation of weekly scores. Predictable vs.
+  boom-or-bust, amber past ±25.
+- **Robbed / Stole It** — weeks you scored top-half and lost, and weeks you won
+  from the bottom half. Both expressed in the league's own dual-point terms.
+- **Points Against** — was computed by `compute.py` from the start and had
+  never once been rendered.
+- **Weekly highs** — times you led the whole league in a week.
+- **10 named awards** with co-winner handling, and **8 season records**.
+
+Awards are deliberately **not random**: `build.py` output has to stay
+deterministic or the daily workflow manufactures a commit every morning and
+the git history stops meaning anything. They are fixed rules that happen to
+be fun. See `season_awards()`.
 
 ---
 
