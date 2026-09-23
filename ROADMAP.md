@@ -33,6 +33,16 @@ the Stats chart rendered as a **filled blob** with throwing tooltips;
 `score_to_beat()` hardcoded a 12-team field; and leading an unfinished season
 counted as a title. Same pass closed B3, B4, B5, U4, U7, M3, Q1, Q3 and Q5.
 
+**2026-09-22, second pass (owner-reported).** BUG-008: the season picker
+linked at the season *directory*, so changing year threw away the page you
+were on. BUG-009, the bigger one: a finished season led with the
+regular-season table and never said who won. Both fixed —
+`rankCalculatedFinal` (already in the `mTeam` payload, unused) now drives a
+**Finish** column on Home, a champion banner, and a full **Final Standings**
+table on Playoffs. Note for anything touching the bracket: **this league
+reseeds the playoffs by hand off the dual-point standings, so ESPN's
+`playoffSeed` is wrong — use `rankCalculatedFinal`.**
+
 ---
 
 ## 1. Bugs (real, found while reading the templates)

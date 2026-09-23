@@ -49,6 +49,18 @@
          desktop, a bar under the header on mobile. Same markup, laid out
          differently by breakpoint utilities, so there's exactly one nav
          to keep in sync with active_page instead of two. -->
+    {#- Season picker. Two things it must get right:
+
+        1. It keeps you on the page you're already looking at. It used to
+           link at the season's directory, so switching year from Playoffs
+           dumped you on that year's Home page and you had to navigate back
+           -- worst for exactly the case you switch years for (comparing the
+           same page across seasons).
+        2. Links are built off root_season, not current_season. The newest
+           season WITH DATA is the site root; the current calendar year is
+           only a label. In the off-season those differ, and keying the URL
+           off current_season would point the root season at a
+           <year>/ subdirectory that build.py never wrote. -#}
     {% macro season_picker(extra_class) -%}
     <select class="{{ extra_class }} rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
             aria-label="Season" onchange="if (this.value) location.href = this.value">
@@ -56,7 +68,7 @@
       {% if s == season %}
       <option selected disabled>{{ s }}{% if s == current_season %} (current){% endif %}</option>
       {% else %}
-      <option value="{{ base }}{% if s != current_season %}{{ s }}/{% endif %}">{{ s }}{% if s == current_season %} (current){% endif %}</option>
+      <option value="{{ base }}{% if s != root_season %}{{ s }}/{% endif %}{{ active_page }}">{{ s }}{% if s == current_season %} (current){% endif %}</option>
       {% endif %}
       {% endfor %}
     </select>

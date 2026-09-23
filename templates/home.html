@@ -26,14 +26,35 @@
   [data-theme="dark"] #standings-table th.sortable.desc::after { color: #e2e8f0; }
 </style>
 
-{% if season == current_season %}
+{% if playoffs %}
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{{ season }} Season</h1>
+<a href="playoffs.html" class="mt-3 flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 transition hover:border-amber-400 dark:border-amber-500/40 dark:bg-amber-500/10 dark:hover:border-amber-400/70">
+  <span class="text-2xl" aria-hidden="true">&#127942;</span>
+  <span>
+    <span class="block text-xs font-semibold tracking-wide text-amber-700 uppercase dark:text-amber-400">{{ season }} Champion</span>
+    <span class="block text-lg font-semibold text-slate-900 dark:text-white">{{ owner_by_team[playoffs.champion] }}</span>
+    <span class="block text-xs text-slate-600 dark:text-slate-400">
+      Beat {{ owner_by_team[playoffs.runnerUp] }} {{ playoffs.championScore }}&ndash;{{ playoffs.runnerUpScore }} in the week {{ playoffs.finalWeek }} final &middot; see the full bracket
+    </span>
+  </span>
+</a>
+<h2 class="mt-6 text-lg font-semibold tracking-tight text-slate-900 dark:text-white">Regular season standings</h2>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  The dual-point table, weeks 1&ndash;{{ throughWeek }}. <strong>Finish</strong> is where each
+  owner actually ended up after the playoffs. Click a column header to sort &mdash;
+  sort by Finish for the final order.
+</p>
+{% elif season == current_season %}
 <h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Current Rankings Through Week {{ throughWeek }}</h1>
-{% else %}
-<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{{ season }} Standings Through Week {{ throughWeek }}</h1>
-{% endif %}
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
   Click a column header to sort. Tap your name to pin your row.
 </p>
+{% else %}
+<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{{ season }} Standings Through Week {{ throughWeek }}</h1>
+<p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+  Click a column header to sort. Tap your name to pin your row.
+</p>
+{% endif %}
 
 {% if not standings or throughWeek == 0 %}
   <p class="mt-4 text-slate-500 dark:text-slate-400">
@@ -46,6 +67,7 @@
       <tr>
         <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Rank</th>
         <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
+        {% if has_final_ranks %}<th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400" title="Final placement after the playoffs">Finish</th>{% endif %}
         <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins</th>
         <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Points</th>
         <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Average Score</th>
@@ -79,6 +101,17 @@
             {{ info.owner }}
             <span class="pin-badge ml-2 hidden rounded bg-blue-100 px-1.5 py-0.5 text-[.65rem] font-semibold text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">You</span>
           </td>
+          {% if has_final_ranks %}
+          <td class="px-3 py-2 text-right" data-sort="{{ info.finalRank if info.finalRank else 999 }}">
+            {% if info.finalRank == 1 %}
+              <span class="inline-flex items-center gap-1 rounded bg-amber-300 px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-amber-900 dark:bg-amber-400 dark:text-amber-950">&#127942; 1st</span>
+            {% elif info.finalRank %}
+              <span class="{{ 'font-semibold text-slate-800 dark:text-slate-100' if info.finalRank <= 3 else 'text-slate-600 dark:text-slate-400' }}">{{ info.finalRank | ordinal }}</span>
+            {% else %}
+              <span class="text-slate-400 dark:text-slate-500">&mdash;</span>
+            {% endif %}
+          </td>
+          {% endif %}
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ info.points }}</td>
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">{{ info.pointsFor }}</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">{{ info.averageScore }}</td>
@@ -96,7 +129,7 @@
         </tr>
         {% if loop.index == playoff_spots and playoff_spots < (standings | length) %}
         <tr aria-hidden="true">
-          <td colspan="10" class="border-y border-dashed border-amber-400 bg-amber-50 px-3 py-1 text-center text-[.65rem] font-semibold tracking-wide text-amber-700 uppercase dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-400">
+          <td colspan="{{ 11 if has_final_ranks else 10 }}" class="border-y border-dashed border-amber-400 bg-amber-50 px-3 py-1 text-center text-[.65rem] font-semibold tracking-wide text-amber-700 uppercase dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-400">
             Playoff line — top {{ playoff_spots }} make it
           </td>
         </tr>

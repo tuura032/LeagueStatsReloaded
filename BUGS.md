@@ -17,6 +17,52 @@ _None._
 
 ## Resolved
 
+### BUG-008 — The season picker threw away the page you were on
+
+- **Date:** 2026-09-22
+- **Found in:** `templates/layout.html`, reported by the owner
+- **What's wrong:** each option linked at the season's *directory*
+  (`2025/`), which resolves to that season's `index.html`. Switching year
+  from Playoffs dumped you on Home and you had to navigate back — worst for
+  exactly the thing you change year for, comparing one page across seasons.
+- **Resolution:** the option now appends `active_page`, so Playoffs → 2025
+  lands on 2025's Playoffs.
+- **Also fixed here (latent):** links were built off `current_season` (the
+  calendar year) rather than `root_season` (the newest season *with data*,
+  which is what `build.py` puts at the site root). Those differ every
+  off-season, and when they do the root season's option pointed at a
+  `<year>/` subdirectory that was never written. Nobody had hit it yet
+  because the two have coincided all season.
+- **Status:** resolved 2026-09-22.
+
+### BUG-009 — Past seasons led with the regular season and buried the result
+
+- **Date:** 2026-09-22
+- **Found in:** `templates/home.html` / `playoffs.html`, reported by the owner
+  ("for historical years I care about overall winner and final standings just
+  as much, maybe more than regular season. The UX doesn't make sense for that")
+- **What's wrong:** a finished season's Home page was headed "2025 Standings
+  Through Week 14" and showed only the dual-point regular-season table. Who
+  won the league was not on the page at all, and final placings existed
+  nowhere on the site.
+- **Impact:** the site could not answer the main question you ask a league
+  archive — how did that season end.
+- **Resolution:** `rankCalculatedFinal` (already in the `mTeam` payload,
+  unused) is carried through as `finalRank`. A completed season's Home page
+  now opens with a champion banner linking to the bracket, and the standings
+  table gains a sortable **Finish** column beside the regular-season Rank.
+  The Playoffs page gained a full **Final Standings** table (1..12, across
+  playoffs and both consolation ladders), above the now clearly-labelled
+  "Regular Season Seeding" table. Both are hidden mid-season.
+- **Note on the league's rules:** FFF reseeds the playoffs by hand off the
+  dual-point standings, so ESPN's `teams[].playoffSeed` does *not* describe
+  the real bracket (2025 lists Sharp 3rd / Huisken 4th; the bracket ran
+  Huisken as the 3 seed). `rankCalculatedFinal` is computed from results, so
+  it survives the manual reseed — cross-checked against the winners bracket
+  for 2022–2025, where rank 1 is the final's winner every time.
+  **Do not use `playoffSeed`.**
+- **Status:** resolved 2026-09-22.
+
 ### BUG-003 — Career Stats credited the title to the wrong owner
 
 - **Date:** 2026-09-22

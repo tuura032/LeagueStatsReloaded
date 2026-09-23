@@ -7,6 +7,7 @@ boundary tie, and that weeks 15-17 contribute no dual points.
 """
 import unittest
 
+import build
 import compute
 
 UPDATED = "2026-09-18T13:04:11Z"
@@ -56,7 +57,8 @@ def make_bracket_matchup(week, home_id, away_id, home_score, away_score,
 
 
 def make_raw(weeks, week_count=14, season=2025, bracket=None,
-             playoff_team_count=6, name="Fantasy Football Fantasy"):
+             playoff_team_count=6, name="Fantasy Football Fantasy",
+             final_ranks=None):
     """Build a raw-fetch-shaped dict.
 
     weeks: {week: [(home_id, away_id, home_score, away_score[, played]), ...]}
@@ -69,7 +71,10 @@ def make_raw(weeks, week_count=14, season=2025, bracket=None,
     for m in bracket or []:
         schedule.append(m)
     teams = [{"id": i, "name": f"Team {i}", "primaryOwner": f"{{o{i}}}",
-              "owners": [f"{{o{i}}}"]} for i in range(1, 13)]
+              "owners": [f"{{o{i}}}"],
+              # ESPN publishes 0 until the season is over.
+              "rankCalculatedFinal": (final_ranks or {}).get(i, 0)}
+             for i in range(1, 13)]
     members = [{"id": f"{{o{i}}}", "firstName": f"First{i}",
                 "lastName": f"Last{i}", "displayName": f"user{i}"}
                for i in range(1, 13)]
@@ -647,3 +652,64 @@ class TestCareerChampionships(unittest.TestCase):
         self.assertEqual(by_owner["First12 Last12"]["regularSeasonFirsts"], 0)
         self.assertEqual(sum(c["regularSeasonFirsts"]
                              for c in by_owner.values()), 0)
+
+
+class TestFinalRank(unittest.TestCase):
+    """finalRank carries ESPN's end-of-season placement.
+
+    FFF reseeds the playoffs by hand off the dual-point standings, so
+    `playoffSeed` does not describe the real bracket. `rankCalculatedFinal`
+    is computed from results, so it survives the manual reseed -- verified
+    against the winners bracket for 2022-2025, where rank 1 is the final's
+    winner every time.
+    """
+
+    def test_final_rank_is_carried_onto_each_standings_row(self):
+        out = compute.build_standings(
+            make_raw(full_season_weeks(),
+                     final_ranks={12: 3, 2: 1, 5: 2}), UPDATED)
+        by_team = {r["teamId"]: r for r in out["standings"]}
+        self.assertEqual(by_team[2]["finalRank"], 1)
+        self.assertEqual(by_team[5]["finalRank"], 2)
+        self.assertEqual(by_team[12]["finalRank"], 3)
+
+    def test_in_progress_season_has_no_final_rank(self):
+        # ESPN publishes rankCalculatedFinal as 0 until the season ends;
+        # 0 must become None so the UI can hide the column rather than
+        # show a league of zeroth-place finishers.
+        out = compute.build_standings(make_raw(full_season_weeks()), UPDATED)
+        self.assertTrue(all(r["finalRank"] is None for r in out["standings"]))
+
+    def test_final_rank_is_independent_of_regular_season_rank(self):
+        # Team 12 tops the dual-point standings; team 2 finishes 1st.
+        out = compute.build_standings(
+            make_raw(full_season_weeks(),
+                     final_ranks={2: 1, 12: 4}), UPDATED)
+        by_team = {r["teamId"]: r for r in out["standings"]}
+        self.assertEqual(out["standings"][0]["teamId"], 12)
+        self.assertEqual(by_team[12]["rank"], 1)
+        self.assertEqual(by_team[12]["finalRank"], 4)
+        self.assertEqual(by_team[2]["finalRank"], 1)
+
+
+class TestOrdinalFilter(unittest.TestCase):
+    """build.ordinal: placements are rendered as 1st/2nd/3rd/11th."""
+
+    def test_common_suffixes(self):
+        self.assertEqual(build.ordinal(1), "1st")
+        self.assertEqual(build.ordinal(2), "2nd")
+        self.assertEqual(build.ordinal(3), "3rd")
+        self.assertEqual(build.ordinal(4), "4th")
+
+    def test_teens_are_all_th(self):
+        # The case a last-digit lookup gets wrong: "11st", "12nd", "13rd".
+        for n in (11, 12, 13):
+            self.assertTrue(build.ordinal(n).endswith("th"), n)
+
+    def test_twenties_resume_normal_suffixes(self):
+        self.assertEqual(build.ordinal(21), "21st")
+        self.assertEqual(build.ordinal(22), "22nd")
+        self.assertEqual(build.ordinal(23), "23rd")
+
+    def test_none_renders_empty(self):
+        self.assertEqual(build.ordinal(None), "")

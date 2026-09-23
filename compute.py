@@ -230,7 +230,20 @@ def build_standings(raw, updated):
         owner_name = " ".join(p for p in (owner.get("firstName"),
                                           owner.get("lastName")) if p) \
             or owner.get("displayName")
-        team_info[t["id"]] = {"name": t.get("name"), "owner": owner_name}
+        # ESPN's own end-of-season placement, 1..N across the whole league
+        # (playoffs + both consolation ladders), not just the bracket. 0
+        # while a season is in progress. Cross-checked against the winners
+        # bracket for 2022-2025: rank 1 is the final's winner every time.
+        #
+        # This matters more than it looks: FFF reseeds the playoffs by hand
+        # off the dual-point standings, so ESPN's own `playoffSeed` does NOT
+        # reflect the real bracket (2025 has Sharp seeded 3rd and Huisken
+        # 4th, while the bracket ran Huisken as the 3 seed). rankCalculated-
+        # Final is computed from results, so the manual reseed doesn't
+        # corrupt it.
+        final_rank = t.get("rankCalculatedFinal") or None
+        team_info[t["id"]] = {"name": t.get("name"), "owner": owner_name,
+                              "finalRank": final_rank}
 
     # Group by matchupPeriodId — never index the schedule by arithmetic
     # (SPEC.md §3: the playoffs do not have 6 entries per week).
@@ -290,6 +303,9 @@ def build_standings(raw, updated):
             "points": s["h2hPoints"] + s["topHalfPoints"],
             "h2hPoints": s["h2hPoints"],
             "topHalfPoints": s["topHalfPoints"],
+            # Where they actually finished once the playoffs were done.
+            # None for an in-progress season.
+            "finalRank": info["finalRank"],
             "record": f'{s["wins"]}-{s["losses"]}'
                       + (f'-{s["ties"]}' if s["ties"] else ""),
             "pointsFor": points_for,

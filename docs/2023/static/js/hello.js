@@ -48,10 +48,27 @@
       return true;
     }
 
+    // A cell sorts on its data-sort attribute when it has one, else on its
+    // text. Needed wherever the displayed text is not the number: "1st" is
+    // fine, but the champion's cell reads "<trophy> 1st" and parseFloat of
+    // that is NaN, which would feed NaN to the comparator and scramble the
+    // table.
+    function cellValue(row, col) {
+      var cell = row.cells[col];
+      if (!cell) return NaN;
+      var explicit = cell.getAttribute("data-sort");
+      return parseFloat(explicit !== null ? explicit : cell.textContent);
+    }
+
     function sortTable(col, dir) {
       rows.sort(function (a, b) {
-        var d = parseFloat(a.cells[col].textContent) -
-                parseFloat(b.cells[col].textContent);
+        var av = cellValue(a, col), bv = cellValue(b, col);
+        // Rows with no value for this column sink to the bottom either
+        // way, rather than landing wherever NaN comparisons drop them.
+        if (isNaN(av) && isNaN(bv)) return a._rank - b._rank;
+        if (isNaN(av)) return 1;
+        if (isNaN(bv)) return -1;
+        var d = av - bv;
         return d !== 0 ? d * dir : a._rank - b._rank;
       });
 

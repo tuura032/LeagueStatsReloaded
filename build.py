@@ -44,6 +44,22 @@ PAGES = (
 )
 
 
+def ordinal(n):
+    """1 -> '1st', 2 -> '2nd', 12 -> '12th', 23 -> '23rd'.
+
+    Used for final placements. 11/12/13 are the exceptions that a naive
+    last-digit lookup gets wrong ("11st"), so they are special-cased.
+    """
+    if n is None:
+        return ""
+    n = int(n)
+    if 10 <= n % 100 <= 20:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
+
+
 def main():
     parser = argparse.ArgumentParser(description="Render the FFF static site to docs/.")
     parser.add_argument("--season", type=int, default=None,
@@ -93,6 +109,7 @@ def main():
 
     env = Environment(loader=FileSystemLoader("templates"),
                       autoescape=select_autoescape())
+    env.filters["ordinal"] = ordinal
     docs = Path("docs")
     for season in seasons:
         data = json.loads((data_dir / f"standings-{season}.json").read_text(encoding="utf-8"))
@@ -109,6 +126,10 @@ def main():
             # subdirectory ("../" for past seasons, "" at the root).
             "seasons": all_seasons,
             "current_season": current_season,
+            # The newest season that has data, which is what lives at the
+            # site root. Distinct from current_season (the calendar year):
+            # in the off-season the new year exists but has no data yet.
+            "root_season": root_season,
             "base": "" if season == root_season else "../",
             "rivalry_owners": rivalry_owners,
             "rivalry_matrix": rivalry_matrix,
@@ -123,6 +144,17 @@ def main():
             # champion without re-scanning standings in the template.
             "playoffs": data.get("playoffs"),
             "owner_by_team": {s["teamId"]: s["owner"] for s in data["standings"]},
+            # Whether this season has finished and ESPN has published final
+            # placements. Drives the "Finish" column, which is meaningless
+            # (and all em-dashes) mid-season.
+            "has_final_ranks": any(s.get("finalRank")
+                                   for s in data["standings"]),
+            # Final placement order, best first -- the answer to "how did
+            # this season actually end", which for a past season matters at
+            # least as much as the regular-season table.
+            "final_standings": sorted(
+                (s for s in data["standings"] if s.get("finalRank")),
+                key=lambda s: s["finalRank"]),
             "updated": data.get("updated"),
             "leagueName": data.get("leagueName"),
         }
