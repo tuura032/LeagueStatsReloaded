@@ -61,6 +61,12 @@
     </script>
     {% endif %}
 
+    <!-- build.py rewrites this href to app.css?v=<content-hash> in the built
+         output. The hash is what busts browser caches after a deploy: with a
+         stable URL, visitors who loaded the site before the push keep getting
+         the cached CSS with the new HTML (that is how the header redesign
+         shipped broken). Don't "clean up" the ?v= in docs/ -- it comes from
+         here. -->
     <link rel="stylesheet" href="static/css/app.css">
     <link rel="shortcut icon" type="image/png" href="static/fffIcon.png"/>
 

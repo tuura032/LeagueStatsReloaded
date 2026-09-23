@@ -202,6 +202,25 @@ def main():
     env.filters["names"] = lambda owners: compute.join_names(
         [short.get(o, o) for o in owners])
     docs = Path("docs")
+
+    # Cache-busting versions for the two assets a browser is most likely to
+    # hold onto: app.css and the self-hosted fonts. Both ship under stable
+    # URLs, so a visitor who loaded the site before a deploy keeps getting
+    # the cached copy afterwards -- which is how the header redesign arrived
+    # broken on desktop (new HTML + cached old CSS: the logo SVG rendered at
+    # its default 300x150 size and the wordmark wrapped and clipped). A
+    # content hash in the query string makes every content change a new URL,
+    # so the fresh asset is fetched instead of the stale one. The CSS is
+    # hashed after normalizing CRLF -> LF so a Windows checkout and CI (LF)
+    # produce the same version and the build stays byte-identical.
+    css_version = hashlib.sha256(
+        Path("static/css/app.css").read_bytes().replace(b"\r\n", b"\n")
+    ).hexdigest()[:12]
+    font_versions = {
+        f.name: hashlib.sha256(f.read_bytes()).hexdigest()[:12]
+        for f in sorted(Path("static/fonts").glob("*.woff2"))
+    }
+
     for season in seasons:
         data = json.loads((data_dir / f"standings-{season}.json").read_text(encoding="utf-8"))
         out_dir = docs if season == root_season else docs / str(season)
@@ -269,8 +288,16 @@ def main():
             # active_page drives the sidebar's active nav state (L5).
             # encoding="utf-8": the locale default (cp1252 on Windows) would
             # corrupt non-ASCII text (owner names, dashes) in the HTML.
-            out.write_text(env.get_template(template).render(active_page=out_name, **context) + "\n",
-                           encoding="utf-8")
+            html = env.get_template(template).render(active_page=out_name, **context)
+            # layout.html links the stylesheet by stable URL; point it at the
+            # content-hashed one (see css_version above).
+            html = html.replace('href="static/css/app.css"',
+                                f'href="static/css/app.css?v={css_version}"')
+            if f"app.css?v={css_version}" not in html:
+                print(f"WARNING: {out_name} no longer references "
+                      f"static/css/app.css; cache-busting not applied.",
+                      file=sys.stderr)
+            out.write_text(html + "\n", encoding="utf-8")
             print(f"Wrote {out}")
         # The templates reference static/ relatively, so every output
         # directory needs its own copy. rmtree first: dirs_exist_ok=True
@@ -281,6 +308,15 @@ def main():
         if static_out.exists():
             shutil.rmtree(static_out)
         shutil.copytree("static", static_out)
+        # Same treatment for the fonts: the @font-face rules reference them
+        # by stable URL, so a changed woff2 would be masked by the browser's
+        # cached copy. Rewrite only the copied CSS -- the source
+        # static/css/app.css stays exactly what the Tailwind build emitted.
+        app_css = static_out / "css" / "app.css"
+        css_text = app_css.read_text(encoding="utf-8")
+        for name, version in font_versions.items():
+            css_text = css_text.replace(name, f"{name}?v={version}")
+        app_css.write_text(css_text, encoding="utf-8")
         print(f"Copied static/ to {static_out}")
 
     # robots.txt belongs at the root of the built site. Note this is only
