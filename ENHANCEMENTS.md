@@ -16,9 +16,6 @@ status.
 - **ENH-004** — Weekly recap: auto-generated, deterministic (not AI) recap —
   top scorer, biggest upset, score to beat, who got unlucky/backed in. Fully
   computable from `weeks[]`, already stored.
-- **ENH-005** — League Rules page from `mSettings` — PPR scoring, auction
-  draft, 2 keepers, FAAB, playoff seeding, trade deadline, entry fee.
-  `fetch.py` already downloads this every morning; nothing renders it.
 - **ENH-006** — Team logos + abbreviations — `teams[].logo` and
   `teams[].abbrev` are already in every raw file, unused.
 - **ENH-007** — Owner profile pages (`/owner/<name>`) — career arc,
@@ -39,6 +36,36 @@ status.
 - **ENH-012** — `mRoster` endpoint for lineup-level data: literal bench
   points, optimal-lineup regret. The one item here that's a genuinely new
   capability, not just unused existing data — needs a new fetch call.
+- **ENH-021** — Announcements section (owner idea, 2026-09-23): a place for
+  league announcements so the site has more of a "home page" feel. Placement
+  is open — home page or wherever makes sense. Checking the standings is the
+  main use case, so this must not push the standings out of the way.
+- **ENH-022** — League feed (owner idea, 2026-09-23): a feed of league
+  chatter — user comments, plus the ability to create polls (e.g. "should we
+  switch to 2QB or superflex?") that members can vote on. Open question,
+  unsolved: this is user-generated content and the static-site + daily-git-
+  commit strategy has no way to persist comments or votes. If it can't be
+  done cleanly, the fallback is the existing Facebook group and this item
+  stays open/closed as "not here."
+- **ENH-023** — Luck vs. skill index (owner idea, 2026-09-23). Replace the
+  current `luckIndex` (h2h − topHalf = "lucky wins − unlucky losses") with a
+  skill/luck split on the all-play record (`all_play_records`, already
+  computed): **skill** = all-play win rate (scoring vs. the whole league,
+  schedule removed); **luck** = actual wins − (all-play rate × games) = net
+  wins of schedule/matching luck. Verified 2021–24: the luck spread is 3–6
+  wins and tells real stories (2024: 2nd-best all-play scorer finished 5-9 on
+  a brutal draw). Flavor stats: close-game win % (<10-pt games) and
+  home-run-minus-bomb (weekly top scorer minus weekly last).
+  - Owner's alt data point: scoring vs. **league average** (easy — we have
+    `averageScore`). Logged as a candidate "skill" proxy.
+  - **Caveat (don't over-claim):** with team-level weekly scores we can't
+    separate *skill* from *roster luck* — a great waiver-wire haul or drafting
+    a breakout RB1 inflates scoring without "skill." So all-play rate and
+    league-average scoring are proxies for "underlying scoring," not pure
+    skill. The split cleanly separates *schedule* luck, not skill from roster
+    luck.
+  - Pythagorean/margin luck is **degenerate here**: in H2H the higher scorer
+    always wins (0 exceptions in 2024), so there's no "outscored but lost."
 
 ## Open — polish & UX
 
@@ -103,6 +130,12 @@ for template rendering (the screenshot baseline is the right tool for that).
   "Most Recent". The tip is a JS-positioned floating div clamped to the
   viewport — a pure-CSS ::after tip clipped at the table's overflow
   container edge on phones.
+- **ENH-005** — League Info page — done 2026-09-23. New "League Info" tab
+  answers the recurring questions (roster, scoring, draft, keepers, playoffs,
+  tiebreakers, trades/FAAB, dues). The scoring table and standing rules are
+  read straight from `mSettings` (`compute.build_scoring_table` /
+  `build_league_rules`), so they track any commissioner change; keeper pricing
+  (not in the ESPN API) is owner-confirmed config in the template.
 
 For everything else shipped before 2026-09-23 (dual-point stats page, luck
 index, rivalries, career stats, dark mode, Tailwind rewrite, real champions

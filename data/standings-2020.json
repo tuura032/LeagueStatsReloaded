@@ -2,10 +2,267 @@
   "season": 2020,
   "league": "877873",
   "leagueName": "Fantasy Football Fantasy",
-  "updated": "2026-09-23T12:32:45Z",
+  "updated": "2026-09-23T19:26:32Z",
   "regularSeasonWeeks": 13,
   "playoffTeamCount": 6,
   "entryFee": 25.0,
+  "scoring": [
+    {
+      "category": "Passing",
+      "rows": [
+        {
+          "label": "Passing TD",
+          "points": 6.0
+        },
+        {
+          "label": "Passing yards (per 5)",
+          "points": 0.2
+        },
+        {
+          "label": "Passing 2-pt conversion",
+          "points": 2.0
+        },
+        {
+          "label": "Passing interception",
+          "points": -2.0
+        }
+      ]
+    },
+    {
+      "category": "Rushing",
+      "rows": [
+        {
+          "label": "Rushing TD",
+          "points": 6.0
+        },
+        {
+          "label": "Rushing yards",
+          "points": 0.1
+        },
+        {
+          "label": "Rushing 2-pt conversion",
+          "points": 2.0
+        }
+      ]
+    },
+    {
+      "category": "Receiving",
+      "rows": [
+        {
+          "label": "Receiving TD",
+          "points": 6.0
+        },
+        {
+          "label": "Receptions (PPR)",
+          "points": 0.5
+        },
+        {
+          "label": "Receiving yards",
+          "points": 0.1
+        },
+        {
+          "label": "Receiving 2-pt conversion",
+          "points": 2.0
+        }
+      ]
+    },
+    {
+      "category": "Kicking",
+      "rows": [
+        {
+          "label": "FG made (0-39 yds)",
+          "points": 3.0
+        },
+        {
+          "label": "FG made (40-49 yds)",
+          "points": 4.0
+        },
+        {
+          "label": "FG made (50-59 yds)",
+          "points": 5.0
+        },
+        {
+          "label": "FG made (60+ yds)",
+          "points": 5.0
+        },
+        {
+          "label": "PAT made",
+          "points": 1.0
+        }
+      ]
+    },
+    {
+      "category": "Defense",
+      "rows": [
+        {
+          "label": "Sack",
+          "points": 1.0
+        },
+        {
+          "label": "Interception",
+          "points": 2.0
+        },
+        {
+          "label": "Fumble recovery",
+          "points": 2.0
+        },
+        {
+          "label": "Blocked kick",
+          "points": 2.0
+        },
+        {
+          "label": "Safety",
+          "points": 2.0
+        },
+        {
+          "label": "0 points allowed",
+          "points": 5.0
+        },
+        {
+          "label": "1-6 points allowed",
+          "points": 4.0
+        },
+        {
+          "label": "7-13 points allowed",
+          "points": 3.0
+        },
+        {
+          "label": "14-17 points allowed",
+          "points": 1.0
+        },
+        {
+          "label": "28-34 points allowed",
+          "points": -1.0
+        },
+        {
+          "label": "35-45 points allowed",
+          "points": -3.0
+        },
+        {
+          "label": "46+ points allowed",
+          "points": -5.0
+        },
+        {
+          "label": "Under 100 total yards allowed",
+          "points": 5.0
+        },
+        {
+          "label": "100-199 total yards allowed",
+          "points": 3.0
+        },
+        {
+          "label": "200-299 total yards allowed",
+          "points": 2.0
+        },
+        {
+          "label": "350-399 total yards allowed",
+          "points": -1.0
+        },
+        {
+          "label": "400-449 total yards allowed",
+          "points": -3.0
+        },
+        {
+          "label": "450-499 total yards allowed",
+          "points": -5.0
+        },
+        {
+          "label": "500-549 total yards allowed",
+          "points": -6.0
+        },
+        {
+          "label": "550+ total yards allowed",
+          "points": -7.0
+        }
+      ]
+    },
+    {
+      "category": "Returns & Turnovers",
+      "rows": [
+        {
+          "label": "Kickoff return TD",
+          "points": 6.0
+        },
+        {
+          "label": "Punt return TD",
+          "points": 6.0
+        },
+        {
+          "label": "Interception return TD",
+          "points": 6.0
+        },
+        {
+          "label": "Fumble return TD",
+          "points": 6.0
+        },
+        {
+          "label": "Blocked kick return TD",
+          "points": 6.0
+        },
+        {
+          "label": "Fumble recovered for TD",
+          "points": 6.0
+        },
+        {
+          "label": "Fumble lost",
+          "points": -2.0
+        }
+      ]
+    }
+  ],
+  "rules": {
+    "roster": {
+      "starters": [
+        {
+          "label": "QB",
+          "count": 1
+        },
+        {
+          "label": "RB",
+          "count": 2
+        },
+        {
+          "label": "WR",
+          "count": 2
+        },
+        {
+          "label": "FLEX (RB/WR)",
+          "count": 1
+        },
+        {
+          "label": "K",
+          "count": 1
+        },
+        {
+          "label": "DEF",
+          "count": 1
+        }
+      ],
+      "bench": 5,
+      "ir": 1,
+      "total": 14
+    },
+    "draft": {
+      "type": "AUCTION",
+      "budget": 200,
+      "clockSeconds": 120
+    },
+    "keepers": {
+      "count": 2
+    },
+    "playoffs": {
+      "teamCount": 6,
+      "homeTeamBonus": 1,
+      "seedingRule": "TOTAL_POINTS_SCORED"
+    },
+    "trades": {
+      "vetoVotesRequired": 4
+    },
+    "faab": {
+      "type": "WAIVERS_TRADITIONAL",
+      "budget": 200
+    }
+  },
   "throughWeek": 13,
   "weeks": [
     {

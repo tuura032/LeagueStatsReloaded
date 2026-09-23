@@ -34,6 +34,97 @@ CLOSE_GAME_MARGIN = 10.0
 MIN_CLOSE_GAMES = 3
 MIN_WEEKS_FOR_SPLIT = 6
 
+# ESPN's mSettings.scoringSettings.scoringItems carry statIds, not names, so
+# the League Info page (ENH-005) needs a label map. These are the statIds
+# this league actually scores, each verified against the per-player applied
+# stats (the exact values ESPN multiplies by an item's points). statId ->
+# human label.
+STAT_LABELS = {
+    # Passing
+    4: "Passing TD",
+    5: "Passing yards (per 5)",
+    19: "Passing 2-pt conversion",
+    20: "Passing interception",
+    # Rushing
+    24: "Rushing yards",
+    25: "Rushing TD",
+    26: "Rushing 2-pt conversion",
+    # Receiving
+    42: "Receiving yards",
+    43: "Receiving TD",
+    44: "Receiving 2-pt conversion",
+    53: "Receptions (PPR)",
+    # Kicking
+    77: "FG made (40-49 yds)",
+    80: "FG made (0-39 yds)",
+    86: "PAT made",
+    198: "FG made (50-59 yds)",
+    201: "FG made (60+ yds)",
+    # Defense
+    89: "0 points allowed",
+    90: "1-6 points allowed",
+    91: "7-13 points allowed",
+    92: "14-17 points allowed",
+    95: "Interception",
+    96: "Fumble recovery",
+    97: "Blocked kick",
+    98: "Safety",
+    99: "Sack",
+    123: "28-34 points allowed",
+    124: "35-45 points allowed",
+    125: "46+ points allowed",
+    128: "Under 100 total yards allowed",
+    129: "100-199 total yards allowed",
+    130: "200-299 total yards allowed",
+    132: "350-399 total yards allowed",
+    133: "400-449 total yards allowed",
+    134: "450-499 total yards allowed",
+    135: "500-549 total yards allowed",
+    136: "550+ total yards allowed",
+    # Returns & turnovers
+    63: "Fumble recovered for TD",
+    72: "Fumble lost",
+    93: "Blocked kick return TD",
+    101: "Kickoff return TD",
+    102: "Punt return TD",
+    103: "Interception return TD",
+    104: "Fumble return TD",
+}
+
+# Display order for the scoring table: (category, [statIds in order]). The
+# statId order within a category is the order the rows render, so the big
+# items lead each group. Anything in scoringSettings but not listed here is
+# appended to an "Other" group so a new ESPN stat is never silently dropped.
+SCORING_ORDER = (
+    ("Passing", (4, 5, 19, 20)),
+    ("Rushing", (25, 24, 26)),
+    ("Receiving", (43, 53, 42, 44)),
+    ("Kicking", (80, 77, 198, 201, 86)),
+    ("Defense", (99, 95, 96, 97, 98,
+                 89, 90, 91, 92, 123, 124, 125,
+                 128, 129, 130, 132, 133, 134, 135, 136)),
+    ("Returns & Turnovers", (101, 102, 103, 104, 93, 63, 72)),
+)
+
+# ESPN lineup slot IDs -> the position label this league uses for that slot,
+# for the roster section of the League Info page. Only the slots the league
+# fills are listed. Slot 5 is a TE/Flex and slot 23 an RB/WR Flex in this
+# league's configuration; the rest are the standard ESPN slot meanings.
+LINEUP_SLOT_LABELS = {
+    0: "QB",
+    2: "RB",
+    4: "WR",
+    5: "TE / Flex",
+    23: "FLEX (RB/WR)",
+    17: "K",
+    16: "DEF",
+}
+# Display order for the starter slots (lineup order). Bench and IR are
+# handled separately, not part of the starter lineup.
+ROSTER_SLOT_ORDER = (0, 2, 4, 5, 23, 17, 16)
+BENCH_SLOT = 20
+IR_SLOT = 21
+
 
 def current_streak(h2h_seq):
     """Current H2H streak from a chronological list of 1 (won) / 0 (lost or
@@ -216,6 +307,100 @@ def build_playoffs(schedule, week_count):
     }
 
 
+def build_scoring_table(settings):
+    """The league's scoring rules as a grouped table for the League Info page.
+
+    ESPN's scoringSettings.scoringItems carry a statId and either a base
+    ``points`` value or a ``pointsOverrides`` entry keyed by the active
+    scoring period -- never a name. This resolves each item's effective
+    points, labels it via STAT_LABELS, and groups it per SCORING_ORDER.
+    Returns ``[{"category": str, "rows": [{"label", "points"}]}]``;
+    categories with no scored items are omitted. ("rows", not "items", so the
+    key doesn't shadow the dict's built-in ``items`` method in the template.)
+    """
+    items = (settings.get("scoringSettings") or {}).get("scoringItems") or []
+    # statId -> effective points. pointsOverrides wins over the base value:
+    # a league that overrides a stat for the current period is the common
+    # case, not the exception, so the override is what actually scores.
+    points_by_id = {}
+    for it in items:
+        sid = it.get("statId")
+        overrides = it.get("pointsOverrides") or {}
+        points_by_id[sid] = next(iter(overrides.values())) if overrides \
+            else it.get("points", 0.0)
+
+    table = []
+    placed = set()
+    for category, ids in SCORING_ORDER:
+        rows = [{"label": STAT_LABELS[sid], "points": points_by_id[sid]}
+                for sid in ids if sid in points_by_id]
+        if rows:
+            table.append({"category": category, "rows": rows})
+            placed.update(ids)
+
+    # Anything ESPN scores that we haven't labeled: show it as "Stat <id>"
+    # rather than drop it, so a new stat is a visible row, not a silent gap.
+    extra = [{"label": "Stat {}".format(sid), "points": points_by_id[sid]}
+             for sid in sorted(points_by_id) if sid not in placed]
+    if extra:
+        table.append({"category": "Other", "rows": extra})
+    return table
+
+
+def build_league_rules(settings):
+    """The league's standing rules for the League Info page (ENH-005).
+
+    Extracts the settings that answer the recurring league questions --
+    roster shape, draft, keepers, playoffs, trades, FAAB -- from mSettings
+    so the page reflects what ESPN actually has configured rather than a
+    stale copy-paste. Owner-only details that aren't in the API (keeper
+    pricing, the draft date) are written in the template, not here.
+    """
+    roster = settings.get("rosterSettings", {}) or {}
+    draft = settings.get("draftSettings", {}) or {}
+    trade = settings.get("tradeSettings", {}) or {}
+    acq = settings.get("acquisitionSettings", {}) or {}
+    sched = settings.get("scheduleSettings", {}) or {}
+    scoring = settings.get("scoringSettings", {}) or {}
+
+    slot_counts = roster.get("lineupSlotCounts", {}) or {}
+    starters = [{"label": LINEUP_SLOT_LABELS[slot_id],
+                 "count": slot_counts.get(str(slot_id), 0)}
+                for slot_id in ROSTER_SLOT_ORDER
+                if slot_counts.get(str(slot_id), 0)]
+    bench = slot_counts.get(str(BENCH_SLOT), 0)
+    ir = slot_counts.get(str(IR_SLOT), 0)
+
+    return {
+        "roster": {
+            "starters": starters,
+            "bench": bench,
+            "ir": ir,
+            "total": sum(s["count"] for s in starters) + bench + ir,
+        },
+        "draft": {
+            "type": draft.get("type", ""),
+            "budget": draft.get("auctionBudget"),
+            "clockSeconds": draft.get("timePerSelection"),
+        },
+        "keepers": {
+            "count": draft.get("keeperCount"),
+        },
+        "playoffs": {
+            "teamCount": sched.get("playoffTeamCount"),
+            "homeTeamBonus": scoring.get("playoffHomeTeamBonus", 0),
+            "seedingRule": sched.get("playoffSeedingRule", ""),
+        },
+        "trades": {
+            "vetoVotesRequired": trade.get("vetoVotesRequired"),
+        },
+        "faab": {
+            "type": acq.get("acquisitionType", ""),
+            "budget": acq.get("acquisitionBudget"),
+        },
+    }
+
+
 def build_standings(raw, updated):
     """Raw fetch dict (mMatchupScore + mTeam + mSettings) -> §5 standings dict.
 
@@ -344,6 +529,11 @@ def build_standings(raw, updated):
         "regularSeasonWeeks": week_count,
         "playoffTeamCount": playoff_team_count,
         "entryFee": entry_fee,
+        # The league's scoring rules, grouped for the League Info page.
+        "scoring": build_scoring_table(raw["mSettings"]["settings"]),
+        # The league's standing rules (roster, draft, keepers, playoffs,
+        # trades, FAAB) for the League Info page.
+        "rules": build_league_rules(raw["mSettings"]["settings"]),
         "throughWeek": through_week,
         "weeks": weeks_out,
         "standings": ranked,

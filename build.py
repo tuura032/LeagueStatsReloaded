@@ -44,6 +44,7 @@ PAGES = (
     ("graph.html", "graph.html"),
     ("rivalries.html", "rivalries.html"),
     ("careers.html", "careers.html"),
+    ("league.html", "league.html"),
 )
 
 
@@ -260,6 +261,11 @@ def main():
             # settings. home.html used to assume half the field, which is
             # right for this league only by coincidence.
             "playoffTeamCount": data.get("playoffTeamCount"),
+            # The league's scoring rules, grouped for the League Info page.
+            "scoring": data.get("scoring"),
+            # The league's standing rules (roster, draft, keepers, playoffs,
+            # trades, FAAB) for the League Info page.
+            "rules": data.get("rules"),
             # Championship results (None until a season's final is decided),
             # plus a teamId -> owner lookup so the prize table can name a
             # champion without re-scanning standings in the template.
