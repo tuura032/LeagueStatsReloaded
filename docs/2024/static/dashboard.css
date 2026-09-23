@@ -1,9 +1,95 @@
+/* Dark mode: CSS variables, light values by default. A system preference
+   (prefers-color-scheme) applies them automatically; the navbar toggle
+   (layout.html) overrides that by setting data-theme on <html> and
+   remembering the choice in localStorage. Every hardcoded color added by
+   later features (badges, luck/streak, the rivalry matrix, chart colors)
+   should read from these instead of a literal hex, so dark mode doesn't
+   need re-litigating every time a new page adds color. */
+:root {
+  --bg: #ffffff;
+  --bg-alt: #f8f9fa;
+  --text: #212529;
+  --text-muted: #6c757d;
+  --text-faint: #adb5bd;
+  --border: #dee2e6;
+  --link: #333333;
+  --card-bg: #ffffff;
+  --table-stripe: rgba(0, 0, 0, .05);
+  --table-hover: rgba(0, 0, 0, .04);
+  --sidebar-bg: #f8f9fa;
+  --sidebar-shadow: rgba(0, 0, 0, .1);
+  --sticky-bg: #ffffff;
+  --success-bg: #dcfce7;
+  --success-fg: #166534;
+  --danger-bg: #fee2e2;
+  --danger-fg: #991b1b;
+  --neutral-bg: #f1f3f5;
+  --neutral-fg: #495057;
+  --chart-grid: rgba(0, 0, 0, .06);
+  --chart-tick: #868e96;
+  --chart-legend: #495057;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14161a;
+    --bg-alt: #1c1f24;
+    --text: #e9ecef;
+    --text-muted: #9aa1a9;
+    --text-faint: #6b7280;
+    --border: #2c2f36;
+    --link: #d7dce1;
+    --card-bg: #1c1f24;
+    --table-stripe: rgba(255, 255, 255, .04);
+    --table-hover: rgba(255, 255, 255, .06);
+    --sidebar-bg: #1c1f24;
+    --sidebar-shadow: rgba(0, 0, 0, .4);
+    --sticky-bg: #1c1f24;
+    --success-bg: #14532d;
+    --success-fg: #86efac;
+    --danger-bg: #7f1d1d;
+    --danger-fg: #fca5a5;
+    --neutral-bg: #262a30;
+    --neutral-fg: #cbd5e1;
+    --chart-grid: rgba(255, 255, 255, .08);
+    --chart-tick: #9aa1a9;
+    --chart-legend: #cbd5e1;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #14161a;
+  --bg-alt: #1c1f24;
+  --text: #e9ecef;
+  --text-muted: #9aa1a9;
+  --text-faint: #6b7280;
+  --border: #2c2f36;
+  --link: #d7dce1;
+  --card-bg: #1c1f24;
+  --table-stripe: rgba(255, 255, 255, .04);
+  --table-hover: rgba(255, 255, 255, .06);
+  --sidebar-bg: #1c1f24;
+  --sidebar-shadow: rgba(0, 0, 0, .4);
+  --sticky-bg: #1c1f24;
+  --success-bg: #14532d;
+  --success-fg: #86efac;
+  --danger-bg: #7f1d1d;
+  --danger-fg: #fca5a5;
+  --neutral-bg: #262a30;
+  --neutral-fg: #cbd5e1;
+  --chart-grid: rgba(255, 255, 255, .08);
+  --chart-tick: #9aa1a9;
+  --chart-legend: #cbd5e1;
+}
+
 body {
   font-size: .875rem;
   /* Explicit modern system font stack. dashboard.css loads after
      Bootstrap, so this wins the cascade. */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 .feather {
@@ -14,7 +100,62 @@ body {
 
 a {
   font-weight: 500;
-  color: #333;
+  color: var(--link);
+}
+
+/* Bootstrap component overrides for dark mode -- cards, tables and form
+   controls all ship hardcoded light colors, so they need their own rules
+   rather than inheriting from body. */
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--border);
+}
+
+.table {
+  color: var(--text);
+}
+
+.table thead th {
+  border-color: var(--border);
+}
+
+.table td, .table th {
+  border-color: var(--border);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: var(--table-stripe);
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--table-hover);
+  color: var(--text);
+}
+
+.table-bordered, .table-bordered td, .table-bordered th {
+  border-color: var(--border);
+}
+
+.form-control {
+  background-color: var(--bg-alt);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.form-control:focus {
+  background-color: var(--bg-alt);
+  color: var(--text);
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Bootstrap's border utilities (.border, .border-top/-bottom/-left/-right)
+   ship a hardcoded !important color, so a plain .border-bottom rule here
+   can't win the cascade without matching it. */
+.border, .border-top, .border-bottom, .border-left, .border-right {
+  border-color: var(--border) !important;
 }
 
 /*
@@ -28,7 +169,8 @@ a {
   left: 0;
   z-index: 100; /* Behind the navbar */
   padding: 48px 0 0; /* Height of navbar */
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+  background-color: var(--sidebar-bg);
+  box-shadow: inset -1px 0 0 var(--sidebar-shadow);
 }
 
 .sidebar-sticky {
@@ -49,12 +191,12 @@ a {
 
 .sidebar .nav-link {
   font-weight: 500;
-  color: #333;
+  color: var(--link);
 }
 
 .sidebar .nav-link .feather {
   margin-right: 4px;
-  color: #999;
+  color: var(--text-faint);
 }
 
 .sidebar .nav-link.active {
@@ -157,4 +299,20 @@ main h3 {
 #secretnav .nav-link.active {
   color: #007bff;
   font-weight: 700;
+}
+
+/*
+ * Dark mode toggle button (navbar, top-right — .navbar is flex with
+ * justify-content: space-between by default, so it lands opposite the
+ * brand with no extra layout work).
+ */
+#theme-toggle {
+  margin-right: .75rem;
+  border-color: rgba(255, 255, 255, .35);
+  color: #fff;
+}
+
+#theme-toggle:hover, #theme-toggle:focus {
+  border-color: #fff;
+  color: #fff;
 }
