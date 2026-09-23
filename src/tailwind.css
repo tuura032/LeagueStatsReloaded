@@ -13,7 +13,38 @@
    One resolution point (the JS), one thing for CSS to key off. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* Self-hosted variable fonts (latin subset), committed under static/fonts/
+   and copied to every docs/ output by build.py like the rest of static/.
+   Self-hosting instead of a Google Fonts <link> keeps the site free of
+   third-party requests -- it is a private league, and a font request to
+   fonts.googleapis.com is a page view to Google. The woff2 files are
+   copied from node_modules/@fontsource-variable/* at dev time; the
+   @font-face rules below are what ships, so the npm packages are a
+   dev-only source, same as Tailwind itself.
+   - Inter: body/UI. Neutral, built for data-dense screens, and its
+     tabular numerals keep the standings columns aligned.
+   - Space Grotesk: display only (the font-display utility) -- wordmark
+     and page headings. Geometric and sporty, so the site has an identity
+     instead of rendering in whatever the visitor's OS ships. */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../fonts/inter-latin-wght.woff2") format("woff2-variations");
+}
+@font-face {
+  font-family: "Space Grotesk Variable";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("../fonts/space-grotesk-latin-wght.woff2") format("woff2-variations");
+}
+
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Space Grotesk Variable", "Inter Variable", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
 }

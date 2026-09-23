@@ -77,9 +77,30 @@
          everywhere removes that whole class of bug instead of patching
          around it again. -->
     <header class="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between bg-slate-900 px-4 shadow-sm dark:bg-black">
-      <a href="index.html" class="text-sm font-semibold tracking-tight text-white sm:text-base">
-        Fantasy Football Fantasy
+      <a href="index.html" class="flex items-center gap-2.5">
+        <!-- Placeholder logo: a clean vector take on the FFF favicon
+             (green circle, white FFF). Inline SVG so it is one less
+             request and stays crisp at any size. When a real mark exists,
+             replace this <svg> with an <img src="static/...">. -->
+        <svg class="h-7 w-7 shrink-0" viewBox="0 0 32 32" role="img" aria-label="FFF logo">
+          <circle cx="16" cy="16" r="16" fill="#00aa00"/>
+          <circle cx="16" cy="16" r="14.5" fill="none" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1"/>
+          <text x="16" y="20.8" text-anchor="middle"
+                font-family="'Space Grotesk Variable', 'Inter Variable', sans-serif"
+                font-size="11.5" font-weight="700" letter-spacing="0.5" fill="#ffffff">FFF</text>
+        </svg>
+        <span class="font-display text-sm font-semibold tracking-tight text-white sm:text-base">
+          Fantasy Football Fantasy
+        </span>
       </a>
+      <!-- Tagline: the gate page's brand line, centered where the bar is
+           wide enough for three zones. Absolutely positioned (not a flex
+           child) so it sits at the true middle of the bar instead of
+           drifting right of center next to the wider wordmark. Hidden on
+           mobile, where the bar only has room for wordmark + toggle. -->
+      <p class="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 text-[.65rem] font-semibold tracking-[0.3em] whitespace-nowrap text-slate-400 uppercase md:block">
+        Your league, on the record.
+      </p>
       <button class="theme-toggle-btn inline-flex h-8 w-8 items-center justify-center rounded-md border border-white/25 text-white transition hover:border-white/60"
               type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
         <span data-feather="moon" class="theme-toggle-icon h-4 w-4"></span>
@@ -399,7 +420,7 @@
 </style>
 
 
-<h1 class="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">2019 Season</h1>
+<h1 class="font-display text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">2019 Season</h1>
 <a href="playoffs.html" class="mt-3 flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 transition hover:border-amber-400 dark:border-amber-500/40 dark:bg-amber-500/10 dark:hover:border-amber-400/70">
   <span class="text-2xl" aria-hidden="true">&#127942;</span>
   <span>
@@ -957,7 +978,7 @@
     <div id="league-gate" class="fixed inset-0 z-50 items-center justify-center overflow-y-auto bg-slate-950 px-6 py-12">
       <div class="w-full max-w-2xl text-center">
         <p class="text-[.7rem] font-bold tracking-[0.25em] text-amber-500 uppercase">Fantasy Football Fantasy</p>
-        <h1 class="mt-5 text-3xl font-bold tracking-tight text-balance text-white sm:text-5xl">Your league, on the record.</h1>
+        <h1 class="font-display mt-5 text-3xl font-bold tracking-tight text-balance text-white sm:text-5xl">Your league, on the record.</h1>
         <p class="mx-auto mt-5 max-w-md text-sm leading-relaxed text-slate-400">
           8 seasons of standings, rivalries, records and prize money.
           Enter the league phrase to get in &mdash; ask in the group chat if you don't have it.
