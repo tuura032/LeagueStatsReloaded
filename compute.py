@@ -256,6 +256,67 @@ def build_rivalries(all_standings):
     return sorted(owners), matrix
 
 
+def build_career_stats(all_standings):
+    """Career totals per owner across every given season's §5 standings dict.
+
+    Matched by owner name (see build_rivalries for why: teamId's owner can
+    change between seasons). Returns a list of career rows, sorted by wins
+    desc then pointsFor desc -- the same convention as a single season's
+    standings. Each row:
+
+    owner, seasons (count played), wins/losses/ties (career H2H record),
+    pointsFor, gamesPlayed, careerAverage (pointsFor / gamesPlayed, a
+    weighted average -- NOT the mean of each season's average), titles
+    (seasons finished rank 1), topHalfPoints, luckIndex (career total),
+    bestWeek/worstWeek ({score, season, week}), bestSeason ({points, season}).
+    """
+    careers = {}
+    for season in all_standings:
+        year = season["season"]
+        owner_by_team = {s["teamId"]: s["owner"] for s in season["standings"]}
+        for row in season["standings"]:
+            c = careers.setdefault(row["owner"], {
+                "owner": row["owner"], "seasons": 0, "wins": 0, "losses": 0,
+                "ties": 0, "pointsFor": 0.0, "gamesPlayed": 0, "titles": 0,
+                "topHalfPoints": 0, "luckIndex": 0,
+                "bestWeek": None, "worstWeek": None, "bestSeason": None,
+            })
+            c["seasons"] += 1
+            parts = [int(p) for p in row["record"].split("-")]
+            w, l = parts[0], parts[1]
+            t = parts[2] if len(parts) > 2 else 0
+            c["wins"] += w
+            c["losses"] += l
+            c["ties"] += t
+            c["pointsFor"] += row["pointsFor"]
+            c["gamesPlayed"] += w + l + t
+            c["topHalfPoints"] += row["topHalfPoints"]
+            c["luckIndex"] += row["luckIndex"]
+            if row["rank"] == 1:
+                c["titles"] += 1
+            if c["bestSeason"] is None or row["points"] > c["bestSeason"]["points"]:
+                c["bestSeason"] = {"points": row["points"], "season": year}
+        for w in season["weeks"]:
+            for t in w["teams"]:
+                owner = owner_by_team.get(t["teamId"])
+                if not owner or owner not in careers:
+                    continue
+                c = careers[owner]
+                entry = {"score": t["score"], "season": year, "week": w["week"]}
+                if c["bestWeek"] is None or t["score"] > c["bestWeek"]["score"]:
+                    c["bestWeek"] = entry
+                if c["worstWeek"] is None or t["score"] < c["worstWeek"]["score"]:
+                    c["worstWeek"] = entry
+
+    for c in careers.values():
+        c["careerAverage"] = (round(c["pointsFor"] / c["gamesPlayed"], 1)
+                              if c["gamesPlayed"] else 0.0)
+        c["pointsFor"] = round(c["pointsFor"], 1)
+
+    return sorted(careers.values(),
+                  key=lambda c: (-c["wins"], -c["pointsFor"]))
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Compute FFF dual-point standings from raw ESPN data.")

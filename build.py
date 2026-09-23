@@ -40,6 +40,7 @@ PAGES = (
     ("playoffs.html", "playoffs.html"),
     ("graph.html", "graph.html"),
     ("rivalries.html", "rivalries.html"),
+    ("careers.html", "careers.html"),
 )
 
 
@@ -77,6 +78,7 @@ def main():
     all_standings = [json.loads((data_dir / f"standings-{s}.json").read_text(encoding="utf-8"))
                       for s in all_seasons]
     rivalry_owners, rivalry_matrix = compute.build_rivalries(all_standings)
+    careers = compute.build_career_stats(all_standings)
 
     env = Environment(loader=FileSystemLoader("templates"),
                       autoescape=select_autoescape())
@@ -99,6 +101,7 @@ def main():
             "base": "" if season == root_season else "../",
             "rivalry_owners": rivalry_owners,
             "rivalry_matrix": rivalry_matrix,
+            "careers": careers,
         }
         for template, out_name in PAGES:
             out = out_dir / out_name

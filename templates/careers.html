@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Fantasy Football Fantasy
+{% endblock %}
+
+{% block main %}
+<style>
+  #careers-table thead th {
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--text-muted);
+    white-space: nowrap;
+    border-bottom: 2px solid var(--border);
+  }
+  #careers-table th:not(:nth-child(2)),
+  #careers-table td:not(:nth-child(2)) {
+    text-align: right;
+  }
+  .title-badge {
+    display: inline-block;
+    min-width: 1.4rem;
+    padding: .1rem .3rem;
+    border-radius: .25rem;
+    background: #fde047;
+    color: #713f12;
+    font-weight: 600;
+    font-size: .75rem;
+  }
+  .best-week, .worst-week {
+    font-size: .78rem;
+    white-space: nowrap;
+  }
+  .best-week { color: var(--success-fg); }
+  .worst-week { color: var(--danger-fg); }
+  .week-sub { color: var(--text-muted); }
+
+  /* Mobile: keep only the columns that answer "who's good all-time" at a
+     glance; the rest is a horizontal scroll away. */
+  @media (max-width: 575.98px) {
+    #careers-table .col-avg,
+    #careers-table .col-best,
+    #careers-table .col-worst,
+    #careers-table .col-topsix {
+      display: none;
+    }
+  }
+</style>
+
+<div class="pt-3 pb-2 mb-3 border-bottom">
+  <h1 class="h2 mb-0">Career Stats</h1>
+</div>
+<p class="text-muted">
+  Every owner's all-time totals, {{ careers | length }} owners across every
+  season on file. "Titles" counts regular-season #1 finishes (playoffs
+  aren't tracked here); "Career Average" is points-for divided by games
+  played, not the average of each season's average.
+</p>
+
+{% if careers %}
+<div class="table-responsive">
+  <table class="table table-striped table-hover" id="careers-table">
+    <thead>
+      <tr>
+        <th>Owner</th>
+        <th>Seasons</th>
+        <th>Record</th>
+        <th class="col-avg">Career Average</th>
+        <th>Points For</th>
+        <th>Titles</th>
+        <th class="col-topsix">Top-Half Pts</th>
+        <th class="col-best">Best Week</th>
+        <th class="col-worst">Worst Week</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in careers %}
+        <tr>
+          <td style="text-align: left;">{{ c.owner }}</td>
+          <td>{{ c.seasons }}</td>
+          <td>{{ c.wins }}-{{ c.losses }}{% if c.ties %}-{{ c.ties }}{% endif %}</td>
+          <td class="col-avg">{{ c.careerAverage }}</td>
+          <td>{{ c.pointsFor }}</td>
+          <td>{% if c.titles %}<span class="title-badge">{{ c.titles }}&#9733;</span>{% else %}0{% endif %}</td>
+          <td class="col-topsix">{{ c.topHalfPoints }}</td>
+          <td class="col-best">
+            {% if c.bestWeek %}
+              <span class="best-week">{{ c.bestWeek.score }}</span>
+              <span class="week-sub">'{{ c.bestWeek.season % 100 }} Wk{{ c.bestWeek.week }}</span>
+            {% endif %}
+          </td>
+          <td class="col-worst">
+            {% if c.worstWeek %}
+              <span class="worst-week">{{ c.worstWeek.score }}</span>
+              <span class="week-sub">'{{ c.worstWeek.season % 100 }} Wk{{ c.worstWeek.week }}</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <p>No career data yet.</p>
+{% endif %}
+
+{% endblock %}

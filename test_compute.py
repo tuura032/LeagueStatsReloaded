@@ -379,5 +379,56 @@ class TestRivalries(unittest.TestCase):
         self.assertEqual(matrix, {})
 
 
+class TestCareerStats(unittest.TestCase):
+    """build_career_stats: cross-season totals per owner."""
+
+    def setUp(self):
+        self.season1 = compute.build_standings(
+            make_raw(full_season_weeks(), season=2024), UPDATED)
+        self.season2 = compute.build_standings(
+            make_raw(full_season_weeks(), season=2025), UPDATED)
+
+    def test_totals_accumulate_across_seasons(self):
+        careers = compute.build_career_stats([self.season1, self.season2])
+        by_owner = {c["owner"]: c for c in careers}
+        # team 12 (First12 Last12) wins every H2H game and always tops the
+        # scoring in full_season_weeks(): 14 wins/season x 2 seasons.
+        team12 = by_owner["First12 Last12"]
+        self.assertEqual(team12["seasons"], 2)
+        self.assertEqual(team12["wins"], 28)
+        self.assertEqual(team12["losses"], 0)
+        self.assertEqual(team12["gamesPlayed"], 28)
+        self.assertEqual(team12["titles"], 2)  # rank 1 both seasons
+
+    def test_career_average_is_weighted_not_mean_of_seasons(self):
+        careers = compute.build_career_stats([self.season1, self.season2])
+        by_owner = {c["owner"]: c for c in careers}
+        c = by_owner["First1 Last1"]
+        self.assertEqual(c["gamesPlayed"], 28)
+        self.assertAlmostEqual(c["careerAverage"],
+                               round(c["pointsFor"] / 28, 1))
+
+    def test_best_and_worst_week_tracked_with_season_and_week(self):
+        careers = compute.build_career_stats([self.season1, self.season2])
+        by_owner = {c["owner"]: c for c in careers}
+        # team 12's score each week is 100 + 10w + 11, identical in both
+        # seasons since full_season_weeks() doesn't vary by season -- the
+        # tie at week 14 (251 in both years) goes to whichever season was
+        # given first (2024), since ties don't overwrite bestWeek/worstWeek.
+        c = by_owner["First12 Last12"]
+        self.assertEqual(c["bestWeek"], {"score": 251, "season": 2024, "week": 14})
+        self.assertEqual(c["worstWeek"], {"score": 121, "season": 2024, "week": 1})
+
+    def test_sorted_by_wins_then_points_for(self):
+        careers = compute.build_career_stats([self.season1, self.season2])
+        for a, b in zip(careers, careers[1:]):
+            self.assertGreaterEqual(a["wins"], b["wins"])
+            if a["wins"] == b["wins"]:
+                self.assertGreaterEqual(a["pointsFor"], b["pointsFor"])
+
+    def test_empty_input_gives_empty_result(self):
+        self.assertEqual(compute.build_career_stats([]), [])
+
+
 if __name__ == "__main__":
     unittest.main()
