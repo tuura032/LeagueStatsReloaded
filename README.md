@@ -8,7 +8,7 @@ Postgres. The frontend survived — only the data layer is replaced here: three
 small Python scripts feed the same templates, and the result is a static site
 on GitHub Pages. No database, no server, no secrets.
 
-Live site: <https://tuura032.github.io/LeagueStatsReloaded/> — standings
+Live site: <https://tuura032.github.io/fff/> — standings
 (click a column header to sort), playoffs and prizes, and a weekly-scoring
 chart.
 

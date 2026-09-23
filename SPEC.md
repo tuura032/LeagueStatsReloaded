@@ -363,7 +363,14 @@ manual re-enable each August.
 
 ## 8. Repo setup
 
-This work goes to a **new remote** — `LeagueStatsReloaded`. The original
+This work goes to a **new remote** — `LeagueStatsReloaded`, renamed to
+`fff` on 2026-09-23 to shorten the Pages URL to
+`tuura032.github.io/fff/`. Git operations against the old name still
+redirect; **the old Pages URL does not** — GitHub lists project site URLs
+as the one thing a rename does not redirect, so
+`tuura032.github.io/LeagueStatsReloaded/` now 404s. The site itself needed
+no changes: every link in `templates/` is relative, so it works at any
+path. The original
 `tuura032/LeagueStats` is being made **private** and kept as-is.
 
 - **Fresh history (owner decision, 2026-09-22).** The new repo starts from a
