@@ -258,6 +258,28 @@ def main():
     # where a GitHub project page lives. The per-page noindex meta tag in
     # layout.html is what actually does the work today; this file is here
     # so the protection holds if a custom domain is ever added.
+    # CNAME tells Pages which custom domain serves this site. Setting a
+    # custom domain in the repo's Settings makes GitHub commit this file
+    # itself, but docs/ is regenerated and re-committed by the daily
+    # workflow, so keeping the domain in data/domain.txt makes it explicit
+    # and reproducible instead of a file nobody's build knows about.
+    #
+    # A custom domain also makes robots.txt start working: a crawler only
+    # requests it from a domain root, which a project page under
+    # user.github.io/repo/ never is.
+    domain_path = data_dir / "domain.txt"
+    if domain_path.exists():
+        domain = domain_path.read_text(encoding="utf-8").strip()
+        if domain:
+            (docs / "CNAME").write_text(domain + "\n", encoding="utf-8")
+            print(f"Wrote {docs / 'CNAME'} ({domain})")
+    elif (docs / "CNAME").exists():
+        # GitHub created one from the Settings UI. Leave it alone, but say
+        # so -- otherwise the domain silently lives outside the build.
+        existing = (docs / "CNAME").read_text(encoding="utf-8").strip()
+        print(f"NOTE: docs/CNAME exists ({existing}) but data/domain.txt does "
+              f"not. Create it with that domain so rebuilds stay reproducible.")
+
     (docs / "robots.txt").write_text(
         "\n".join(["# This is a private league page.",
                    "User-agent: *",

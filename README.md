@@ -218,6 +218,42 @@ a crawler would happily index straight through it. Two things stop that:
   (`user.github.io/repo/`), so the file is never requested. It is there so
   the protection holds if a custom domain is ever added.
 
+### Custom domain
+
+Custom domains *are* available on GitHub Free with a public repo (the plan
+restriction is on Pages from **private** repos, not on domains).
+
+Put the bare host in `data/domain.txt` — one line, no scheme, no trailing
+slash — and `build.py` writes it to `docs/CNAME` on every build:
+
+```
+fff.example.com
+```
+
+Setting a custom domain in repo Settings also makes GitHub commit a `CNAME`
+file itself, but `docs/` is regenerated and re-committed every morning by
+the workflow, so keeping the domain in `data/domain.txt` makes it explicit
+and reproducible rather than a file nobody's build knows about. If a
+`docs/CNAME` shows up without `data/domain.txt`, the build prints a note
+rather than clobbering it.
+
+DNS, per GitHub's docs:
+
+| Type | For | Record |
+| --- | --- | --- |
+| `CNAME` | `www` or any subdomain (recommended) | `tuura032.github.io` |
+| `A` | apex (`example.com`) | `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` |
+| `AAAA` | apex, IPv6 | `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153` |
+
+A subdomain is the more stable choice: the apex A records are GitHub server
+IPs and can change, while the `CNAME` target never does. Tick **Enforce
+HTTPS** in Settings once the certificate is issued, and verify the domain
+(Settings → Pages → *Verify*) to prevent takeover if the site is ever
+disabled.
+
+**A custom domain also makes `robots.txt` start working**, since the site
+would finally be at a domain root where crawlers actually request it.
+
 **Do not make the repo private.** GitHub Free lists Pages as "GitHub Pages in
 public repositories" — going private disables Pages and the site 404s. On a
 paid plan Pages keeps working from a private repo, but the published site is

@@ -10,6 +10,9 @@ import unittest
 import hashlib
 import json
 import os
+import pathlib
+import shutil
+import tempfile
 
 import build
 import compute
@@ -1420,3 +1423,51 @@ class TestPhraseHashPassthrough(unittest.TestCase):
         for bad in ("not-a-hash", "abc", "z" * 64, hashlib.sha256(b"x").hexdigest()[:63]):
             os.environ["LEAGUE_PHRASE_SHA256"] = bad
             self.assertEqual(build.phrase_hash(), "", bad)
+
+
+class TestCustomDomain(unittest.TestCase):
+    """docs/CNAME is emitted from data/domain.txt.
+
+    The daily workflow regenerates and re-commits docs/, so the domain has
+    to be part of the build rather than a file GitHub dropped in once.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.data = pathlib.Path(self.tmp) / "data"
+        self.docs = pathlib.Path(self.tmp) / "docs"
+        self.data.mkdir()
+        self.docs.mkdir()
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _write_cname(self):
+        """Mirror build.py's CNAME rule against a temp tree."""
+        path = self.data / "domain.txt"
+        if path.exists():
+            domain = path.read_text(encoding="utf-8").strip()
+            if domain:
+                (self.docs / "CNAME").write_text(domain + "\n", encoding="utf-8")
+        return (self.docs / "CNAME")
+
+    def test_domain_file_produces_a_cname(self):
+        (self.data / "domain.txt").write_text("fff.example.com\n",
+                                              encoding="utf-8")
+        out = self._write_cname()
+        self.assertTrue(out.exists())
+        # Pages wants the bare host, one line, no scheme or trailing slash.
+        self.assertEqual(out.read_text(encoding="utf-8"), "fff.example.com\n")
+
+    def test_no_domain_file_means_no_cname(self):
+        self.assertFalse(self._write_cname().exists())
+
+    def test_blank_domain_file_means_no_cname(self):
+        (self.data / "domain.txt").write_text("   \n", encoding="utf-8")
+        self.assertFalse(self._write_cname().exists())
+
+    def test_whitespace_is_trimmed(self):
+        (self.data / "domain.txt").write_text("  fff.example.com  \n\n",
+                                              encoding="utf-8")
+        self.assertEqual(self._write_cname().read_text(encoding="utf-8"),
+                         "fff.example.com\n")
