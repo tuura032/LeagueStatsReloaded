@@ -423,6 +423,30 @@
   [data-theme="dark"] #standings-table th.sortable:hover::after,
   [data-theme="dark"] #standings-table th.sortable.asc::after,
   [data-theme="dark"] #standings-table th.sortable.desc::after { color: #e2e8f0; }
+
+  /* Help bubbles: a "?" beside a column header that explains the stat.
+     The tip is a floating <div> that hello.js positions (fixed, clamped
+     to the viewport) on hover/focus; tabindex="0" makes the bubble
+     keyboard-reachable and tappable on phones (tap = focus), and
+     hello.js stops the tap from also sorting the column. A pure-CSS
+     ::after tip would be clipped by the table's overflow-x-auto
+     container whenever the bubble sits near the viewport edge. */
+  .stat-help {
+    display: inline-flex;
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-left: .4rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 9999px;
+    font-size: .6rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #64748b;
+    cursor: help;
+  }
+  [data-theme="dark"] .stat-help { border-color: #475569; color: #94a3b8; }
 </style>
 
 
@@ -452,15 +476,15 @@
       <tr>
         <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Rank</th>
         <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400" title="Final placement after the playoffs">Finish</th>
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins</th>
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Points</th>
-        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Average Score</th>
-        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Avg Last 3</th>
-        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">H2H Wins</th>
-        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Top Six Finishes</th>
-        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Streak</th>
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Luck</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Finish<span class="stat-help" tabindex="0" aria-label="Final placement after the playoffs." data-tip="Final placement after the playoffs.">?</span></th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins<span class="stat-help" tabindex="0" aria-label="Dual points: up to 2 per week. One for winning your head-to-head matchup, one for finishing in the top half of the league in raw points. The standings are ranked by this." data-tip="Dual points: up to 2 per week. One for winning your head-to-head matchup, one for finishing in the top half of the league in raw points. The standings are ranked by this.">?</span></th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Points<span class="stat-help" tabindex="0" aria-label="Total fantasy points scored across all completed weeks. Raw points, not dual points." data-tip="Total fantasy points scored across all completed weeks. Raw points, not dual points.">?</span></th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Average Score<span class="stat-help" tabindex="0" aria-label="Average raw points per completed week." data-tip="Average raw points per completed week.">?</span></th>
+        <th class="hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Avg Last 3<span class="stat-help" tabindex="0" aria-label="Average raw points over the last 3 completed weeks." data-tip="Average raw points over the last 3 completed weeks.">?</span></th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">H2H Wins<span class="stat-help" tabindex="0" aria-label="Head-to-head matchups won. Worth one dual point each." data-tip="Head-to-head matchups won. Worth one dual point each.">?</span></th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Top Six Finishes<span class="stat-help" tabindex="0" aria-label="Weeks finished in the top half of the league in raw points (top 6 of 12). Worth one dual point each." data-tip="Weeks finished in the top half of the league in raw points (top 6 of 12). Worth one dual point each.">?</span></th>
+        <th class="px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Streak<span class="stat-help" tabindex="0" aria-label="Current head-to-head win/loss streak. A tie counts as a loss." data-tip="Current head-to-head win/loss streak. A tie counts as a loss.">?</span></th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Luck<span class="stat-help" tabindex="0" aria-label="H2H points minus top-half points. Positive means winning matchups more often than your raw scoring suggests; negative means the opposite." data-tip="H2H points minus top-half points. Positive means winning matchups more often than your raw scoring suggests; negative means the opposite.">?</span></th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -493,8 +517,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1676.2</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">119.7</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">133.3</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">13</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">13</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L1</span>
@@ -531,8 +555,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1601.6</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">114.4</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">124.7</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W4</span>
@@ -569,8 +593,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1542.7</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">110.2</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">108.9</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L1</span>
@@ -606,8 +630,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1728.8</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">123.5</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">133.0</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">9</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">9</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">10</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W3</span>
@@ -643,8 +667,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1551.6</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">110.8</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">113.6</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">8</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">8</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L2</span>
@@ -680,8 +704,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1509.0</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">107.8</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">111.4</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">8</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">8</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W1</span>
@@ -723,8 +747,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1590.7</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">113.6</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">116.3</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">6</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">8</td>
+          <td class="px-3 py-2 text-right bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">6</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">8</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W1</span>
@@ -760,8 +784,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1427.2</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">101.9</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">87.5</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">3</td>
+          <td class="px-3 py-2 text-right bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300">7</td>
+          <td class="px-3 py-2 text-right bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">3</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W1</span>
@@ -797,8 +821,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1302.5</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">93.0</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">100.8</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">5</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">5</td>
+          <td class="px-3 py-2 text-right bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">5</td>
+          <td class="px-3 py-2 text-right bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">5</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">W1</span>
@@ -834,8 +858,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1312.2</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">93.7</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">98.6</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">5</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">4</td>
+          <td class="px-3 py-2 text-right bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">5</td>
+          <td class="px-3 py-2 text-right bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">4</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L3</span>
@@ -871,8 +895,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1364.3</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">97.5</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">95.0</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">4</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">3</td>
+          <td class="px-3 py-2 text-right bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">4</td>
+          <td class="px-3 py-2 text-right bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">3</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L1</span>
@@ -908,8 +932,8 @@
           <td class="px-3 py-2 text-right text-slate-700 dark:text-slate-300">1280.8</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">91.5</td>
           <td class="hidden px-3 py-2 text-right text-slate-700 sm:table-cell dark:text-slate-300">85.9</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">4</td>
-          <td class="hidden px-3 py-2 text-right sm:table-cell bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">2</td>
+          <td class="px-3 py-2 text-right bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">4</td>
+          <td class="px-3 py-2 text-right bg-rose-50 text-rose-800 dark:bg-rose-500/10 dark:text-rose-300">2</td>
           <td class="px-3 py-2 text-right">
             
               <span class="inline-block min-w-[2.4rem] rounded px-2 py-0.5 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-400">L1</span>

@@ -115,5 +115,80 @@
     });
   }
 
+  // Help bubbles (.stat-help): a "?" beside a column header that explains
+  // the stat. The tip is one floating <div> (position: fixed) that this
+  // script shows under the hovered/focused bubble, clamped to the viewport.
+  // A CSS ::after tip would be clipped by the table's overflow-x-auto
+  // container whenever the bubble sits near the viewport edge -- the usual
+  // case on phones -- because it is positioned relative to the bubble
+  // inside the scroll container.
+  //
+  // Shown on hover (mouse) and on focus (keyboard, or a tap on phones,
+  // since tap = focus). The click/keydown handlers keep that tap from also
+  // sorting the column the bubble sits in.
+  var helpBubbles = document.querySelectorAll(".stat-help");
+  if (helpBubbles.length) {
+    var tip = document.createElement("div");
+    tip.className = "stat-tip";
+    tip.setAttribute("role", "tooltip");
+    tip.style.cssText =
+      "position:fixed;z-index:60;max-width:260px;padding:.5rem .65rem;" +
+      "border-radius:.5rem;background:#0f172a;color:#f1f5f9;font-size:.75rem;" +
+      "font-weight:400;line-height:1.4;letter-spacing:normal;text-transform:none;" +
+      "text-align:left;box-shadow:0 4px 12px rgb(0 0 0 / .25);pointer-events:none;" +
+      "opacity:0;transition:opacity .12s ease;";
+    document.body.appendChild(tip);
+
+    var shownFor = null;
+
+    function placeTip(bubble) {
+      var r = bubble.getBoundingClientRect();
+      var m = 8;
+      var x = r.left + r.width / 2 - tip.offsetWidth / 2;
+      x = Math.max(m, Math.min(x, window.innerWidth - tip.offsetWidth - m));
+      var y = r.bottom + 6;
+      if (y + tip.offsetHeight > window.innerHeight - m) {
+        y = Math.max(m, r.top - tip.offsetHeight - 6);
+      }
+      tip.style.left = x + "px";
+      tip.style.top = y + "px";
+    }
+
+    function showTip(bubble) {
+      if (shownFor === bubble && tip.style.opacity === "1") return;
+      shownFor = bubble;
+      tip.textContent = bubble.getAttribute("data-tip") || "";
+      placeTip(bubble);
+      tip.style.opacity = "1";
+    }
+
+    function hideTip() {
+      shownFor = null;
+      tip.style.opacity = "0";
+    }
+
+    Array.prototype.forEach.call(helpBubbles, function (bubble) {
+      bubble.addEventListener("mouseenter", function () { showTip(bubble); });
+      bubble.addEventListener("mouseleave", hideTip);
+      bubble.addEventListener("focus", function () { showTip(bubble); });
+      bubble.addEventListener("blur", hideTip);
+      // A tap on the bubble should show its tip, not sort the column --
+      // stop the click (and Enter/Space, which the header's keydown
+      // handler would catch) from bubbling up to the <th>.
+      bubble.addEventListener("click", function (e) { e.stopPropagation(); });
+      bubble.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+          e.stopPropagation();
+        }
+      });
+    });
+
+    // The tip is pinned to the viewport, so it would drift away from its
+    // bubble if the page (or the table container) scrolled while shown.
+    // Capture phase catches container scrolls, which never bubble.
+    window.addEventListener("scroll", hideTip, true);
+    window.addEventListener("resize", hideTip);
+  }
+
   document.querySelectorAll("table.sortable-table").forEach(initSortableTable);
 })();

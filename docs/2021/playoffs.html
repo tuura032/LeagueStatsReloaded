@@ -421,6 +421,30 @@
   [data-theme="dark"] #playoff-table th.sortable:hover::after,
   [data-theme="dark"] #playoff-table th.sortable.asc::after,
   [data-theme="dark"] #playoff-table th.sortable.desc::after { color: #e2e8f0; }
+
+  /* Help bubbles: a "?" beside a column header that explains the stat.
+     The tip is a floating <div> that hello.js positions (fixed, clamped
+     to the viewport) on hover/focus; tabindex="0" makes the bubble
+     keyboard-reachable and tappable on phones (tap = focus), and
+     hello.js stops the tap from also sorting the column. A pure-CSS
+     ::after tip would be clipped by the table's overflow-x-auto
+     container whenever the bubble sits near the viewport edge. */
+  .stat-help {
+    display: inline-flex;
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-left: .4rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #cbd5e1;
+    border-radius: 9999px;
+    font-size: .6rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #64748b;
+    cursor: help;
+  }
+  [data-theme="dark"] .stat-help { border-color: #475569; color: #94a3b8; }
 </style>
 
 <h1 class="font-display text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Playoffs</h1>
@@ -625,23 +649,23 @@
 
 
 
+
 <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
   <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800 sortable-table" id="playoff-table">
     <thead class="bg-slate-50 dark:bg-slate-900/60">
       <tr>
-        <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seed</th>
+        <th class="sortable px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Seed<span class="stat-help" tabindex="0" aria-label="Regular-season rank in the dual-point table. The bracket was seeded from this." data-tip="Regular-season rank in the dual-point table. The bracket was seeded from this.">?</span></th>
         <th class="px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Owner</th>
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Total Wins<span class="stat-help" tabindex="0" aria-label="Dual points: up to 2 per week. One for winning your head-to-head matchup, one for finishing in the top half of the league in raw points." data-tip="Dual points: up to 2 per week. One for winning your head-to-head matchup, one for finishing in the top half of the league in raw points.">?</span></th>
         
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Games Back</th>
-        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Heating Up! Last 3 Trend*</th>
-        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 12</th>
-        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 13</th>
-        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Week 14</th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Games Back<span class="stat-help" tabindex="0" aria-label="Dual points behind the team in 1st." data-tip="Dual points behind the team in 1st.">?</span></th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Heating Up! Last 3 Trend*<span class="stat-help" tabindex="0" aria-label="Average points over the last 3 weeks minus your season average. Positive means scoring more recently than your season average." data-tip="Average points over the last 3 weeks minus your season average. Positive means scoring more recently than your season average.">?</span></th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 12<span class="stat-help" tabindex="0" aria-label="Total fantasy points scored in week 12." data-tip="Total fantasy points scored in week 12.">?</span></th>
+        <th class="sortable hidden px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase sm:table-cell dark:text-slate-400">Week 13<span class="stat-help" tabindex="0" aria-label="Total fantasy points scored in week 13." data-tip="Total fantasy points scored in week 13.">?</span></th>
+        <th class="sortable px-3 py-2 text-right text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">Most Recent<span class="stat-help" tabindex="0" aria-label="Total fantasy points scored in the most recent completed week (week 14)." data-tip="Total fantasy points scored in the most recent completed week (week 14).">?</span></th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-      
       
         <tr class="transition-colors odd:bg-white even:bg-slate-50 hover:bg-blue-50/70 dark:odd:bg-slate-900 dark:even:bg-slate-900/50 dark:hover:bg-slate-800/70">
           <td class="px-3 py-2 text-slate-600 dark:text-slate-300">1</td>

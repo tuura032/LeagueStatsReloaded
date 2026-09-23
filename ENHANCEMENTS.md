@@ -96,6 +96,13 @@ for template rendering (the screenshot baseline is the right tool for that).
 - **ENH-002** — Season picker (dropdown to select league year) — done
   2026-09-22 (L9). Picker macro in `templates/layout.html`; options keep the
   current page and are built off `root_season` (BUG-008).
+- **ENH-020** — Stat help bubbles + mobile column visibility — done
+  2026-09-23. "?" bubbles beside Home/Playoffs stat headers explain each
+  stat (hover on desktop, tap/keyboard on mobile); H2H Wins and Top Six
+  Finishes no longer hidden on small screens; Playoffs "Week N" renamed
+  "Most Recent". The tip is a JS-positioned floating div clamped to the
+  viewport — a pure-CSS ::after tip clipped at the table's overflow
+  container edge on phones.
 
 For everything else shipped before 2026-09-23 (dual-point stats page, luck
 index, rivalries, career stats, dark mode, Tailwind rewrite, real champions
