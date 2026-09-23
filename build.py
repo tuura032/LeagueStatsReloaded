@@ -26,6 +26,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import sys
 from datetime import datetime
@@ -62,9 +63,19 @@ def phrase_hash():
     more -- surnames are stripped from the data at fetch time.
     """
     phrase = os.environ.get("LEAGUE_PHRASE", "").strip()
-    if not phrase:
-        return ""
-    return hashlib.sha256(phrase.encode("utf-8")).hexdigest()
+    if phrase:
+        return hashlib.sha256(phrase.encode("utf-8")).hexdigest()
+    # LEAGUE_PHRASE_SHA256 lets someone rebuild the site byte-identically
+    # without knowing the phrase -- the digest is public in the deployed
+    # page anyway, and requiring the secret to reproduce a build would mean
+    # every local rebuild silently dropped the gate.
+    digest = os.environ.get("LEAGUE_PHRASE_SHA256", "").strip().lower()
+    if re.fullmatch(r"[0-9a-f]{64}", digest or ""):
+        return digest
+    if digest:
+        print(f"WARNING: LEAGUE_PHRASE_SHA256 is not a 64-char hex digest; "
+              f"ignoring it and building without a gate.", file=sys.stderr)
+    return ""
 
 
 def ordinal(n):
@@ -240,6 +251,19 @@ def main():
             shutil.rmtree(static_out)
         shutil.copytree("static", static_out)
         print(f"Copied static/ to {static_out}")
+
+    # robots.txt belongs at the root of the built site. Note this is only
+    # honoured if the site is served from a domain root -- a crawler looks
+    # for https://host/robots.txt and ignores one under a subpath, which is
+    # where a GitHub project page lives. The per-page noindex meta tag in
+    # layout.html is what actually does the work today; this file is here
+    # so the protection holds if a custom domain is ever added.
+    (docs / "robots.txt").write_text(
+        "\n".join(["# This is a private league page.",
+                   "User-agent: *",
+                   "Disallow: /",
+                   ""]), encoding="utf-8")
+    print(f"Wrote {docs / 'robots.txt'}")
 
 
 if __name__ == "__main__":

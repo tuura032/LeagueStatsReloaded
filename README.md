@@ -198,10 +198,32 @@ unset the gate is omitted entirely, so a local `python build.py` still
 produces a browsable site.
 
 Be clear about what the gate is: the page content ships inside the HTML
-either way, so it keeps out search engines and passers-by, not anyone willing
-to open devtools. It is a doorbell, not a lock. That is an acceptable trade
-here precisely *because* the surnames are already gone — there is nothing
-behind it worth the effort.
+either way, so it keeps out passers-by, not anyone willing to open devtools.
+It is a doorbell, not a lock. That is an acceptable trade here precisely
+*because* the surnames are already gone — there is nothing behind it worth
+the effort.
+
+`LEAGUE_PHRASE_SHA256` can be set instead, to rebuild the site identically
+without knowing the phrase (the digest is public in the deployed page
+anyway). Without it, anyone rebuilding locally would silently ship a
+gate-less site.
+
+**Staying out of search results.** The gate only hides content visually, so
+a crawler would happily index straight through it. Two things stop that:
+
+- `<meta name="robots" content="noindex, nofollow">` on every page. This is
+  the one that works — it is read per page.
+- `docs/robots.txt`. Largely symbolic today: a crawler only looks for
+  `robots.txt` at a *domain* root, and this site lives on a subpath
+  (`user.github.io/repo/`), so the file is never requested. It is there so
+  the protection holds if a custom domain is ever added.
+
+**Do not make the repo private.** GitHub Free lists Pages as "GitHub Pages in
+public repositories" — going private disables Pages and the site 404s. On a
+paid plan Pages keeps working from a private repo, but the published site is
+*still public*: per GitHub's docs, publishing a Pages site privately needs an
+organization account on GitHub Enterprise Cloud. Private repo buys nothing
+here, which is why the names are stripped at the source instead.
 
 ## Deployment
 

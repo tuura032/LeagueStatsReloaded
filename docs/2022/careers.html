@@ -4,6 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- Keep this out of search results. Unlike robots.txt, this is read
+         per page, so it works even though the site lives on a subpath
+         (user.github.io/repo/) where a crawler never looks for robots.txt.
+         noindex = don't list this page; nofollow = don't crawl on from its
+         links. This is what actually keeps the league off Google; the gate
+         only hides the content visually, since the HTML ships either way. -->
+    <meta name="robots" content="noindex, nofollow">
+
     <!-- Dark mode, no-flash: resolve the theme (stored override, else
          system preference) and set it explicitly on <html> before first
          paint. Tailwind's dark: variant here (src/tailwind.css) targets
@@ -22,6 +30,35 @@
       })();
     </script>
 
+    
+    <!-- League passphrase gate. Everything on the page is still in the
+         HTML, so this keeps out search engines and passers-by, not anyone
+         who opens devtools -- a doorbell, not a lock. That is the deal we
+         took knowingly: surnames are stripped from the data at fetch time,
+         so there is nothing behind it worth working for.
+
+         The phrase is never committed. CI hashes it from a GitHub Secret
+         and only the digest below ships. -->
+    <style>
+      html:not([data-unlocked]) body > *:not(#league-gate) { display: none !important; }
+      #league-gate { display: none; }
+      html:not([data-unlocked]) #league-gate { display: flex; }
+    </style>
+    <script>
+      (function () {
+        var HASH = '409504e37dfdcb186ad0898f041474b6e66ecaae9fb14b4a02f5febc56998a50';
+        var KEY = 'leaguestats:unlocked';
+        try {
+          if (localStorage.getItem(KEY) === HASH) {
+            document.documentElement.setAttribute('data-unlocked', '1');
+          }
+        } catch (e) {
+          // Private mode with storage blocked: the gate just asks every
+          // visit rather than failing closed on a page that is public
+          // anyway.
+        }
+      })();
+    </script>
     
 
     <link rel="stylesheet" href="static/css/app.css">
@@ -1120,6 +1157,72 @@
       <span id="swatch-grid" class="border-slate-200 dark:border-slate-800" style="border-style: solid; border-width: 1px;"></span>
     </div>
 
+    
+    <div id="league-gate" class="fixed inset-0 z-50 items-center justify-center overflow-y-auto bg-slate-950 px-6 py-12">
+      <div class="w-full max-w-2xl text-center">
+        <p class="text-[.7rem] font-bold tracking-[0.25em] text-amber-500 uppercase">Fantasy Football Fantasy</p>
+        <h1 class="mt-5 text-3xl font-bold tracking-tight text-balance text-white sm:text-5xl">Your league, on the record.</h1>
+        <p class="mx-auto mt-5 max-w-md text-sm leading-relaxed text-slate-400">
+          8 seasons of standings, rivalries, records and prize money.
+          Enter the league phrase to get in &mdash; ask in the group chat if you don't have it.
+        </p>
+
+        <form id="league-gate-form" class="mx-auto mt-8 flex w-full max-w-sm flex-col gap-2 sm:flex-row" autocomplete="off">
+          <label for="league-gate-input" class="sr-only">League phrase</label>
+          <input id="league-gate-input" type="password" inputmode="text"
+                 class="min-w-0 flex-1 rounded-md border border-slate-700 bg-slate-900 px-3 py-2.5 text-center text-sm text-slate-100 placeholder:text-slate-600 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 sm:text-left"
+                 placeholder="league phrase" autofocus>
+          <button type="submit"
+                  class="rounded-md bg-amber-500 px-5 py-2.5 text-sm font-semibold whitespace-nowrap text-amber-950 transition hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 focus:ring-offset-slate-950">
+            Enter
+          </button>
+        </form>
+
+        <p id="league-gate-error" class="mt-3 hidden text-xs text-rose-400">That's not it. Try again.</p>
+        <p class="mt-10 text-xs text-slate-600">Private league page. Nothing here is affiliated with ESPN.</p>
+      </div>
+    </div>
+    <script>
+      (function () {
+        var HASH = '409504e37dfdcb186ad0898f041474b6e66ecaae9fb14b4a02f5febc56998a50';
+        var KEY = 'leaguestats:unlocked';
+        var form = document.getElementById('league-gate-form');
+        var input = document.getElementById('league-gate-input');
+        var error = document.getElementById('league-gate-error');
+        if (!form) return;
+
+        async function sha256(text) {
+          var bytes = new TextEncoder().encode(text);
+          var digest = await crypto.subtle.digest('SHA-256', bytes);
+          return Array.from(new Uint8Array(digest))
+            .map(function (b) { return b.toString(16).padStart(2, '0'); })
+            .join('');
+        }
+
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          error.classList.add('hidden');
+          var got;
+          try {
+            // crypto.subtle needs a secure context. Pages is https, but a
+            // file:// preview isn't -- say so rather than failing silently.
+            got = await sha256(input.value.trim());
+          } catch (err) {
+            error.textContent = 'This page needs to be served over https to check the phrase.';
+            error.classList.remove('hidden');
+            return;
+          }
+          if (got === HASH) {
+            try { localStorage.setItem(KEY, HASH); } catch (e2) {}
+            document.documentElement.setAttribute('data-unlocked', '1');
+          } else {
+            input.value = '';
+            error.classList.remove('hidden');
+            input.focus();
+          }
+        });
+      })();
+    </script>
     
 
     <!-- Icons -->

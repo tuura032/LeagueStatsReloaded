@@ -1378,3 +1378,45 @@ class TestPassphraseGate(unittest.TestCase):
         a = build.phrase_hash()
         os.environ["LEAGUE_PHRASE"] = "go lions"
         self.assertEqual(a, build.phrase_hash())
+
+
+class TestPhraseHashPassthrough(unittest.TestCase):
+    """LEAGUE_PHRASE_SHA256 lets a build reproduce the gate without the phrase.
+
+    Without it, any rebuild by someone who lacks the secret would silently
+    ship a gate-less site.
+    """
+
+    def setUp(self):
+        self._saved = {k: os.environ.get(k)
+                       for k in ("LEAGUE_PHRASE", "LEAGUE_PHRASE_SHA256")}
+        for k in self._saved:
+            os.environ.pop(k, None)
+
+    def tearDown(self):
+        for k, v in self._saved.items():
+            os.environ.pop(k, None)
+            if v is not None:
+                os.environ[k] = v
+
+    def test_a_valid_digest_is_used_as_is(self):
+        digest = hashlib.sha256(b"go lions").hexdigest()
+        os.environ["LEAGUE_PHRASE_SHA256"] = digest
+        self.assertEqual(build.phrase_hash(), digest)
+
+    def test_digest_is_case_insensitive(self):
+        digest = hashlib.sha256(b"go lions").hexdigest()
+        os.environ["LEAGUE_PHRASE_SHA256"] = digest.upper()
+        self.assertEqual(build.phrase_hash(), digest)
+
+    def test_the_phrase_wins_over_a_digest(self):
+        os.environ["LEAGUE_PHRASE"] = "go lions"
+        os.environ["LEAGUE_PHRASE_SHA256"] = "0" * 64
+        self.assertEqual(build.phrase_hash(),
+                         hashlib.sha256(b"go lions").hexdigest())
+
+    def test_a_malformed_digest_is_refused_rather_than_trusted(self):
+        # Shipping "not-a-hash" as the gate would make every phrase fail.
+        for bad in ("not-a-hash", "abc", "z" * 64, hashlib.sha256(b"x").hexdigest()[:63]):
+            os.environ["LEAGUE_PHRASE_SHA256"] = bad
+            self.assertEqual(build.phrase_hash(), "", bad)
