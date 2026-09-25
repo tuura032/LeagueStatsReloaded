@@ -82,6 +82,20 @@ Awards are computed by fixed rules and are **not randomised**: `build.py`
 must stay deterministic so the daily workflow commits only when the data
 actually changed.
 
+## Kickers
+
+The one page nobody asked for. Every kicker ever **started** in this league,
+2019 on, ranked by the points they actually put on somebody's board —
+bench points don't count, because the joke is that these are points an owner
+looked at their lineup and chose. Same data cut by owner (who the position
+has been kind to), each season's leading leg, and a trophy case: best and
+worst week ever, the donut king, the longest owner-kicker marriage, the
+kicker who has played for more of this league than most of its owners.
+
+It runs off `data/starters-<season>.json`, which is also the groundwork for
+anything else lineup-level — matchup cards, weekly recaps, optimal-lineup
+regret. Kickers are about 7.7% of every point this league has ever started.
+
 ## Prize money
 
 `data/prizes.json` holds the pot. Each prize names the result it pays on —
@@ -111,6 +125,8 @@ not guarantee you are up: one owner has a title and is still net −$10.
 
 ```
 fetch.py     ESPN API → data/raw-<season>.json      3 public calls, 1s apart
+fetch.py --starters                                 1 call per week (box scores)
+             ESPN API → data/starters-<season>.json every started player
 compute.py   raw  → data/standings-<season>.json    the dual-point math
 build.py     standings + templates/ → docs/         static render, no server
 ```
@@ -133,9 +149,15 @@ pipeline.
 pip install -r requirements.txt
 
 python fetch.py --season 2026     # --season defaults to the current year
+python fetch.py --season 2026 --starters   # started lineups (Kickers page)
 python compute.py --season 2026
 python build.py --season 2026
 ```
+
+`--starters` is one request per week rather than three per season, so it is a
+separate call. It only asks for weeks it does not already have and stops at
+the first one that has not been played — a full backfill of a new season is
+~17 requests, an in-season top-up is one or two.
 
 Or via the task runner (stdlib only, no extra dependency):
 
@@ -290,11 +312,12 @@ manual re-enable each August.
 
 | Path | What |
 | --- | --- |
-| `fetch.py` | ESPN API → `data/raw-<season>.json` (verbatim, no transform) |
+| `fetch.py` | ESPN API → `data/raw-<season>.json` (verbatim, no transform); `--starters` → `data/starters-<season>.json` (started lineups, trimmed subset) |
 | `compute.py` | raw → `data/standings-<season>.json` (the dual-point math + playoff bracket), plus the render-time rivalry/career/season-stats derivations |
 | `build.py` | renders `templates/` to `docs/`, copies `static/` |
 | `test_compute.py` | unit tests for the scoring rule |
 | `data/` | committed raw + computed JSON per season |
+| `data/starters-<season>.json` | every started player, week by week (`fetch.py --starters`) — what the Kickers page ranks |
 | `data/prizes.json` | the league pot — labels, amounts, and which result each prize is awarded on (`default` list, plus optional per-year overrides) |
 | `tasks.py` | one-command wrappers for fetch/compute/build/test |
 | `docs/` | the rendered static site (what Pages serves) |

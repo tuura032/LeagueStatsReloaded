@@ -9,7 +9,8 @@ dependency (SPEC.md §2 keeps that list at requests + jinja2).
 Usage:
     python tasks.py build              # render docs/ from committed data
     python tasks.py compute            # recompute every season on file
-    python tasks.py fetch [--season Y] # re-fetch from ESPN (network)
+    python tasks.py fetch [--season Y] # re-fetch from ESPN (network),
+                                       #   standings views + started lineups
     python tasks.py test               # run the scoring-math tests
     python tasks.py css                # rebuild the Tailwind bundle
     python tasks.py all                # compute + build + test (offline)
@@ -38,6 +39,10 @@ def seasons_on_file():
 
 def task_fetch(args):
     run(sys.executable, "fetch.py", "--season", str(args.season))
+    # Started lineups for the Kickers page. Incremental -- it re-asks only
+    # for the weeks it does not have, then stops at the first unplayed one,
+    # so an in-season run is a request or two and an off-season run is none.
+    run(sys.executable, "fetch.py", "--season", str(args.season), "--starters")
 
 
 def task_compute(args):

@@ -127,6 +127,10 @@ https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/<season>/segment
         "away": { "teamId": 4, "totalPoints": 117.4 } } ] }
   ```
 
+- A fourth view, `mBoxscore`, carries the actual lineups -- but only for one
+  week per request. `fetch.py --starters` walks it week by week into a
+  separate artifact; see §5.
+
 ### Surnames are redacted on write (added 2026-09-23)
 
 The one deliberate exception to "verbatim". This repo is **public** — free
@@ -244,6 +248,45 @@ Weeks 15-17 still contribute **no dual points** (§1) — the bracket is read
 only to record who won, which is a different question from the standings.
 
 **Standings sort:** `points` desc, then `pointsFor` desc.
+
+### `data/starters-<season>.json` (added 2026-09-24)
+
+The second committed artifact: every **started** player, week by week. Written
+by `fetch.py --starters`, which is a separate, manual-ish pass over ESPN's
+`mBoxscore` view -- one request per matchup period, because the response only
+carries rosters for the `scoringPeriodId` in the query.
+
+```jsonc
+{
+  "season": 2025,
+  "weeks": [1, 2, 3],
+  "starters": [
+    { "week": 1, "teamId": 1, "slot": 17, "playerId": 15683,
+      "name": "Justin Tucker", "pos": 5, "proTeamId": 33, "points": 11.0 }
+  ]
+}
+```
+
+Three things about this file that are decisions, not accidents:
+
+- **It is a trimmed subset, not a transform.** ESPN sends 0.5-0.9 MB per week
+  -- projections, per-stat breakdowns, ownership, injury history. Keeping it
+  verbatim would be ~100 MB a season in a repo that commits its data. Eight
+  fields are kept and the rest is dropped at fetch time.
+- **Starters only.** The row set comes from `rosterForMatchupPeriod` (the nine
+  who played; their points sum exactly to the team's `totalPoints`), while
+  `slot` is looked up from `rosterForCurrentScoringPeriod`, which is the only
+  block with a real `lineupSlotId` -- and also the only one with the bench in
+  it. Never take the row set from the second block.
+- **`pos` is `defaultPositionId`**: 1 QB, 2 RB, 3 WR, 4 TE, 5 K, 16 D/ST.
+
+Not part of the default fetch: past seasons never change, so re-walking 2019
+every morning would be ~17 pointless requests. The incremental run asks only
+for weeks it does not have and stops at the first unplayed one.
+
+**The invariant worth testing against:** a team-week's started points must sum
+to that team's `score` in `standings-<season>.json`. All 1,176 team-weeks on
+file reconcile exactly; `test_compute.py` asserts it.
 
 ---
 

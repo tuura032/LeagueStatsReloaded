@@ -27,19 +27,20 @@ math, or `README.md` for the full picture.
    don't belong in the public repo) describing what changed and what you
    verified.
 5. Stop. Say what's next; don't start it.
+6. Always summarize if you committed, and ask if you should finish the push to main (or merge or PR, whatever). After review, changes will frequently want to go live quickly, especially for smaller changes.
 
 ## Repo layout
 
 | Path | What |
 | --- | --- |
-| `fetch.py` | ESPN API → `data/raw-<season>.json`, verbatim, no transform |
+| `fetch.py` | ESPN API → `data/raw-<season>.json`, verbatim, no transform. `--starters` is a second pass (one request per week) → `data/starters-<season>.json`, started lineups |
 | `compute.py` | raw → `data/standings-<season>.json` — the dual-point math, playoff bracket, rivalries, career stats. **The only file with real logic; it has tests.** |
 | `build.py` | renders `templates/` + `data/` → `docs/`, copies `static/` |
 | `test_compute.py` | run with `python -m unittest test_compute -v` before touching `compute.py` |
 | `tasks.py` | stdlib task runner: `python tasks.py {all,build,refresh,test}` |
 | `templates/` | Jinja2 templates (Tailwind-styled) — don't touch outside a task that says to |
 | `static/` | committed CSS/JS/fonts — `static/css/app.css` is compiled output, see README "Frontend" |
-| `data/` | committed raw + computed JSON per season; `data/prizes.json` is the pot config |
+| `data/` | committed raw + computed JSON per season; `starters-<season>.json` is every started player-week; `data/prizes.json` is the pot config |
 | `docs/` | rendered static site, what Pages actually serves — regenerated, don't hand-edit |
 | `SPEC.md` | architecture reference: data schema, deploy config, decisions not to re-litigate |
 | `BUGS.md` | defect log — check "Open" before assuming something's broken |

@@ -67,7 +67,7 @@
          the cached CSS with the new HTML (that is how the header redesign
          shipped broken). Don't "clean up" the ?v= in docs/ -- it comes from
          here. -->
-    <link rel="stylesheet" href="static/css/app.css?v=e8baaaf6fce3">
+    <link rel="stylesheet" href="static/css/app.css?v=03214531554c">
     <link rel="shortcut icon" type="image/png" href="static/fffIcon.png"/>
 
     <title>
@@ -105,7 +105,7 @@
            drifting right of center next to the wider wordmark. Hidden on
            mobile, where the bar only has room for wordmark + toggle. -->
       <p class="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 text-[.65rem] font-semibold tracking-[0.3em] whitespace-nowrap text-slate-400 uppercase md:block">
-        Your league, on the record.
+        Dual-point standings since 2015
       </p>
       <button class="theme-toggle-btn inline-flex h-8 w-8 items-center justify-center rounded-md border border-white/25 text-white transition hover:border-white/60"
               type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
@@ -322,6 +322,11 @@
               text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
       <span data-feather="award" class="h-4 w-4 shrink-0"></span>
       Career Stats
+    </a><a href="kickers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="wind" class="h-4 w-4 shrink-0"></span>
+      Kickers
     </a>
           <a href="league.html"
        class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
@@ -404,6 +409,12 @@
               text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
       <span data-feather="award" class="h-4 w-4 shrink-0"></span>
       Careers
+    </a>
+        <a href="kickers.html"
+       class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
+              text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
+      <span data-feather="wind" class="h-4 w-4 shrink-0"></span>
+      Kickers
     </a>
         <a href="league.html"
        class="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium whitespace-nowrap
@@ -537,7 +548,7 @@
   
 </h2>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-  Handed out by fixed rules, not at random &mdash; so they only move when the football does.
+  Handed out by fixed rules, not at random.
 </p>
 <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
   
@@ -549,7 +560,7 @@
       </div>
       <div class="text-base font-semibold text-slate-900 dark:text-white">Eric</div>
       <div class="text-xs font-medium text-blue-600 dark:text-blue-400">75.0% all-play</div>
-      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Best record if everyone played everyone every week — schedule removed.</div>
+      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">Best record if everyone played everyone every week, schedule removed.</div>
     </div>
   </div>
   
@@ -681,7 +692,7 @@
 
 <h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Season records</h2>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-  The single games worth remembering.
+  The best and worst single games of the season.
 </p>
 <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 
@@ -751,10 +762,10 @@
 
 <h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Advanced stats</h2>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-  <strong>All-play</strong> is your record if you'd played every other team every week &mdash;
-  the schedule removed entirely. Compare it to your real record to see who got carried by
-  the draw. <strong>Swing</strong> is the week-to-week standard deviation: low is predictable,
-  high is boom-or-bust. Click a column header to sort.
+  <strong>All-play</strong> is your record if you'd played every other team every
+  week, with the schedule removed. Compare it to your head-to-head record to see who
+  got carried by the draw. <strong>Swing</strong> is the week-to-week standard
+  deviation: low is predictable, high is boom-or-bust. Click a column header to sort.
 </p>
 
 
@@ -1099,10 +1110,10 @@
     <div id="league-gate" class="fixed inset-0 z-50 items-center justify-center overflow-y-auto bg-slate-950 px-6 py-12">
       <div class="w-full max-w-2xl text-center">
         <p class="text-[.7rem] font-bold tracking-[0.25em] text-amber-500 uppercase">Fantasy Football Fantasy</p>
-        <h1 class="font-display mt-5 text-3xl font-bold tracking-tight text-balance text-white sm:text-5xl">Your league, on the record.</h1>
+        <h1 class="font-display mt-5 text-3xl font-bold tracking-tight text-balance text-white sm:text-5xl">League standings and records</h1>
         <p class="mx-auto mt-5 max-w-md text-sm leading-relaxed text-slate-400">
           8 seasons of standings, rivalries, records and prize money.
-          Enter the league phrase to get in &mdash; ask in the group chat if you don't have it.
+          Enter the league phrase to get in. Ask in the group chat if you don't have it.
         </p>
 
         <form id="league-gate-form" class="mx-auto mt-8 flex w-full max-w-sm flex-col gap-2 sm:flex-row" autocomplete="off">

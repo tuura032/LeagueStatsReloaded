@@ -74,7 +74,7 @@
 {% if final_standings %}
 <h2 class="mt-8 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Final Standings</h2>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-  Where everyone actually finished once the playoffs and consolation brackets were done.
+  Where everyone finished after the playoff and consolation brackets.
 </p>
 <div class="mt-3 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
   <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
@@ -117,7 +117,7 @@
 
 {% if not standings or throughWeek == 0 %}
   <p class="mt-4 text-slate-500 dark:text-slate-400">
-    No completed weeks yet for {{ season }} — seeding and prizes appear once week 1 is final.
+    No completed weeks yet for {{ season }}. Seeding and prizes appear once week 1 is final.
   </p>
 {% else %}
 {% set playoff_cut = (playoffTeamCount or ((standings | length) // 2)) %}
@@ -172,7 +172,7 @@
   {% if all_decided %}
     Final. ${{ prizes | sum(attribute='amount') }} paid out{% if entryFee %} from {{ standings | length }} &times; ${{ entryFee | int }} in entry fees{% endif %}.
   {% else %}
-    Based on the standings as they are now &mdash; nothing here is settled until the season ends.
+    Based on the standings as they are now. Nothing is settled until the season ends.
   {% endif %}
 </p>
 
@@ -203,8 +203,7 @@
   {{ "Payouts" if all_decided else "Projected Payouts" }}
 </h2>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-  The same money, ranked by who actually took it home. Winning the title isn't
-  the same as topping this &mdash; the biggest single prize is
+  The same money, ranked by who took it home. The biggest single prize is
   ${{ prizes | map(attribute='amount') | max }}, but stacking the regular-season
   prizes can beat it.
 </p>

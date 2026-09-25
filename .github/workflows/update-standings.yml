@@ -35,6 +35,12 @@ jobs:
           LEAGUE_PHRASE: ${{ secrets.LEAGUE_PHRASE }}
         run: |
           python fetch.py
+          # Started lineups for the Kickers page. Separate call because it
+          # is one request per week rather than three per season; it only
+          # asks for weeks it does not already have and stops at the first
+          # one that has not been played, so this is a request or two in
+          # season and none at all outside it.
+          python fetch.py --starters
           python compute.py
           python build.py
 

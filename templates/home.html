@@ -65,8 +65,8 @@
 <h2 class="mt-6 text-lg font-semibold tracking-tight text-slate-900 dark:text-white">Regular season standings</h2>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
   The dual-point table, weeks 1&ndash;{{ throughWeek }}. <strong>Finish</strong> is where each
-  owner actually ended up after the playoffs. Click a column header to sort &mdash;
-  sort by Finish for the final order.
+  owner ended up after the playoffs. Click a column header to sort, or sort by
+  Finish for the final order.
 </p>
 {% elif season == current_season %}
 <h1 class="font-display text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">Current Rankings Through Week {{ throughWeek }}</h1>
@@ -82,7 +82,7 @@
 
 {% if not standings or throughWeek == 0 %}
   <p class="mt-4 text-slate-500 dark:text-slate-400">
-    No completed weeks yet for {{ season }} — standings appear once week 1 is final.
+    No completed weeks yet for {{ season }}. Standings appear once week 1 is final.
   </p>
 {% else %}
 <div class="mt-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
@@ -158,7 +158,7 @@
         {% if loop.index == playoff_spots and playoff_spots < (standings | length) %}
         <tr aria-hidden="true">
           <td colspan="{{ 11 if has_final_ranks else 10 }}" class="border-y border-dashed border-amber-400 bg-amber-50 px-3 py-1 text-center text-[.65rem] font-semibold tracking-wide text-amber-700 uppercase dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-400">
-            Playoff line — top {{ playoff_spots }} make it
+            Playoff line: top {{ playoff_spots }} make it
           </td>
         </tr>
         {% endif %}

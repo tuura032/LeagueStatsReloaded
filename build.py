@@ -44,6 +44,7 @@ PAGES = (
     ("graph.html", "graph.html"),
     ("rivalries.html", "rivalries.html"),
     ("careers.html", "careers.html"),
+    ("kickers.html", "kickers.html"),
     ("league.html", "league.html"),
 )
 
@@ -174,6 +175,26 @@ def main():
                   for row in season_data["standings"]}
     short = compute.short_names(all_owners)
 
+    # All-time kicker rankings (the Kickers page). Sourced from
+    # data/starters-<season>.json, which fetch.py --starters writes -- a
+    # separate, deliberately manual fetch (see its docstring), so the files
+    # may be absent or cover fewer seasons than standings-*.json do. That is
+    # fine: build_kicker_stats returns None when there is nothing to rank and
+    # the page is then skipped entirely rather than rendered empty. Owner
+    # names are shortened here because the awards bake them into sentences.
+    all_starters = [json.loads(path.read_text(encoding="utf-8"))
+                    for path in sorted(data_dir.glob("starters-*.json"))]
+    kicker_stats = compute.build_kicker_stats(all_starters, all_standings, short)
+    if kicker_stats:
+        print(f"Kickers: {kicker_stats['distinctKickers']} kickers, "
+              f"{kicker_stats['totalStarts']} starts, "
+              f"{kicker_stats['totalPoints']} points")
+    else:
+        print("Kickers: no data/starters-*.json found; skipping the page. "
+              "Run `python fetch.py --starters --season <year>` to add it.")
+    pages = [entry for entry in PAGES
+             if entry[0] != "kickers.html" or kicker_stats]
+
     env = Environment(loader=FileSystemLoader("templates"),
                       autoescape=select_autoescape())
     env.filters["ordinal"] = ordinal
@@ -245,6 +266,9 @@ def main():
             "rivalry_owners": rivalry_owners,
             "rivalry_matrix": rivalry_matrix,
             "careers": careers,
+            # All-time kicker rankings, or None when no starter data is on
+            # file -- layout.html hides the nav link in that case.
+            "kicker_stats": kicker_stats,
             # Prize lines for this season, each already resolved to a
             # winner, plus the same money re-cut as a ranked payout table.
             # Both come from one resolver in compute.py -- when the macro
@@ -289,7 +313,7 @@ def main():
             "updated": data.get("updated"),
             "leagueName": data.get("leagueName"),
         }
-        for template, out_name in PAGES:
+        for template, out_name in pages:
             out = out_dir / out_name
             # active_page drives the sidebar's active nav state (L5).
             # encoding="utf-8": the locale default (cp1252 on Windows) would

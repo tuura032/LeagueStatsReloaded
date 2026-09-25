@@ -81,7 +81,7 @@
   {% endif %}
 </h2>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-  Handed out by fixed rules, not at random &mdash; so they only move when the football does.
+  Handed out by fixed rules, not at random.
 </p>
 <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
   {% for a in season_stats.awards %}
@@ -105,7 +105,7 @@
 {% if r.blowout %}
 <h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Season records</h2>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-  The single games worth remembering.
+  The best and worst single games of the season.
 </p>
 <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 
@@ -175,10 +175,10 @@
 {# ---------------------------------------------------------------- #}
 <h2 class="mt-10 text-xl font-semibold tracking-tight text-slate-900 dark:text-white">Advanced stats</h2>
 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-  <strong>All-play</strong> is your record if you'd played every other team every week &mdash;
-  the schedule removed entirely. Compare it to your real record to see who got carried by
-  the draw. <strong>Swing</strong> is the week-to-week standard deviation: low is predictable,
-  high is boom-or-bust. Click a column header to sort.
+  <strong>All-play</strong> is your record if you'd played every other team every
+  week, with the schedule removed. Compare it to your head-to-head record to see who
+  got carried by the draw. <strong>Swing</strong> is the week-to-week standard
+  deviation: low is predictable, high is boom-or-bust. Click a column header to sort.
 </p>
 
 {% set best_ap = season_stats.table | map(attribute='allPlayPct') | max %}

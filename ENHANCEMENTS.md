@@ -33,9 +33,13 @@ status.
 - **ENH-011** — Rank-movement arrows using git history (diff this week's
   `standings-<season>.json` against last week's commit). Cheap, high
   perceived-liveness.
-- **ENH-012** — `mRoster` endpoint for lineup-level data: literal bench
-  points, optimal-lineup regret. The one item here that's a genuinely new
-  capability, not just unused existing data — needs a new fetch call.
+- **ENH-012** — Lineup-level data: literal bench points, optimal-lineup
+  regret. **Half-unblocked 2026-09-24 by ENH-024** — started lineups are now
+  on disk (`data/starters-<season>.json`, every position, 2019–present) via
+  `mBoxscore`, not `mRoster`. What is still missing is the *bench*: the
+  starters file deliberately stores only who played. Bench points and
+  optimal-lineup regret need `rosterForCurrentScoringPeriod` kept too, which
+  is the same requests and a bigger file — a decision, not a blocker.
 - **ENH-021** — Announcements section (owner idea, 2026-09-23): a place for
   league announcements so the site has more of a "home page" feel. Placement
   is open — home page or wherever makes sense. Checking the standings is the
@@ -117,6 +121,15 @@ for template rendering (the screenshot baseline is the right tool for that).
 ---
 
 ## Done
+
+- **ENH-024** — All-time kicker rankings (owner idea, 2026-09-24) — done
+  2026-09-24. New "Kickers" page: every kicker ever started in the league
+  ranked by points contributed, the same cut by owner, each season's leading
+  leg, and ten fixed-rule joke awards. Required a new data artifact —
+  `fetch.py --starters` walks ESPN's `mBoxscore` one week at a time into
+  `data/starters-<season>.json` (every started player, all positions, not
+  just kickers). Verified: all 1,176 team-weeks of started points reconcile
+  exactly with the scores already in `standings-*.json`; 41 new tests.
 
 - **ENH-001** — Historical / multi-season data — done 2026-09-22 (L9).
   Archive now covers 2019–2026; newest season with data is the site root.

@@ -1516,3 +1516,409 @@ class TestGateRegressionGuard(unittest.TestCase):
         (self.docs / "index.html").write_text(
             "<script>var HASH = 'nope';</script>", encoding="utf-8")
         self.assertEqual(build.previous_gate_hash(self.docs), "")
+
+
+# --------------------------------------------------------------------------
+# Started lineups (fetch.py --starters) and the all-time kicker rankings.
+# --------------------------------------------------------------------------
+
+def make_entry(player_id, name, points, pos, slot=None):
+    """One rosterForCurrentScoringPeriod entry (slot given) or a
+    rosterForMatchupPeriod one (slot zeroed, the way ESPN sends it)."""
+    return {
+        "lineupSlotId": 0 if slot is None else slot,
+        "playerId": player_id,
+        "playerPoolEntry": {
+            "appliedStatTotal": points,
+            "player": {"id": player_id, "fullName": name,
+                       "defaultPositionId": pos, "proTeamId": 12},
+        },
+    }
+
+
+def make_side(team_id, started, benched=(), total=None):
+    """A boxscore side: the started nine plus the bench ESPN also sends.
+
+    started/benched: (playerId, name, points, pos, slot) tuples. The starters
+    appear in BOTH roster blocks (slot zeroed in the matchup one, real in the
+    current one); the bench only in the current-period block.
+    """
+    return {
+        "teamId": team_id,
+        "totalPoints": (sum(s[2] for s in started) if total is None else total),
+        "rosterForMatchupPeriod": {
+            "entries": [make_entry(p, n, pts, pos) for p, n, pts, pos, _ in started],
+        },
+        "rosterForCurrentScoringPeriod": {
+            "entries": ([make_entry(p, n, pts, pos, slot)
+                         for p, n, pts, pos, slot in started]
+                        + [make_entry(p, n, pts, pos, 20)
+                           for p, n, pts, pos, _ in benched]),
+        },
+    }
+
+
+def make_starter_file(season, rows):
+    """A data/starters-<season>.json-shaped dict from (week, teamId,
+    playerId, name, points[, pos]) tuples."""
+    out = []
+    for row in rows:
+        week, team_id, player_id, name, points = row[:5]
+        pos = row[5] if len(row) > 5 else compute.KICKER_POS
+        out.append({"week": week, "teamId": team_id, "slot": 17,
+                    "playerId": player_id, "name": name, "pos": pos,
+                    "proTeamId": 12, "points": points})
+    return {"season": season, "weeks": sorted({r["week"] for r in out}),
+            "starters": out}
+
+
+class TestStarterRows(unittest.TestCase):
+    """fetch.starter_rows: the started nine, and only those."""
+
+    STARTED = [
+        (1, "Quarter Back", 25.0, 1, 0),
+        (2, "Runner Up", 12.0, 2, 2),
+        (3, "Wide Out", 8.0, 3, 4),
+        (4, "Tight Fit", 6.0, 4, 6),
+        (5, "Flex Guy", 9.0, 2, 23),
+        (6, "Kick Kicker", 11.0, 5, 17),
+        (7, "Some Defense", 4.0, 16, 16),
+    ]
+    BENCHED = [(8, "Bench Warmer", 30.0, 2, 20)]
+
+    def setUp(self):
+        self.payload = {"schedule": [
+            {"matchupPeriodId": 3,
+             "home": make_side(1, self.STARTED, self.BENCHED),
+             "away": make_side(2, self.STARTED)},
+            # A different period in the same response: rosters only come back
+            # for the week that was asked for, but other periods are still
+            # listed and must not be read.
+            {"matchupPeriodId": 4,
+             "home": {"teamId": 3, "totalPoints": 0.0},
+             "away": {"teamId": 4, "totalPoints": 0.0}},
+        ]}
+        self.rows = fetch.starter_rows(self.payload, 3)
+
+    def test_only_starters_are_kept(self):
+        self.assertEqual(len(self.rows), 2 * len(self.STARTED))
+        self.assertNotIn("Bench Warmer", [r["name"] for r in self.rows])
+
+    def test_slot_comes_from_the_current_period_roster(self):
+        # rosterForMatchupPeriod zeroes lineupSlotId, so a naive read would
+        # report every starter in slot 0 and the kicker would be unfindable.
+        kicker = next(r for r in self.rows if r["pos"] == compute.KICKER_POS)
+        self.assertEqual(kicker["slot"], 17)
+        self.assertEqual(kicker["points"], 11.0)
+
+    def test_rows_carry_the_requested_week_and_team(self):
+        self.assertEqual({r["week"] for r in self.rows}, {3})
+        self.assertEqual({r["teamId"] for r in self.rows}, {1, 2})
+
+    def test_other_matchup_periods_are_ignored(self):
+        self.assertNotIn(3, {r["teamId"] for r in self.rows})
+
+    def test_an_unplayed_week_stores_nothing(self):
+        # ESPN returns a projected lineup for a future week with every
+        # appliedStatTotal at 0. Storing it would put a wall of fake zeroes
+        # in the donut column.
+        payload = {"schedule": [
+            {"matchupPeriodId": 9,
+             "home": make_side(1, [(1, "Kick Kicker", 0.0, 5, 17)], total=0.0),
+             "away": make_side(2, [(1, "Kick Kicker", 0.0, 5, 17)], total=0.0)},
+        ]}
+        self.assertEqual(fetch.starter_rows(payload, 9), [])
+
+    def test_a_playoff_bye_has_no_opponent_and_does_not_crash(self):
+        payload = {"schedule": [
+            {"matchupPeriodId": 15,
+             "home": make_side(1, [(6, "Kick Kicker", 11.0, 5, 17)])},
+        ]}
+        rows = fetch.starter_rows(payload, 15)
+        self.assertEqual([r["teamId"] for r in rows], [1])
+
+
+class TestDumpStarters(unittest.TestCase):
+    """fetch.dump_starters: deterministic, one row per line."""
+
+    ROWS = [
+        {"week": 2, "teamId": 1, "slot": 17, "playerId": 9, "name": "B",
+         "pos": 5, "proTeamId": 12, "points": 3.0},
+        {"week": 1, "teamId": 2, "slot": 17, "playerId": 8, "name": "A",
+         "pos": 5, "proTeamId": 12, "points": 7.0},
+        {"week": 1, "teamId": 1, "slot": 17, "playerId": 7, "name": "C",
+         "pos": 5, "proTeamId": 12, "points": 5.0},
+    ]
+
+    def test_round_trips_as_json(self):
+        data = json.loads(fetch.dump_starters(2025, self.ROWS))
+        self.assertEqual(data["season"], 2025)
+        self.assertEqual(data["weeks"], [1, 2])
+        self.assertEqual(len(data["starters"]), 3)
+
+    def test_rows_are_sorted_by_week_team_player(self):
+        data = json.loads(fetch.dump_starters(2025, self.ROWS))
+        self.assertEqual([(r["week"], r["teamId"], r["playerId"])
+                          for r in data["starters"]],
+                         [(1, 1, 7), (1, 2, 8), (2, 1, 9)])
+
+    def test_input_order_does_not_change_the_file(self):
+        # The daily bot commits when a file changes. A fetch that reordered
+        # rows would manufacture a commit every morning.
+        a = fetch.dump_starters(2025, self.ROWS)
+        b = fetch.dump_starters(2025, list(reversed(self.ROWS)))
+        self.assertEqual(a, b)
+
+    def test_one_line_per_player(self):
+        text = fetch.dump_starters(2025, self.ROWS)
+        self.assertEqual(sum(1 for line in text.splitlines()
+                             if line.startswith('    {')), 3)
+
+    def test_only_the_documented_fields_are_written(self):
+        rows = [dict(self.ROWS[0], injuryStatus="ACTIVE", onTeamId=4)]
+        data = json.loads(fetch.dump_starters(2025, rows))
+        self.assertEqual(set(data["starters"][0]), set(fetch.STARTER_FIELDS))
+
+
+class TestKickerStarts(unittest.TestCase):
+    """compute.owned_starts / kicker_starts: the owner join."""
+
+    def setUp(self):
+        self.standings = [compute.build_standings(
+            make_raw(full_season_weeks(), season=2025), UPDATED)]
+        self.files = [make_starter_file(2025, [
+            (1, 1, 100, "Alpha Kicks", 20.0),
+            (1, 1, 900, "Quarter Back", 30.0, 1),
+            (1, 99, 100, "Alpha Kicks", 99.0),
+        ])]
+
+    def test_kicker_starts_keeps_only_kickers(self):
+        rows = compute.kicker_starts(self.files, self.standings)
+        self.assertEqual([r["name"] for r in rows], ["Alpha Kicks"])
+
+    def test_owned_starts_keeps_every_position(self):
+        rows = compute.owned_starts(self.files, self.standings)
+        self.assertEqual(sorted(r["pos"] for r in rows), [1, 5])
+
+    def test_the_owner_is_attached_from_that_seasons_standings(self):
+        row = compute.kicker_starts(self.files, self.standings)[0]
+        self.assertEqual(row["owner"], "First1 Last1")
+        self.assertEqual(row["season"], 2025)
+        self.assertEqual(row["proTeam"], "KC")
+
+    def test_a_team_with_no_owner_is_dropped_not_credited_to_nobody(self):
+        rows = compute.kicker_starts(self.files, self.standings)
+        self.assertEqual([r["teamId"] for r in rows], [1])
+
+    def test_a_season_with_no_standings_file_is_skipped(self):
+        files = self.files + [make_starter_file(2018, [(1, 1, 100, "A", 5.0)])]
+        rows = compute.kicker_starts(files, self.standings)
+        self.assertEqual({r["season"] for r in rows}, {2025})
+
+
+class TestKickerStats(unittest.TestCase):
+    """compute.build_kicker_stats: the leaderboard, the owners, the trophies.
+
+    Fixture, two seasons. Alpha Kicks is the all-time leader and is ridden by
+    two owners; Bravo Boot is the donut machine; Charlie Leg is a one-off.
+    """
+
+    def setUp(self):
+        self.standings = [
+            compute.build_standings(make_raw(full_season_weeks(), season=2025),
+                                    UPDATED),
+            compute.build_standings(make_raw(full_season_weeks(), season=2024),
+                                    UPDATED),
+        ]
+        self.files = [
+            make_starter_file(2025, [
+                (1, 1, 100, "Alpha Kicks", 20.0),
+                (2, 1, 100, "Alpha Kicks", 10.0),
+                (1, 3, 100, "Alpha Kicks", 5.0),
+                (1, 2, 200, "Bravo Boot", 0.0),
+                (2, 2, 200, "Bravo Boot", 0.0),
+                (2, 3, 300, "Charlie Leg", 9.0),
+                (1, 1, 900, "Quarter Back", 29.0, 1),
+            ]),
+            make_starter_file(2024, [
+                (1, 1, 100, "Alpha Kicks", 15.0),
+                (1, 4, 200, "Bravo Boot", 12.0),
+            ]),
+        ]
+        self.short = {f"First{i} Last{i}": f"First{i}" for i in range(1, 13)}
+        self.stats = compute.build_kicker_stats(self.files, self.standings,
+                                                self.short)
+        self.by_name = {k["name"]: k for k in self.stats["kickers"]}
+        self.awards = {a["name"]: a for a in self.stats["awards"]}
+
+    def test_totals(self):
+        self.assertEqual(self.stats["totalPoints"], 71.0)
+        self.assertEqual(self.stats["totalStarts"], 8)
+        self.assertEqual(self.stats["distinctKickers"], 3)
+        self.assertEqual(self.stats["seasons"], [2024, 2025])
+
+    def test_leaderboard_is_ranked_by_points(self):
+        self.assertEqual([k["name"] for k in self.stats["kickers"]],
+                         ["Alpha Kicks", "Bravo Boot", "Charlie Leg"])
+
+    def test_a_kickers_career_row(self):
+        alpha = self.by_name["Alpha Kicks"]
+        self.assertEqual(alpha["points"], 50.0)
+        self.assertEqual(alpha["starts"], 4)
+        self.assertEqual(alpha["average"], 12.5)
+        self.assertEqual(alpha["doubleDigits"], 3)
+        self.assertEqual(alpha["zeroes"], 0)
+        self.assertEqual(alpha["seasons"], [2024, 2025])
+
+    def test_best_and_worst_week_name_the_owner_who_started_him(self):
+        alpha = self.by_name["Alpha Kicks"]
+        self.assertEqual(alpha["best"], {"points": 20.0, "season": 2025,
+                                         "week": 1, "owner": "First1 Last1"})
+        self.assertEqual(alpha["worst"], {"points": 5.0, "season": 2025,
+                                          "week": 1, "owner": "First3 Last3"})
+
+    def test_owners_are_listed_most_loyal_first(self):
+        alpha = self.by_name["Alpha Kicks"]
+        self.assertEqual(alpha["ownerList"], ["First1 Last1", "First3 Last3"])
+        self.assertEqual(alpha["ownerCounts"][0], ("First1 Last1", 3))
+
+    def test_a_scoreless_start_counts_as_a_zero(self):
+        self.assertEqual(self.by_name["Bravo Boot"]["zeroes"], 2)
+        self.assertEqual(self.by_name["Bravo Boot"]["points"], 12.0)
+
+    def test_owner_rows(self):
+        rows = {o["owner"]: o for o in self.stats["owners"]}
+        first = rows["First1 Last1"]
+        self.assertEqual(first["points"], 45.0)
+        self.assertEqual(first["starts"], 3)
+        self.assertEqual(first["average"], 15.0)
+        self.assertEqual(first["distinctKickers"], 1)
+        self.assertEqual(first["favorite"], {"name": "Alpha Kicks", "starts": 3})
+        self.assertEqual(rows["First2 Last2"]["zeroes"], 2)
+
+    def test_owner_rows_are_ranked_by_points(self):
+        self.assertEqual(self.stats["owners"][0]["owner"], "First1 Last1")
+
+    def test_share_is_of_every_started_point(self):
+        # 71 kicker points out of 100 started (the 29-point QB is the rest).
+        self.assertEqual(self.stats["share"], 71.0)
+
+    def test_by_season_names_each_years_leader_newest_first(self):
+        self.assertEqual([(b["season"], b["name"], b["points"])
+                          for b in self.stats["bySeason"]],
+                         [(2025, "Alpha Kicks", 35.0), (2024, "Alpha Kicks", 15.0)])
+        self.assertEqual(self.stats["bySeason"][0]["owners"],
+                         ["First1 Last1", "First3 Last3"])
+
+    def test_no_starter_data_means_no_page(self):
+        self.assertIsNone(compute.build_kicker_stats([], self.standings))
+        self.assertIsNone(compute.build_kicker_stats(
+            [make_starter_file(2025, [(1, 1, 900, "Quarter Back", 29.0, 1)])],
+            self.standings))
+
+    def test_results_are_deterministic_across_runs(self):
+        again = compute.build_kicker_stats(self.files, self.standings, self.short)
+        self.assertEqual(self.stats, again)
+
+    def test_every_award_is_fully_populated(self):
+        for a in self.stats["awards"]:
+            for field in ("emoji", "name", "headline", "detail", "blurb"):
+                self.assertTrue(a.get(field), f"{a.get('name')}.{field}")
+
+    def test_golden_boot_goes_to_the_all_time_leader(self):
+        self.assertEqual(self.awards["The Golden Boot"]["headline"], "Alpha Kicks")
+
+    def test_best_and_worst_week_awards(self):
+        self.assertIn("Alpha Kicks", self.awards["Best week ever"]["headline"])
+        self.assertIn("20.0", self.awards["Best week ever"]["headline"])
+        self.assertIn("Bravo Boot", self.awards["Worst week ever"]["headline"])
+        self.assertIn("0.0", self.awards["Worst week ever"]["headline"])
+
+    def test_donut_king_is_the_owner_with_the_most_scoreless_starts(self):
+        self.assertEqual(self.awards["Donut king"]["headline"], "First2")
+        self.assertIn("2 scoreless", self.awards["Donut king"]["detail"])
+
+    def test_longest_marriage_is_the_most_started_pairing(self):
+        self.assertEqual(self.awards["Longest marriage"]["headline"],
+                         "First1 + Alpha Kicks")
+        self.assertIn("3 weeks", self.awards["Longest marriage"]["detail"])
+
+    def test_journeyman_is_the_most_widely_started_kicker(self):
+        self.assertEqual(self.awards["League journeyman"]["headline"],
+                         "Alpha Kicks")
+
+    def test_one_and_done_counts_single_start_kickers(self):
+        self.assertIn("1 kicker", self.awards["One and done"]["headline"])
+        self.assertIn("Charlie Leg", self.awards["One and done"]["detail"])
+
+    def test_award_lines_use_short_owner_names(self):
+        # The tables shorten in the template; these sentences can't, so the
+        # shortening has to happen in compute or the page mixes both forms.
+        for a in self.stats["awards"]:
+            self.assertNotIn("Last1", a["headline"] + a["detail"])
+
+    def test_average_awards_need_a_real_sample(self):
+        # Nobody in the fixture has MIN_KICKER_STARTS starts, so the
+        # best/worst-average trophies are withheld rather than handed to
+        # whoever had one good Sunday.
+        self.assertNotIn("Blessed foot", self.awards)
+        self.assertNotIn("Cursed foot", self.awards)
+
+    def test_average_awards_appear_once_the_sample_is_there(self):
+        rows = [(w, 1, 100, "Alpha Kicks", 20.0)
+                for w in range(1, compute.MIN_KICKER_STARTS + 1)]
+        rows += [(w, 2, 200, "Bravo Boot", 1.0)
+                 for w in range(1, compute.MIN_KICKER_STARTS + 1)]
+        stats = compute.build_kicker_stats(
+            [make_starter_file(2025, rows)], self.standings, self.short)
+        awards = {a["name"]: a for a in stats["awards"]}
+        self.assertEqual(awards["Blessed foot"]["headline"], "First1")
+        self.assertEqual(awards["Cursed foot"]["headline"], "First2")
+
+
+class TestKickerPageWiring(unittest.TestCase):
+    """The page is rendered when there is starter data, and skipped when not."""
+
+    def test_kickers_is_in_the_page_list(self):
+        self.assertIn(("kickers.html", "kickers.html"), build.PAGES)
+
+    def test_the_template_renders_from_real_data(self):
+        seasons = sorted(int(p.stem.split("-")[1])
+                         for p in pathlib.Path("data").glob("standings-*.json"))
+        standings = [json.loads(pathlib.Path(f"data/standings-{y}.json")
+                                .read_text(encoding="utf-8")) for y in seasons]
+        files = [json.loads(p.read_text(encoding="utf-8"))
+                 for p in sorted(pathlib.Path("data").glob("starters-*.json"))]
+        if not files:
+            self.skipTest("no data/starters-*.json on file")
+        stats = compute.build_kicker_stats(files, standings)
+        self.assertTrue(stats["kickers"])
+        # Every kicker's points must equal the sum of their own starts, which
+        # is the one invariant the whole page rests on.
+        starts = compute.kicker_starts(files, standings)
+        for k in stats["kickers"][:5]:
+            own = sum(s["points"] for s in starts
+                      if s["playerId"] == k["playerId"])
+            self.assertAlmostEqual(k["points"], round(own, 1), places=1)
+
+    def test_started_points_reconcile_with_the_committed_standings(self):
+        # The strongest available check that the starter files are the real
+        # lineups: every team-week's started points must add up to the score
+        # the standings already record.
+        for path in sorted(pathlib.Path("data").glob("starters-*.json")):
+            year = int(path.stem.split("-")[1])
+            standings_path = pathlib.Path(f"data/standings-{year}.json")
+            if not standings_path.exists():
+                continue
+            starters = json.loads(path.read_text(encoding="utf-8"))
+            season = json.loads(standings_path.read_text(encoding="utf-8"))
+            sums = {}
+            for r in starters["starters"]:
+                key = (r["week"], r["teamId"])
+                sums[key] = sums.get(key, 0.0) + (r["points"] or 0.0)
+            for week in season["weeks"]:
+                for team in week["teams"]:
+                    key = (week["week"], team["teamId"])
+                    self.assertIn(key, sums, f"{year} {key} has no starters")
+                    self.assertAlmostEqual(sums[key], team["score"], places=1,
+                                           msg=f"{year} week {key}")

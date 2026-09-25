@@ -721,6 +721,352 @@ def build_career_stats(all_standings):
 
 
 # --------------------------------------------------------------------------
+# All-time kicker rankings (the Kickers page).
+#
+# Built from data/starters-<season>.json (fetch.py --starters), which holds
+# every *started* player week by week. A kicker only counts here if someone
+# actually put them in their lineup -- points scored on a bench are points
+# nobody chose, and the whole joke of this page is that these are points the
+# league earned on purpose.
+#
+# Owner identity comes from the season's standings (teamId -> owner), the
+# same join build_rivalries and build_career_stats use, because a teamId's
+# owner can change between seasons.
+# --------------------------------------------------------------------------
+
+# ESPN defaultPositionId for a kicker.
+KICKER_POS = 5
+
+# Average-based awards need a sample. Ten starts is most of a season's worth
+# of Sundays -- enough that one four-field-goal afternoon cannot buy the
+# "best foot in the league" trophy.
+MIN_KICKER_STARTS = 10
+
+# ESPN proTeamId -> NFL abbreviation, for "Harrison Butker, KC". Verified
+# against this league's own data (Boswell 23 PIT, Fairbairn 34 HOU, Zuerlein
+# 14 LAR, ...). 0 is ESPN's free-agent/unknown slot.
+PRO_TEAMS = {
+    0: "FA", 1: "ATL", 2: "BUF", 3: "CHI", 4: "CIN", 5: "CLE", 6: "DAL",
+    7: "DEN", 8: "DET", 9: "GB", 10: "TEN", 11: "IND", 12: "KC", 13: "LV",
+    14: "LAR", 15: "MIA", 16: "MIN", 17: "NE", 18: "NO", 19: "NYG",
+    20: "NYJ", 21: "PHI", 22: "ARI", 23: "PIT", 24: "LAC", 25: "SF",
+    26: "SEA", 27: "TB", 28: "WSH", 29: "CAR", 30: "JAX", 33: "BAL",
+    34: "HOU",
+}
+
+
+def owned_starts(all_starters, all_standings):
+    """Every started player-week from the starter files, stamped with its owner.
+
+    Returns a list of dicts: season, week, teamId, owner, slot, playerId,
+    name, pos, proTeam, points -- sorted so everything downstream is
+    deterministic. A row whose teamId has no owner in that season's standings
+    is dropped rather than attributed to nobody, which also keeps a season
+    with starter data but no standings file out of the totals.
+
+    Position-agnostic on purpose: the kicker page is the first thing built on
+    this data, not the last.
+    """
+    owners_by_season = {
+        s["season"]: {row["teamId"]: row["owner"] for row in s["standings"]}
+        for s in all_standings
+    }
+    rows = []
+    for season_file in all_starters:
+        year = season_file["season"]
+        owner_by_team = owners_by_season.get(year, {})
+        for r in season_file.get("starters") or []:
+            owner = owner_by_team.get(r.get("teamId"))
+            if not owner:
+                continue
+            rows.append({
+                "season": year,
+                "week": r["week"],
+                "teamId": r["teamId"],
+                "owner": owner,
+                "slot": r.get("slot"),
+                "playerId": r["playerId"],
+                "name": r.get("name") or "Unknown player",
+                "pos": r.get("pos"),
+                "proTeam": PRO_TEAMS.get(r.get("proTeamId"), ""),
+                "points": round(r.get("points") or 0.0, 1),
+            })
+    return sorted(rows, key=lambda r: (r["season"], r["week"], r["owner"],
+                                       r["playerId"]))
+
+
+def kicker_starts(all_starters, all_standings):
+    """owned_starts() narrowed to started kickers."""
+    return [r for r in owned_starts(all_starters, all_standings)
+            if r["pos"] == KICKER_POS]
+
+
+def _kicker_rows(starts):
+    """One row per kicker, career totals, best first.
+
+    name/proTeam are taken from the most recent start, so a kicker who
+    changed teams reads as wherever he kicks now rather than wherever he was
+    in 2019.
+    """
+    kickers = {}
+    for s in starts:
+        k = kickers.setdefault(s["playerId"], {
+            "playerId": s["playerId"], "name": s["name"], "proTeam": s["proTeam"],
+            "points": 0.0, "starts": 0, "zeroes": 0, "doubleDigits": 0,
+            "seasons": [], "owners": {}, "best": None, "worst": None,
+            "lastSeen": (0, 0),
+        })
+        k["points"] += s["points"]
+        k["starts"] += 1
+        if s["points"] <= 0:
+            k["zeroes"] += 1
+        if s["points"] >= 10:
+            k["doubleDigits"] += 1
+        if s["season"] not in k["seasons"]:
+            k["seasons"].append(s["season"])
+        k["owners"][s["owner"]] = k["owners"].get(s["owner"], 0) + 1
+        week = {"points": s["points"], "season": s["season"],
+                "week": s["week"], "owner": s["owner"]}
+        if k["best"] is None or s["points"] > k["best"]["points"]:
+            k["best"] = week
+        if k["worst"] is None or s["points"] < k["worst"]["points"]:
+            k["worst"] = week
+        if (s["season"], s["week"]) >= k["lastSeen"]:
+            k["lastSeen"] = (s["season"], s["week"])
+            k["name"], k["proTeam"] = s["name"], s["proTeam"]
+
+    rows = []
+    for k in kickers.values():
+        k.pop("lastSeen")
+        # Owners who started him, most-loyal first -- the "ridden by" column.
+        k["ownerCounts"] = sorted(k.pop("owners").items(),
+                                  key=lambda kv: (-kv[1], kv[0]))
+        k["ownerList"] = [name for name, _ in k["ownerCounts"]]
+        k["points"] = round(k["points"], 1)
+        k["average"] = round(k["points"] / k["starts"], 1) if k["starts"] else 0.0
+        k["seasons"].sort()
+        rows.append(k)
+    return sorted(rows, key=lambda k: (-k["points"], -k["starts"], k["name"]))
+
+
+def _kicker_owner_rows(starts):
+    """One row per owner: what the position has given them, career.
+
+    Sorted by total points, which is mostly a function of seasons played --
+    the interesting column is the average, and the template says so.
+    """
+    owners = {}
+    for s in starts:
+        o = owners.setdefault(s["owner"], {
+            "owner": s["owner"], "points": 0.0, "starts": 0, "zeroes": 0,
+            "kickers": {}, "best": None, "worst": None, "seasons": [],
+        })
+        o["points"] += s["points"]
+        o["starts"] += 1
+        if s["points"] <= 0:
+            o["zeroes"] += 1
+        if s["season"] not in o["seasons"]:
+            o["seasons"].append(s["season"])
+        o["kickers"][s["name"]] = o["kickers"].get(s["name"], 0) + 1
+        week = {"points": s["points"], "season": s["season"],
+                "week": s["week"], "name": s["name"]}
+        if o["best"] is None or s["points"] > o["best"]["points"]:
+            o["best"] = week
+        if o["worst"] is None or s["points"] < o["worst"]["points"]:
+            o["worst"] = week
+
+    rows = []
+    for o in owners.values():
+        counts = sorted(o.pop("kickers").items(), key=lambda kv: (-kv[1], kv[0]))
+        o["distinctKickers"] = len(counts)
+        o["favorite"] = ({"name": counts[0][0], "starts": counts[0][1]}
+                         if counts else None)
+        o["points"] = round(o["points"], 1)
+        o["average"] = round(o["points"] / o["starts"], 1) if o["starts"] else 0.0
+        o["seasons"].sort()
+        rows.append(o)
+    return sorted(rows, key=lambda o: (-o["points"], o["owner"]))
+
+
+def _kicker_awards(starts, kickers, owner_rows, share, short=None):
+    """The joke trophies. Every one is a fixed rule over the rows above.
+
+    Ties are broken by a deterministic sort key rather than reported as
+    shared: this is a bit page, and one name on the donut award is funnier
+    than two. Each award is {emoji, name, headline, detail, blurb}, and any
+    award the data cannot support is left out rather than rendered empty.
+
+    `short` is the display-name map from short_names(). Unlike the tables,
+    which shorten in the template with the `short` filter, these lines have
+    the owner's name built into a sentence -- so the shortening has to happen
+    here, where the sentence is assembled.
+    """
+    awards = []
+    if not starts or not kickers:
+        return awards
+    short = short or {}
+
+    def who(owner):
+        return short.get(owner, owner)
+
+    goat = kickers[0]
+    awards.append({
+        "emoji": "\U0001f3c6", "name": "The Golden Boot",
+        "headline": goat["name"],
+        "detail": f"{goat['points']} points in {goat['starts']} starts",
+        "blurb": ("Most points any kicker has ever scored while in somebody's "
+                  "starting lineup. Nobody drafted him on purpose."),
+    })
+
+    best = max(starts, key=lambda s: (s["points"], -s["season"], -s["week"]))
+    awards.append({
+        "emoji": "\U0001f4a5", "name": "Best week ever",
+        "headline": f"{best['name']} — {best['points']}",
+        "detail": f"{best['season']} week {best['week']}, started by {who(best['owner'])}",
+        "blurb": "The most points any kicker has scored in a single week.",
+    })
+
+    worst = min(starts, key=lambda s: (s["points"], s["season"], s["week"]))
+    awards.append({
+        "emoji": "\U0001f9ca", "name": "Worst week ever",
+        "headline": f"{worst['name']} — {worst['points']}",
+        "detail": f"{worst['season']} week {worst['week']}, started by {who(worst['owner'])}",
+        "blurb": "The fewest points any started kicker has managed.",
+    })
+
+    donuts = [o for o in owner_rows if o["zeroes"]]
+    if donuts:
+        king = min(donuts, key=lambda o: (-o["zeroes"], o["owner"]))
+        total_donuts = sum(o["zeroes"] for o in owner_rows)
+        awards.append({
+            "emoji": "\U0001f369", "name": "Donut king",
+            "headline": who(king["owner"]),
+            "detail": f"{king['zeroes']} scoreless kicker starts",
+            "blurb": (f"{total_donuts} times in league history a started kicker "
+                      f"has scored nothing at all. These ones are his."),
+        })
+
+    # Longest owner-kicker marriage: the pairing with the most starts.
+    pairings = {}
+    for s in starts:
+        key = (s["owner"], s["name"])
+        pairings[key] = pairings.get(key, 0) + 1
+    (loyal_owner, loyal_kicker), loyal_starts = min(
+        pairings.items(), key=lambda kv: (-kv[1], kv[0]))
+    awards.append({
+        "emoji": "\U0001f48d", "name": "Longest marriage",
+        "headline": f"{who(loyal_owner)} + {loyal_kicker}",
+        "detail": f"{loyal_starts} weeks together",
+        "blurb": "The longest any owner has stuck with one kicker.",
+    })
+
+    journeyman = min(kickers,
+                     key=lambda k: (-len(k["ownerList"]), -k["starts"], k["name"]))
+    if len(journeyman["ownerList"]) > 1:
+        awards.append({
+            "emoji": "\U0001f9f3", "name": "League journeyman",
+            "headline": journeyman["name"],
+            "detail": f"started by {len(journeyman['ownerList'])} different owners",
+            "blurb": ("Has kicked for more of this league than most of its "
+                      "owners have."),
+        })
+
+    qualified = [o for o in owner_rows if o["starts"] >= MIN_KICKER_STARTS]
+    if len(qualified) > 1:
+        blessed = max(qualified, key=lambda o: (o["average"], o["owner"]))
+        cursed = min(qualified, key=lambda o: (o["average"], o["owner"]))
+        awards.append({
+            "emoji": "\U0001f340", "name": "Blessed foot",
+            "headline": who(blessed["owner"]),
+            "detail": f"{blessed['average']} points per kicker start",
+            "blurb": (f"Best return at the position in the league, over "
+                      f"{blessed['starts']} starts. Skill, obviously."),
+        })
+        awards.append({
+            "emoji": "\U0001f63f", "name": "Cursed foot",
+            "headline": who(cursed["owner"]),
+            "detail": f"{cursed['average']} points per kicker start",
+            "blurb": (f"Worst return at the position, over {cursed['starts']} "
+                      f"starts. There is no strategy that fixes this."),
+        })
+
+    one_offs = [k for k in kickers if k["starts"] == 1]
+    if one_offs:
+        pick = min(one_offs, key=lambda k: (k["points"], k["name"]))
+        awards.append({
+            "emoji": "\U0001f44b", "name": "One and done",
+            "headline": f"{len(one_offs)} kickers",
+            "detail": f"worst of them: {pick['name']}, {pick['points']}",
+            "blurb": "Started exactly once, ever, and never again.",
+        })
+
+    awards.append({
+        "emoji": "\U0001f4ca", "name": "Share of everything",
+        "headline": f"{share}%",
+        "detail": "of every point this league has ever started",
+        "blurb": "How much of this league's scoring came from the kicker slot.",
+    })
+    return awards
+
+
+def build_kicker_stats(all_starters, all_standings, short=None):
+    """All-time kicker rankings: leaderboard, owners, awards, per-season bests.
+
+    Started kickers only (see the section comment). Returns None when there
+    is no starter data at all, so the site can skip the page rather than
+    render an empty one.
+
+    `short` is short_names()'s display map, used for the award lines only
+    (see _kicker_awards).
+
+    Keys: kickers (career rows, most points first), owners (career rows per
+    owner), awards, bySeason (each season's leading kicker), totalPoints,
+    totalStarts, distinctKickers, share (kicker points as a percentage of
+    every started point, all positions), seasons.
+    """
+    every_start = owned_starts(all_starters, all_standings)
+    starts = [r for r in every_start if r["pos"] == KICKER_POS]
+    if not starts:
+        return None
+
+    # Denominator for the share stat: every started point, all positions --
+    # the same universe of rows the numerator comes from, so the percentage
+    # is of points this site actually accounts for.
+    all_points = round(sum(r["points"] for r in every_start), 1)
+    total_points = round(sum(s["points"] for s in starts), 1)
+    share = round(100 * total_points / all_points, 1) if all_points else 0.0
+
+    kickers = _kicker_rows(starts)
+    owner_rows = _kicker_owner_rows(starts)
+
+    # Each season's leading kicker, newest first -- the same leaderboard cut
+    # one year at a time, which is where the "wait, who?" moments live.
+    by_season = []
+    seasons = sorted({s["season"] for s in starts}, reverse=True)
+    for year in seasons:
+        rows = _kicker_rows([s for s in starts if s["season"] == year])
+        if rows:
+            top = rows[0]
+            by_season.append({
+                "season": year, "name": top["name"], "proTeam": top["proTeam"],
+                "points": top["points"], "starts": top["starts"],
+                "average": top["average"], "owners": top["ownerList"],
+            })
+
+    return {
+        "kickers": kickers,
+        "owners": owner_rows,
+        "awards": _kicker_awards(starts, kickers, owner_rows, share, short),
+        "bySeason": by_season,
+        "totalPoints": total_points,
+        "totalStarts": len(starts),
+        "distinctKickers": len(kickers),
+        "share": share,
+        "seasons": sorted(seasons),
+    }
+
+
+# --------------------------------------------------------------------------
 # Per-season advanced stats, records and awards.
 #
 # All derived from the §5 week data already on disk -- no extra ESPN call.
@@ -1005,7 +1351,7 @@ def season_awards(season, all_play, profile):
                            "detail": detail(winners[0])})
 
     add("wall", "\U0001F9F1", "The Wall",
-        "Best record if everyone played everyone every week — schedule removed.",
+        "Best record if everyone played everyone every week, schedule removed.",
         _leaders(rows, "allPlayPct"),
         lambda r: "{:.1f}% all-play".format(r["allPlayPct"] * 100))
 
